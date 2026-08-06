@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-slate-950 text-white min-h-[85vh] py-10 px-4">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header Banner -->
+        <div class="border-b border-slate-800 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4" data-aos="fade-down">
+            <div>
+                <span class="bg-amber-500/20 text-amber-300 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase border border-amber-400/30 tracking-widest">
+                    <i class="fa-solid fa-crown mr-1"></i> Root Super Admin Control
+                </span>
+                <h1 class="text-3xl font-black tracking-tight text-white mt-2">SUPER ADMIN - MODULE CONTROL MATRIX</h1>
+                <p class="text-xs text-slate-400 mt-1">Master control to toggle modules, public view, and Admin access permissions.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ url_for('admin') }}" class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-user-gear"></i> Open College Admin View
+                </a>
+            </div>
+        </div>
+
+        <!-- Super Admin Control Table Matrix (Matching photo layout) -->
+        <div class="bg-slate-900/90 rounded-3xl border border-blue-900/60 shadow-2xl overflow-hidden" data-aos="fade-up">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-200">
+                    <thead class="bg-navy-900/90 text-blue-300 uppercase tracking-wider font-bold border-b border-blue-900/80">
+                        <tr>
+                            <th class="py-4 px-6">MODULE NAME</th>
+                            <th class="py-4 px-6 text-center">ENABLE TOGGLE</th>
+                            <th class="py-4 px-6 text-center">PUBLIC VIEW</th>
+                            <th class="py-4 px-6 text-center">ADMIN ACCESS GRANTED</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/80">
+                        {% for key, mod in modules.items() %}
+                        <tr class="hover:bg-slate-850/80 transition-colors">
+                            <!-- Module Name -->
+                            <td class="py-4 px-6 font-bold text-sm text-white">
+                                {{ mod.name }}
+                            </td>
+
+                            <!-- Enable Toggle Switch -->
+                            <td class="py-4 px-6 text-center">
+                                <form action="{{ url_for('toggle_enable', module_key=key) }}" method="POST" class="inline-block">
+                                    <button type="submit" class="relative inline-flex items-center h-6 rounded-full w-12 transition-colors focus:outline-none {{ 'bg-emerald-500' if mod.enabled else 'bg-slate-700' }}">
+                                        <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform {{ 'translate-x-7' if mod.enabled else 'translate-x-1' }}"></span>
+                                    </button>
+                                </form>
+                            </td>
+
+                            <!-- Public View Status Indicator -->
+                            <td class="py-4 px-6 text-center">
+                                {% if mod.enabled %}
+                                <span class="inline-flex items-center gap-1.5 text-emerald-400 font-semibold bg-emerald-950/50 border border-emerald-800/60 px-3 py-1 rounded-full">
+                                    <i class="fa-solid fa-eye text-xs"></i> Visible
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 text-slate-400 font-semibold bg-slate-800 border border-slate-700 px-3 py-1 rounded-full">
+                                    <i class="fa-solid fa-eye-slash text-xs"></i> Hidden
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Admin Access Granted Pill Button -->
+                            <td class="py-4 px-6 text-center">
+                                <form action="{{ url_for('toggle_admin', module_key=key) }}" method="POST" class="inline-block">
+                                    {% if mod.admin_access %}
+                                    <button type="submit" title="Click to Revoke Admin Authority" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-full border border-emerald-400/40 shadow-sm transition-all text-xs flex items-center gap-1.5 mx-auto">
+                                        <i class="fa-solid fa-check"></i> Admin Granted
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" title="Click to Grant Admin Authority" class="bg-rose-900/80 hover:bg-rose-800 text-rose-200 font-bold px-4 py-1.5 rounded-full border border-rose-700/60 shadow-sm transition-all text-xs flex items-center gap-1.5 mx-auto">
+                                        <i class="fa-solid fa-xmark"></i> Admin Revoked
+                                    </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-2">
+            <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-amber-400"></i> Super Admin Governance Notice:
+            </h4>
+            <p>1. Disabling a module turns off public view site-wide instantly.</p>
+            <p>2. Revoking Admin Access removes authority for College Admins to edit or view that module within the College Admin Portal (`/admin`).</p>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

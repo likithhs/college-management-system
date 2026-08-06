@@ -4,12 +4,15 @@
 <section class="bg-navy-950 text-white py-10 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-            <span class="bg-purple-500/20 text-purple-300 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase border border-purple-500/30">Secure Control Panel</span>
+            <span class="bg-blue-500/20 text-blue-300 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase border border-blue-500/30">College Admin Panel</span>
             <h1 class="text-2xl font-black mt-2">College Administration Portal</h1>
+            <p class="text-xs text-slate-400">Permissions for this portal are strictly controlled by the Super Admin.</p>
         </div>
         <div class="flex items-center gap-3">
-            <span class="text-xs text-slate-400">Logged in as: <strong>Admin Desk (Principal Office)</strong></span>
-            <a href="{{ url_for('index') }}" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700">Exit Admin</a>
+            <span class="text-xs text-slate-400">Logged in as: <strong>College Admin Desk</strong></span>
+            <a href="{{ url_for('superadmin') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all flex items-center gap-1">
+                <i class="fa-solid fa-crown text-xs"></i> Super Admin Matrix
+            </a>
         </div>
     </div>
 </section>
@@ -17,6 +20,34 @@
 <section class="py-12 bg-slate-50">
     <div class="max-w-7xl mx-auto px-4 space-y-8">
         
+        <!-- Super Admin Authority Status Banner for College Admin -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4" data-aos="fade-up">
+            <h3 class="text-base font-bold text-navy-900 flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-blue-600"></i> Admin Module Authority Matrix (Granted by Super Admin)
+            </h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% for key, mod in modules.items() %}
+                <div class="p-4 rounded-2xl border text-xs flex flex-col justify-between {{ 'bg-emerald-50/60 border-emerald-200' if mod.admin_access else 'bg-slate-100 border-slate-300 opacity-60' }}">
+                    <div>
+                        <span class="font-bold text-slate-800 text-xs">{{ mod.name }}</span>
+                    </div>
+                    <div class="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                        {% if mod.admin_access %}
+                        <span class="text-emerald-700 font-bold text-[10px] flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> Admin Granted
+                        </span>
+                        {% else %}
+                        <span class="text-slate-500 font-bold text-[10px] flex items-center gap-1">
+                            <i class="fa-solid fa-lock"></i> Restricted by Super Admin
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
         <!-- Admin Quick Stats -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm" data-aos="fade-up">
@@ -76,14 +107,6 @@
                             <td class="p-3 font-bold text-slate-900">89.1%</td>
                             <td class="p-3 text-slate-500">Today, 05:30 PM</td>
                             <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-bold text-[10px]">UNDER REVIEW</span></td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-3 font-mono text-blue-700 font-bold">SC2026-3F88</td>
-                            <td class="p-3 font-semibold text-slate-800">Varun Teja</td>
-                            <td class="p-3">MCA (Master of Computer Applications)</td>
-                            <td class="p-3 font-bold text-slate-900">84.0%</td>
-                            <td class="p-3 text-slate-500">Yesterday</td>
-                            <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold text-[10px]">VERIFIED</span></td>
                         </tr>
                     </tbody>
                 </table>
