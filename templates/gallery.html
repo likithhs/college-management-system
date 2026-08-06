@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-navy-900 text-white py-14">
+    <div class="max-w-7xl mx-auto px-4 text-center" data-aos="fade-down">
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Life at Seshadripuram</span>
+        <h1 class="text-3xl md:text-5xl font-black mt-3">Campus Gallery & Event Archives</h1>
+        <p class="text-sm text-slate-300 max-w-xl mx-auto mt-2">Highlights from tech symposiums, sports tournaments, cultural festivals, and graduation ceremonies.</p>
+    </div>
+</section>
+
+<section class="py-14 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <!-- Category Filters -->
+        <div class="flex flex-wrap justify-center gap-3" data-aos="fade-up">
+            <button data-filter="all" class="gallery-filter-btn bg-blue-900 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">All Highlights</button>
+            <button data-filter="tech" class="gallery-filter-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Tech & Hackathons</button>
+            <button data-filter="cultural" class="gallery-filter-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Cultural Fests</button>
+            <button data-filter="sports" class="gallery-filter-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Sports Meet</button>
+            <button data-filter="campus" class="gallery-filter-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Campus Life</button>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Item 1 -->
+            <div data-category="tech" class="gallery-item bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover-lift" data-aos="fade-up">
+                <div class="h-48 bg-gradient-to-tr from-blue-900 to-indigo-700 flex items-center justify-center text-white text-5xl">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <div class="p-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Tech Fest 2026</span>
+                    <h3 class="text-base font-bold text-navy-900 mt-1">TechVanguard Hackathon</h3>
+                    <p class="text-xs text-slate-500 mt-1">24-hour coding marathon with over 500+ participants.</p>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div data-category="cultural" class="gallery-item bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover-lift" data-aos="fade-up" data-aos-delay="100">
+                <div class="h-48 bg-gradient-to-tr from-amber-600 to-rose-600 flex items-center justify-center text-white text-5xl">
+                    <i class="fa-solid fa-guitar"></i>
+                </div>
+                <div class="p-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600">Cultural Extravaganza</span>
+                    <h3 class="text-base font-bold text-navy-900 mt-1">Annual Youth Fest Seshadri Utsav</h3>
+                    <p class="text-xs text-slate-500 mt-1">Dance, music performance, and fashion show showcase.</p>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div data-category="sports" class="gallery-item bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover-lift" data-aos="fade-up" data-aos-delay="200">
+                <div class="h-48 bg-gradient-to-tr from-emerald-700 to-teal-600 flex items-center justify-center text-white text-5xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div class="p-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Sports Meet</span>
+                    <h3 class="text-base font-bold text-navy-900 mt-1">Inter-Collegiate Athletics Championship</h3>
+                    <p class="text-xs text-slate-500 mt-1">Seshadripuram sports teams winning gold medals.</p>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div data-category="campus" class="gallery-item bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover-lift" data-aos="fade-up" data-aos-delay="300">
+                <div class="h-48 bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-white text-5xl">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div class="p-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Campus Infrastructure</span>
+                    <h3 class="text-base font-bold text-navy-900 mt-1">100+ Terminal Cloud Computing Lab</h3>
+                    <p class="text-xs text-slate-500 mt-1">Students working in high-end software development environment.</p>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div data-category="cultural" class="gallery-item bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover-lift" data-aos="fade-up" data-aos-delay="400">
+                <div class="h-48 bg-gradient-to-tr from-purple-800 to-indigo-900 flex items-center justify-center text-white text-5xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="p-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600">Graduation</span>
+                    <h3 class="text-base font-bold text-navy-900 mt-1">Annual Convocation Day</h3>
+                    <p class="text-xs text-slate-500 mt-1">Awarding university rank holders and graduating batches.</p>
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div data-category="tech" class="gallery-item bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover-lift" data-aos="fade-up" data-aos-delay="500">
+                <div class="h-48 bg-gradient-to-tr from-blue-700 to-cyan-600 flex items-center justify-center text-white text-5xl">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="p-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">AI Workshop</span>
+                    <h3 class="text-base font-bold text-navy-900 mt-1">Generative AI & Cloud Summit</h3>
+                    <p class="text-xs text-slate-500 mt-1">Industry tech experts speaking to computer science scholars.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Banner -->
+<section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
+    <div class="max-w-7xl mx-auto px-4" data-aos="fade-down">
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Admissions 2026-27</span>
+        <h1 class="text-3xl md:text-4xl font-black mt-3">Join Seshadripuram College</h1>
+        <p class="text-sm text-slate-300 max-w-2xl mt-2">Comprehensive admission guidelines, eligibility metrics, document requirements, and fee structure for the academic session 2026-27.</p>
+    </div>
+</section>
+
+<!-- Admission Details & Steps -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 space-y-16">
+        
+        <!-- Admission Steps -->
+        <div>
+            <h2 class="text-2xl font-extrabold text-navy-900 text-center mb-10">4-Step Online Admission Process</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center relative" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full mx-auto flex items-center justify-center font-bold text-lg mb-4">1</div>
+                    <h3 class="font-bold text-navy-900 text-base mb-2">Submit Online Form</h3>
+                    <p class="text-xs text-slate-500">Fill out your personal details and academic credentials on our online application portal.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center relative" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full mx-auto flex items-center justify-center font-bold text-lg mb-4">2</div>
+                    <h3 class="font-bold text-navy-900 text-base mb-2">Document Verification</h3>
+                    <p class="text-xs text-slate-500">Upload 10th, 12th / PUC marksheets, Transfer Certificate, and Identity Proof for verification.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center relative" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full mx-auto flex items-center justify-center font-bold text-lg mb-4">3</div>
+                    <h3 class="font-bold text-navy-900 text-base mb-2">Counseling & Seat Lock</h3>
+                    <p class="text-xs text-slate-500">Attend counseling session (in-person or virtual) and lock your preferred course seat.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center relative" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-12 h-12 bg-amber-500 text-slate-950 rounded-full mx-auto flex items-center justify-center font-bold text-lg mb-4">4</div>
+                    <h3 class="font-bold text-navy-900 text-base mb-2">Fee Payment & ID Card</h3>
+                    <p class="text-xs text-slate-500">Pay fee through net banking/UPI/DD and receive your official College Student ID & Roll Number.</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <a href="{{ url_for('apply') }}" class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> Open Application Form Now
+                </a>
+            </div>
+        </div>
+
+        <!-- Eligibility Matrix Table -->
+        <div data-aos="fade-up">
+            <h2 class="text-2xl font-extrabold text-navy-900 mb-6">Program Eligibility & Duration Matrix</h2>
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-navy-900 text-white uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4">Program</th>
+                            <th class="p-4">Degree Level</th>
+                            <th class="p-4">Duration</th>
+                            <th class="p-4">Minimum Qualification Required</th>
+                            <th class="p-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 bg-white">
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-bold text-navy-900">BCA</td>
+                            <td class="p-4 text-blue-700 font-semibold">Undergraduate</td>
+                            <td class="p-4">3 Years</td>
+                            <td class="p-4 text-slate-600">10+2 / PUC passed in any stream (Min 40% aggregate)</td>
+                            <td class="p-4"><a href="{{ url_for('course_detail', course_code='bca') }}" class="text-blue-600 font-bold hover:underline">Details &rarr;</a></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-bold text-navy-900">BBA</td>
+                            <td class="p-4 text-blue-700 font-semibold">Undergraduate</td>
+                            <td class="p-4">3 Years</td>
+                            <td class="p-4 text-slate-600">10+2 / PUC passed in Science, Commerce or Arts</td>
+                            <td class="p-4"><a href="{{ url_for('course_detail', course_code='bba') }}" class="text-blue-600 font-bold hover:underline">Details &rarr;</a></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-bold text-navy-900">BCom</td>
+                            <td class="p-4 text-blue-700 font-semibold">Undergraduate</td>
+                            <td class="p-4">3 Years</td>
+                            <td class="p-4 text-slate-600">10+2 / PUC passed in Commerce or Science stream</td>
+                            <td class="p-4"><a href="{{ url_for('course_detail', course_code='bcom') }}" class="text-blue-600 font-bold hover:underline">Details &rarr;</a></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-bold text-navy-900">MCA</td>
+                            <td class="p-4 text-purple-700 font-semibold">Postgraduate</td>
+                            <td class="p-4">2 Years</td>
+                            <td class="p-4 text-slate-600">BCA / BSc CS / Graduate with Maths at PUC level (Min 50%)</td>
+                            <td class="p-4"><a href="{{ url_for('course_detail', course_code='mca') }}" class="text-blue-600 font-bold hover:underline">Details &rarr;</a></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-bold text-navy-900">MBA</td>
+                            <td class="p-4 text-purple-700 font-semibold">Postgraduate</td>
+                            <td class="p-4">2 Years</td>
+                            <td class="p-4 text-slate-600">Graduation in any discipline + PGCET / KMAT / MAT score</td>
+                            <td class="p-4"><a href="{{ url_for('course_detail', course_code='mba') }}" class="text-blue-600 font-bold hover:underline">Details &rarr;</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

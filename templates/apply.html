@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-slate-100 py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        
+        <!-- Header Card -->
+        <div class="bg-navy-900 text-white p-8 rounded-3xl shadow-xl mb-8" data-aos="fade-down">
+            <div class="flex items-center gap-3 mb-2">
+                <span class="bg-amber-400 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase">Official Application Portal</span>
+                <span class="text-xs text-slate-300">Academic Session 2026-27</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold">Seshadripuram College Online Admission</h1>
+            <p class="text-xs text-slate-300 mt-2">Please fill out all mandatory fields carefully. Confirmation details will be sent via SMS and Email.</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm" data-aos="fade-up">
+            <form action="{{ url_for('apply') }}" method="POST" class="space-y-6">
+                
+                <h3 class="text-base font-bold text-navy-900 border-b border-slate-200 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-user text-blue-600"></i> Personal Information
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Full Student Name *</label>
+                        <input type="text" name="full_name" required placeholder="e.g. Rahul Sharma" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Father / Guardian Name *</label>
+                        <input type="text" name="guardian_name" required placeholder="e.g. Suresh Sharma" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Email Address *</label>
+                        <input type="email" name="email" required placeholder="student@example.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Phone Number *</label>
+                        <input type="tel" name="phone" required placeholder="+91 9876543210" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <h3 class="text-base font-bold text-navy-900 border-b border-slate-200 pb-3 pt-4 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-amber-500"></i> Academic Choice & Qualifications
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Select Program / Course *</label>
+                        <select name="course" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white">
+                            <option value="">-- Choose Course --</option>
+                            <option value="BCA - Bachelor of Computer Applications">BCA - Bachelor of Computer Applications (UG)</option>
+                            <option value="BBA - Bachelor of Business Administration">BBA - Bachelor of Business Administration (UG)</option>
+                            <option value="BCom - Bachelor of Commerce">BCom - Bachelor of Commerce (UG)</option>
+                            <option value="BA - Bachelor of Arts">BA - Bachelor of Arts (UG)</option>
+                            <option value="BSc - Bachelor of Science">BSc - Bachelor of Science (UG)</option>
+                            <option value="MCA - Master of Computer Applications">MCA - Master of Computer Applications (PG)</option>
+                            <option value="MBA - Master of Business Administration">MBA - Master of Business Administration (PG)</option>
+                            <option value="MCom - Master of Commerce">MCom - Master of Commerce (PG)</option>
+                            <option value="MSc - Master of Science">MSc - Master of Science (PG)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Previous Exam Marks Percentage (%) *</label>
+                        <input type="number" step="0.01" min="35" max="100" name="percentage" required placeholder="e.g. 88.5" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Upload Marksheet (PDF/JPG) [Optional Simulation]</label>
+                    <input type="file" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+
+                <div class="pt-4 flex items-center justify-between border-t border-slate-200">
+                    <p class="text-[11px] text-slate-400">By submitting, you agree to Seshadripuram College admission code of conduct.</p>
+                    <button type="submit" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-8 py-3 rounded-xl shadow-md transition-all text-xs">
+                        Submit Application &rarr;
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

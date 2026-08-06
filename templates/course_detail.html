@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Banner -->
+<section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
+    <div class="max-w-7xl mx-auto px-4" data-aos="fade-down">
+        <div class="flex items-center gap-3 mb-2">
+            <span class="bg-amber-400 text-slate-950 font-bold text-[10px] px-3 py-1 rounded-full uppercase">{{ course.level }}</span>
+            <span class="text-xs text-slate-300">Duration: {{ course.duration }}</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black">{{ course.code }} - {{ course.name }}</h1>
+        <p class="text-sm text-amber-300 mt-2 font-semibold">Affiliated to {{ course.affiliation }} • Seshadripuram College</p>
+    </div>
+</section>
+
+<!-- Details Content -->
+<section class="py-14 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        <!-- Left Side: Overview & Curriculum -->
+        <div class="lg:col-span-8 space-y-10" data-aos="fade-right">
+            
+            <!-- Overview Box -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h2 class="text-xl font-bold text-navy-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-blue-600"></i> Course Overview
+                </h2>
+                <p class="text-xs md:text-sm text-slate-600 leading-relaxed">{{ course.overview }}</p>
+                
+                <h3 class="text-sm font-bold text-navy-900 pt-3">Key Program Outcomes</h3>
+                <ul class="space-y-2 text-xs text-slate-600">
+                    {% for outcome in course.outcomes %}
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
+                        <span>{{ outcome }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Curriculum Breakdown -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                <h2 class="text-xl font-bold text-navy-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-amber-500"></i> Semester Syllabus & Subjects
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for sem_item in course.curriculum %}
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <h4 class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">{{ sem_item.sem }}</h4>
+                        <ul class="space-y-1.5 text-xs text-slate-600">
+                            {% for subject in sem_item.subjects %}
+                            <li class="flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                <span>{{ subject }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Download Previous Exam Question Papers Section (Highlight from photo) -->
+            <div class="bg-gradient-to-r from-blue-900 to-navy-900 text-white p-8 rounded-3xl shadow-lg space-y-6">
+                <div class="flex items-center justify-between flex-wrap gap-4 border-b border-blue-800 pb-4">
+                    <div>
+                        <span class="bg-amber-400 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded-full">Examination Repository</span>
+                        <h3 class="text-xl font-bold text-white mt-1">Previous University Question Papers</h3>
+                    </div>
+                    <span class="text-xs text-slate-300">Updated for Academic Session 2026-27</span>
+                </div>
+
+                <div class="space-y-3">
+                    {% for paper in course.question_papers %}
+                    <div class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 p-4 rounded-2xl flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400 font-bold text-sm">
+                                PDF
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">{{ paper.subject }}</h4>
+                                <p class="text-[11px] text-slate-400">{{ paper.sem }} • University Exam {{ paper.year }}</p>
+                            </div>
+                        </div>
+                        <button data-file="{{ paper.file }}" class="download-paper-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-download"></i> Download Paper
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side: Admission Card -->
+        <div class="lg:col-span-4 space-y-6" data-aos="fade-left">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6 sticky top-36">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Eligibility Criteria</span>
+                    <p class="text-xs text-slate-700 font-semibold mt-2 leading-relaxed bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                        {{ course.eligibility }}
+                    </p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <a href="{{ url_for('apply') }}" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-3 rounded-xl shadow-md transition-all text-center block">
+                        Apply Online for {{ course.code }} &rarr;
+                    </a>
+                    <a href="{{ url_for('admission') }}" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs py-3 rounded-xl transition-all text-center block">
+                        Check Fee Structure
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

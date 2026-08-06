@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title if title else "Seshadripuram College - Excellence in Higher Education" }}</title>
+    <meta name="description" content="Seshadripuram College, Bengaluru - NAAC A++ Accredited. Offering premier UG & PG degrees: BCA, BBA, BCom, BA, BSc, MCA, MBA, MCom, MSc. Admissions open 2026-27.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#111e4e',
+                            900: '#0b1536',
+                            950: '#070d24',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & Font Awesome & AOS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2">
+          {% for category, message in messages %}
+            <div class="px-5 py-4 rounded-xl shadow-2xl text-white font-medium flex items-center gap-3 bg-emerald-600 border border-emerald-500 animate-bounce">
+              <i class="fa-solid fa-circle-check text-xl"></i>
+              <span>{{ message }}</span>
+              <button onclick="this.parentElement.remove()" class="ml-4 text-emerald-200 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- 1. TOP UTILITY HEADER BAR -->
+    <header class="bg-navy-900 text-white text-xs font-medium border-b border-blue-900/60 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap justify-between items-center gap-2">
+            <!-- Left Info Badges -->
+            <div class="flex items-center gap-4 flex-wrap">
+                <span class="flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-2.5 py-0.5 rounded-full border border-yellow-500/30">
+                    <i class="fa-solid fa-trophy text-yellow-400"></i> NAAC A++ Accredited
+                </span>
+                <span class="hidden sm:inline-block text-slate-300">ISO 9001:2015 Certified</span>
+                <span class="hidden md:inline-flex items-center gap-1 text-slate-300">
+                    <i class="fa-solid fa-phone text-blue-400"></i> +91 6363179389
+                </span>
+            </div>
+            
+            <!-- Right Portals & Quick Nav -->
+            <div class="flex items-center gap-4 text-slate-300">
+                <a href="{{ url_for('about') }}" class="hover:text-yellow-400 transition-colors">NIRF</a>
+                <span class="text-slate-600">|</span>
+                <a href="{{ url_for('contact') }}" class="hover:text-yellow-400 transition-colors">Contact</a>
+                <span class="text-slate-600">|</span>
+                <a href="{{ url_for('login') }}" class="bg-blue-600/60 hover:bg-blue-600 text-white px-2.5 py-1 rounded transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-user text-xs"></i> Student Login
+                </a>
+                <a href="{{ url_for('admin') }}" class="hover:text-yellow-400 transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-user-gear text-xs"></i> Admin Portal
+                </a>
+            </div>
+        </div>
+
+        <!-- LIVE NEWS MARQUEE TICKER (Matching Reference Image) -->
+        <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-semibold py-1.5 px-4 flex items-center text-xs shadow-inner">
+            <div class="live-badge bg-red-600 text-white px-2 py-0.5 rounded uppercase tracking-wider text-[10px] font-bold flex items-center gap-1 flex-shrink-0 mr-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span> LIVE NEWS
+            </div>
+            <div class="ticker-wrap flex-1">
+                <div class="ticker-move flex gap-8">
+                    <span>🎓 Admissions Open For Academic Session 2026-27 | Apply Now for UG (BCA, BBA, BCom, BA, BSc) & PG (MCA, MBA, MCom, MSc) Programs!</span>
+                    <span>📄 Previous Exam Question Papers for BCA, MCA, MBA, BCom now live on Course Details pages!</span>
+                    <span>🚀 Join the Seshadripuram Campus Community Forum for peer discussions & alumni networking!</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. MAIN LOGO & NAVIGATION HEADER -->
+    <nav class="bg-white border-b border-slate-200 sticky top-[73px] z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Brand Logo -->
+            <a href="{{ url_for('index') }}" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-navy-900 to-blue-700 flex items-center justify-center text-white text-2xl shadow-md group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-extrabold tracking-tight text-navy-900 leading-tight">
+                        SESHADRIPURAM COLLEGE
+                    </h1>
+                    <p class="text-[11px] font-medium text-slate-500 hidden sm:block">
+                        Excellence Since 1998 • Affiliated to Bengaluru City University
+                    </p>
+                </div>
+            </a>
+
+            <!-- Desktop Menu Links -->
+            <div class="hidden xl:flex items-center gap-6 text-sm">
+                <a href="{{ url_for('index') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Home</a>
+                <a href="{{ url_for('admission') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Admission</a>
+                <a href="{{ url_for('departments') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Departments</a>
+                <a href="{{ url_for('facilities') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Facilities</a>
+                <a href="{{ url_for('placements') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Placements</a>
+                <a href="{{ url_for('gallery') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Gallery</a>
+                <a href="{{ url_for('students_corner') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Students Corner</a>
+                <a href="{{ url_for('forum') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Forum</a>
+                <a href="{{ url_for('contact') }}" class="nav-link text-slate-700 hover:text-navy-900 font-medium py-1">Contact</a>
+            </div>
+
+            <!-- CTA Button & Mobile Trigger -->
+            <div class="flex items-center gap-3">
+                <a href="{{ url_for('apply') }}" class="bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-800 hover:to-indigo-900 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 group">
+                    <i class="fa-solid fa-star text-gold-400 group-hover:rotate-12 transition-transform"></i>
+                    <span>Apply 2026-27</span>
+                </a>
+                
+                <button id="mobile-menu-btn" class="xl:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="mobile-menu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-6 space-y-2 text-sm shadow-xl">
+            <a href="{{ url_for('index') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Home</a>
+            <a href="{{ url_for('about') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">About Us</a>
+            <a href="{{ url_for('admission') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Admission</a>
+            <a href="{{ url_for('departments') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Departments & Courses</a>
+            <a href="{{ url_for('facilities') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Facilities</a>
+            <a href="{{ url_for('placements') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Placements</a>
+            <a href="{{ url_for('gallery') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Gallery</a>
+            <a href="{{ url_for('students_corner') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Students Corner</a>
+            <a href="{{ url_for('forum') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Community Forum</a>
+            <a href="{{ url_for('contact') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Contact Us</a>
+            <a href="{{ url_for('login') }}" class="block px-3 py-2 rounded-lg font-medium text-blue-900 bg-blue-50"><i class="fa-solid fa-user mr-2"></i> Student Portal</a>
+            <a href="{{ url_for('admin') }}" class="block px-3 py-2 rounded-lg font-medium text-purple-900 bg-purple-50"><i class="fa-solid fa-user-gear mr-2"></i> Admin Portal</a>
+        </div>
+    </nav>
+
+    <!-- MAIN PAGE CONTENT -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 3. FOOTER (Matching Reference Image) -->
+    <footer class="bg-navy-950 text-slate-300 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Col 1: About -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl font-bold">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white tracking-tight">SESHADRIPURAM COLLEGE</h3>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Committed to academic excellence, holistic development of students, and value-based education since 1998. Affiliated to Bengaluru City University.
+                </p>
+                <div class="flex gap-3 text-slate-400 pt-2">
+                    <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-facebook-f text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-all"><i class="fa-brands fa-twitter text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all"><i class="fa-brands fa-instagram text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"><i class="fa-brands fa-youtube text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-700 hover:text-white transition-all"><i class="fa-brands fa-linkedin-in text-xs"></i></a>
+                </div>
+            </div>
+
+            <!-- Col 2: Quick Links -->
+            <div>
+                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Quick Links</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="{{ url_for('index') }}" class="hover:text-gold-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-blue-500"></i> Home</a></li>
+                    <li><a href="{{ url_for('about') }}" class="hover:text-gold-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-blue-500"></i> About Us</a></li>
+                    <li><a href="{{ url_for('departments') }}" class="hover:text-gold-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-blue-500"></i> Academics & Programs</a></li>
+                    <li><a href="{{ url_for('forum') }}" class="hover:text-gold-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-blue-500"></i> Community Forum</a></li>
+                    <li><a href="{{ url_for('gallery') }}" class="hover:text-gold-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chevron-right text-[10px] text-blue-500"></i> Campus Gallery</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 3: Contact Info -->
+            <div>
+                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Contact</h4>
+                <ul class="space-y-3 text-xs">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-location-dot text-amber-500 mt-0.5"></i>
+                        <span>Seshadripuram, Bengaluru 560020, Karnataka, India</span>
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-phone text-amber-500"></i>
+                        <span>+91 6363179389</span>
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-envelope text-amber-500"></i>
+                        <span>info@spmcollege.ac.in</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Col 4: Portals -->
+            <div>
+                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Portals</h4>
+                <div class="space-y-3 text-xs">
+                    <a href="{{ url_for('admin') }}" class="block bg-slate-900 border border-slate-800 hover:border-blue-500 p-3 rounded-lg hover:bg-slate-850 transition-all text-blue-400 font-medium">
+                        College Admin Portal &rarr;
+                    </a>
+                    <a href="{{ url_for('login') }}" class="block bg-slate-900 border border-slate-800 hover:border-amber-500 p-3 rounded-lg hover:bg-slate-850 transition-all text-amber-400 font-medium">
+                        Super Admin Portal &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub-footer copyright -->
+        <div class="border-t border-slate-900 bg-black/40 py-4 text-center text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <p>&copy; 2026 Seshadripuram College. All Rights Reserved. Affiliated to Bengaluru City University.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:underline">Privacy Policy</a>
+                    <a href="#" class="hover:underline">Terms of Service</a>
+                    <a href="#" class="hover:underline">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
