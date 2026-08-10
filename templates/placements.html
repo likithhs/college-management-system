@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 
+{% block breadcrumb %}
+<div class="breadcrumb-nav py-2.5 px-4">
+    <div class="max-w-7xl mx-auto flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <a href="{{ url_for('index') }}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1"><i class="fa-solid fa-house text-[10px]"></i> Home</a>
+        <i class="fa-solid fa-chevron-right text-[8px] text-slate-300"></i>
+        <span class="font-medium text-slate-700 dark:text-slate-300">Placements</span>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
 <section class="bg-gradient-to-r from-navy-900 via-blue-950 to-navy-900 text-white py-16">
     <div class="max-w-7xl mx-auto px-4" data-aos="fade-down">
@@ -10,48 +20,84 @@
 </section>
 
 <!-- Placement Stats Grid -->
-<section id="stats-section" class="py-12 bg-white border-b border-slate-200">
+<section id="stats-section" class="py-12 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200" data-aos="fade-up" data-aos-delay="100">
-            <span class="counter-value text-3xl font-black text-blue-700" data-target="98" data-suffix="%">0%</span>
-            <p class="text-xs font-bold text-navy-900 mt-1">Placement Success Rate</p>
+        <div class="p-6 bg-slate-50 dark:bg-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600" data-aos="fade-up" data-aos-delay="100">
+            <span class="counter-value text-3xl font-black text-blue-700 dark:text-blue-400" data-target="98" data-suffix="%">0%</span>
+            <p class="text-xs font-bold text-navy-900 dark:text-white mt-1">Placement Success Rate</p>
         </div>
-        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200" data-aos="fade-up" data-aos-delay="200">
-            <span class="counter-value text-3xl font-black text-amber-600" data-target="14" data-suffix=" LPA">0 LPA</span>
-            <p class="text-xs font-bold text-navy-900 mt-1">Highest Salary Offered</p>
+        <div class="p-6 bg-slate-50 dark:bg-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600" data-aos="fade-up" data-aos-delay="200">
+            <span class="counter-value text-3xl font-black text-amber-600 dark:text-amber-400" data-target="14" data-suffix=" LPA">0 LPA</span>
+            <p class="text-xs font-bold text-navy-900 dark:text-white mt-1">Highest Salary Offered</p>
         </div>
-        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200" data-aos="fade-up" data-aos-delay="300">
-            <span class="counter-value text-3xl font-black text-emerald-600" data-target="150" data-suffix="+">0+</span>
-            <p class="text-xs font-bold text-navy-900 mt-1">Recruiting Companies</p>
+        <div class="p-6 bg-slate-50 dark:bg-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600" data-aos="fade-up" data-aos-delay="300">
+            <span class="counter-value text-3xl font-black text-emerald-600 dark:text-emerald-400" data-target="150" data-suffix="+">0+</span>
+            <p class="text-xs font-bold text-navy-900 dark:text-white mt-1">Recruiting Companies</p>
         </div>
-        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200" data-aos="fade-up" data-aos-delay="400">
-            <span class="counter-value text-3xl font-black text-purple-700" data-target="600" data-suffix="+">0+</span>
-            <p class="text-xs font-bold text-navy-900 mt-1">Offers Generated 2025</p>
+        <div class="p-6 bg-slate-50 dark:bg-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600" data-aos="fade-up" data-aos-delay="400">
+            <span class="counter-value text-3xl font-black text-purple-700 dark:text-purple-400" data-target="600" data-suffix="+">0+</span>
+            <p class="text-xs font-bold text-navy-900 dark:text-white mt-1">Offers Generated 2025</p>
         </div>
     </div>
 </section>
 
-<!-- Recruiters Showcase -->
-<section class="py-16 bg-slate-50">
+<!-- Recruiters Showcase with Logos -->
+<section class="py-16 bg-slate-50 dark:bg-slate-900">
     <div class="max-w-7xl mx-auto px-4 space-y-12">
         <div class="text-center max-w-xl mx-auto" data-aos="fade-up">
-            <h2 class="text-2xl font-extrabold text-navy-900">Our Esteemed Corporate Partners</h2>
-            <p class="text-xs text-slate-500 mt-2">Leading MNCs that regularly conduct campus recruitment drives at Seshadripuram College.</p>
+            <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white">Our Esteemed Corporate Partners</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Leading MNCs that regularly conduct campus recruitment drives at Seshadripuram College.</p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">INFOSYS</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">TCS</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">WIPRO</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">ACCENTURE</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">DELOITTE</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">AMAZON</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">CAPGEMINI</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">COGNIZANT</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">ICICI BANK</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">EY</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">KPMG</div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center font-black text-slate-800 text-base shadow-sm hover:border-blue-500 transition-all flex items-center justify-center">HDFC BANK</div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/infosys.com" alt="Infosys" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">INFOSYS</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/tcs.com" alt="TCS" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">TCS</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/wipro.com" alt="Wipro" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">WIPRO</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/accenture.com" alt="Accenture" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">ACCENTURE</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/deloitte.com" alt="Deloitte" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">DELOITTE</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/amazon.com" alt="Amazon" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">AMAZON</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/capgemini.com" alt="Capgemini" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">CAPGEMINI</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/cognizant.com" alt="Cognizant" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">COGNIZANT</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/icicibank.com" alt="ICICI Bank" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">ICICI BANK</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/ey.com" alt="EY" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">EY</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/kpmg.com" alt="KPMG" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">KPMG</span>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center justify-center gap-3 hover-lift">
+                <img src="https://img.logo.dev/hdfcbank.com" alt="HDFC Bank" class="h-8 object-contain" onerror="this.style.display='none'">
+                <span class="font-black text-slate-800 dark:text-white text-sm tracking-wider">HDFC BANK</span>
+            </div>
         </div>
     </div>
 </section>

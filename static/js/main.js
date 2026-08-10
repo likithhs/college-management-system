@@ -132,3 +132,78 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     };
 });
+
+// ============ DARK MODE TOGGLE ============
+(function() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('dark-mode-toggle');
+    const icon = document.getElementById('dark-icon');
+    
+    // Check saved preference or system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+        if (icon) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+    }
+    
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            if (icon) {
+                if (isDark) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+        });
+    }
+})();
+
+// ============ FORUM FILTER & SEARCH ============
+(function() {
+    const filterBtns = document.querySelectorAll('.forum-filter-btn');
+    const searchInput = document.getElementById('forum-search');
+    const forumPosts = document.querySelectorAll('.forum-post-item');
+    
+    if (filterBtns.length === 0) return;
+    
+    let activeCategory = 'all';
+    
+    function filterPosts() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        
+        forumPosts.forEach(post => {
+            const category = post.getAttribute('data-category');
+            const text = post.textContent.toLowerCase();
+            const matchesCategory = activeCategory === 'all' || category === activeCategory;
+            const matchesSearch = !searchTerm || text.includes(searchTerm);
+            
+            post.style.display = (matchesCategory && matchesSearch) ? 'block' : 'none';
+        });
+    }
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => {
+                b.classList.remove('bg-blue-900', 'text-white');
+                b.classList.add('bg-white', 'text-slate-700');
+            });
+            btn.classList.remove('bg-white', 'text-slate-700');
+            btn.classList.add('bg-blue-900', 'text-white');
+            activeCategory = btn.getAttribute('data-filter');
+            filterPosts();
+        });
+    });
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterPosts);
+    }
+})();

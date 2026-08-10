@@ -74,13 +74,6 @@
                 <a href="{{ url_for('login') }}" class="bg-blue-600/60 hover:bg-blue-600 text-white px-2.5 py-1 rounded transition-all flex items-center gap-1">
                     <i class="fa-solid fa-user text-xs"></i> Student Login
                 </a>
-                <a href="{{ url_for('admin') }}" class="hover:text-yellow-400 transition-colors flex items-center gap-1">
-                    <i class="fa-solid fa-user-gear text-xs"></i> Admin
-                </a>
-                <span class="text-slate-600">|</span>
-                <a href="{{ url_for('superadmin') }}" class="text-amber-400 hover:text-amber-300 font-bold transition-colors flex items-center gap-1">
-                    <i class="fa-solid fa-crown text-xs"></i> Super Admin
-                </a>
             </div>
         </div>
 
@@ -156,11 +149,12 @@
             <a href="{{ url_for('forum') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Community Forum</a>
             <a href="{{ url_for('contact') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900">Contact Us</a>
             <a href="{{ url_for('login') }}" class="block px-3 py-2 rounded-lg font-medium text-blue-900 bg-blue-50"><i class="fa-solid fa-user mr-2"></i> Student Portal</a>
-            <a href="{{ url_for('admin') }}" class="block px-3 py-2 rounded-lg font-medium text-purple-900 bg-purple-50"><i class="fa-solid fa-user-gear mr-2"></i> Admin Portal</a>
-            <a href="{{ url_for('superadmin') }}" class="block px-3 py-2 rounded-lg font-medium text-amber-900 bg-amber-50"><i class="fa-solid fa-crown mr-2"></i> Super Admin Matrix</a>
         </div>
     </nav>
 
+    <!-- BREADCRUMB NAVIGATION -->
+    {% block breadcrumb %}
+    {% endblock %}
 
     <!-- MAIN PAGE CONTENT -->
     <main class="flex-grow">
@@ -221,17 +215,31 @@
                 </ul>
             </div>
 
-            <!-- Col 4: Portals -->
+            <!-- Col 4: Academic Calendar -->
             <div>
-                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Portals</h4>
-                <div class="space-y-3 text-xs">
-                    <a href="{{ url_for('admin') }}" class="block bg-slate-900 border border-slate-800 hover:border-blue-500 p-3 rounded-lg hover:bg-slate-850 transition-all text-blue-400 font-medium">
-                        College Admin Portal &rarr;
-                    </a>
-                    <a href="{{ url_for('login') }}" class="block bg-slate-900 border border-slate-800 hover:border-amber-500 p-3 rounded-lg hover:bg-slate-850 transition-all text-amber-400 font-medium">
-                        Super Admin Portal &rarr;
-                    </a>
-                </div>
+                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Academic Calendar</h4>
+                <ul class="space-y-2.5 text-xs">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-calendar-check text-emerald-400 mt-0.5"></i>
+                        <span>Aug 1 — Odd Semester Begins</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-pen-to-square text-amber-400 mt-0.5"></i>
+                        <span>Oct 15 — Internal Assessment (IAT-1)</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-masks-theater text-purple-400 mt-0.5"></i>
+                        <span>Nov 20 — Cultural Fest Utsav</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-file-lines text-blue-400 mt-0.5"></i>
+                        <span>Jan 5 — End Semester Exams</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-graduation-cap text-rose-400 mt-0.5"></i>
+                        <span>Mar 15 — Annual Convocation</span>
+                    </li>
+                </ul>
             </div>
         </div>
 

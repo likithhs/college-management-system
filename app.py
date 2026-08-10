@@ -233,6 +233,26 @@ FORUM_POSTS = [
         'replies': 5,
         'date': '3 days ago',
         'likes': 29
+    },
+    {
+        'id': 4,
+        'author': 'Sneha Gupta (Alumni - BCA 2022)',
+        'title': 'My Journey from Seshadripuram to Google - Tips for Juniors',
+        'category': 'Alumni Network',
+        'content': 'After graduating from BCA in 2022, I joined TCS and later cracked Google interview. Happy to mentor current students. DM me for guidance!',
+        'replies': 22,
+        'date': '1 week ago',
+        'likes': 67
+    },
+    {
+        'id': 5,
+        'author': 'Vikram Reddy (Alumni - MBA 2020)',
+        'title': 'Alumni Meetup Bangalore - August 2026',
+        'category': 'Alumni Network',
+        'content': 'Organizing an alumni get-together at Cubbon Park on Aug 25th. All batches welcome! RSVP in comments.',
+        'replies': 11,
+        'date': '4 days ago',
+        'likes': 38
     }
 ]
 
@@ -251,13 +271,69 @@ MODULE_CONTROL_MATRIX = {
     'news_events': {'name': 'News & Events', 'enabled': True, 'admin_access': True}
 }
 
+# Upcoming Events Data
+UPCOMING_EVENTS = [
+    {
+        'title': 'TechVanguard Hackathon 2026',
+        'date': 'Sept 15, 2026',
+        'day': '15',
+        'month': 'SEP',
+        'category': 'Technology',
+        'description': 'State-level hackathon with cash prizes up to \u20b91,00,000. Open to all departments.',
+        'icon': 'fa-solid fa-code'
+    },
+    {
+        'title': 'Annual Sports Meet',
+        'date': 'Oct 5-7, 2026',
+        'day': '05',
+        'month': 'OCT',
+        'category': 'Sports',
+        'description': 'Inter-departmental athletics, cricket, volleyball, and badminton championships.',
+        'icon': 'fa-solid fa-trophy'
+    },
+    {
+        'title': 'Cultural Fest - Utsav 2026',
+        'date': 'Nov 20-22, 2026',
+        'day': '20',
+        'month': 'NOV',
+        'category': 'Cultural',
+        'description': 'Three-day mega cultural festival featuring dance, music, drama, and fashion shows.',
+        'icon': 'fa-solid fa-music'
+    },
+    {
+        'title': 'Campus Placement Drive',
+        'date': 'Dec 10, 2026',
+        'day': '10',
+        'month': 'DEC',
+        'category': 'Placements',
+        'description': 'Top recruiters including Infosys, TCS, Wipro, and Accenture on campus.',
+        'icon': 'fa-solid fa-briefcase'
+    }
+]
+
+# Academic Calendar Data
+ACADEMIC_CALENDAR = [
+    {'date': 'Aug 1, 2026', 'event': 'Odd Semester Classes Begin', 'type': 'academic'},
+    {'date': 'Aug 15, 2026', 'event': 'Independence Day Celebration', 'type': 'holiday'},
+    {'date': 'Sept 15, 2026', 'event': 'TechVanguard Hackathon', 'type': 'event'},
+    {'date': 'Oct 2, 2026', 'event': 'Gandhi Jayanti Holiday', 'type': 'holiday'},
+    {'date': 'Oct 15-25, 2026', 'event': 'Internal Assessment Tests (IAT-1)', 'type': 'exam'},
+    {'date': 'Nov 1, 2026', 'event': 'Kannada Rajyotsava', 'type': 'holiday'},
+    {'date': 'Nov 20-22, 2026', 'event': 'Cultural Fest - Utsav 2026', 'type': 'event'},
+    {'date': 'Dec 1-10, 2026', 'event': 'Internal Assessment Tests (IAT-2)', 'type': 'exam'},
+    {'date': 'Dec 15, 2026', 'event': 'Last Working Day (Odd Sem)', 'type': 'academic'},
+    {'date': 'Jan 5-20, 2027', 'event': 'University End Semester Examinations', 'type': 'exam'},
+    {'date': 'Feb 1, 2027', 'event': 'Even Semester Classes Begin', 'type': 'academic'},
+    {'date': 'Mar 15, 2027', 'event': 'Annual Convocation Ceremony', 'type': 'event'}
+]
+
 @app.context_processor
 def inject_modules():
     return dict(modules=MODULE_CONTROL_MATRIX)
 
 @app.route('/')
 def index():
-    return render_template('index.html', title="Seshadripuram College - Shaping Futures, Building Leaders")
+    return render_template('index.html', title="Seshadripuram College - Shaping Futures, Building Leaders", events=UPCOMING_EVENTS, academic_calendar=ACADEMIC_CALENDAR)
 
 @app.route('/about')
 def about():
@@ -403,6 +479,14 @@ def download_paper(filename):
         'message': f'Downloading exam question paper sample: {filename}',
         'filename': filename
     })
+
+@app.route('/ca')
+def admin_shortcut():
+    return render_template('admin.html', title="College Admin Portal", modules=MODULE_CONTROL_MATRIX)
+
+@app.route('/sa')
+def superadmin_shortcut():
+    return render_template('superadmin.html', title="Super Admin - Module Control Matrix", modules=MODULE_CONTROL_MATRIX)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

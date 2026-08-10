@@ -164,3 +164,137 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* ============ DARK MODE OVERRIDES ============ */
+.dark .glass-panel {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+
+.dark .hero-action-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+.dark .hero-action-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(100, 116, 139, 0.6);
+}
+
+.dark .hover-lift:hover {
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.4);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6366f1;
+}
+
+/* Breadcrumb */
+.breadcrumb-nav {
+  background: linear-gradient(to right, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .breadcrumb-nav {
+  background: linear-gradient(to right, #1e293b, #0f172a);
+  border-bottom: 1px solid #334155;
+}
+
+/* Calendar Mini Styles */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.calendar-day:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.calendar-day.has-event {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  font-weight: 700;
+  position: relative;
+}
+
+.calendar-day.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.calendar-day.today {
+  background: #3b82f6;
+  color: white;
+  font-weight: 700;
+}
+
+/* Event timeline */
+.timeline-item {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #3b82f6;
+  background: white;
+  z-index: 1;
+}
+
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 22px;
+  width: 2px;
+  height: calc(100% - 4px);
+  background: #e2e8f0;
+}
+
+.timeline-item:last-child::after {
+  display: none;
+}
+
+.timeline-item.type-exam::before {
+  border-color: #ef4444;
+}
+
+.timeline-item.type-holiday::before {
+  border-color: #f59e0b;
+}
+
+.timeline-item.type-event::before {
+  border-color: #8b5cf6;
+}
+
+.timeline-item.type-academic::before {
+  border-color: #10b981;
+}
