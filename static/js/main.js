@@ -50,16 +50,67 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(counterSection);
     }
 
-    // 3. Mobile Menu Toggle
+    // 3. Mobile Menu Toggle (with hamburger/X icon swap)
     const mobileBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuIcon = document.getElementById('mobile-menu-icon');
     if (mobileBtn && mobileMenu) {
         mobileBtn.addEventListener('click', () => {
+            const isOpen = !mobileMenu.classList.contains('hidden');
             mobileMenu.classList.toggle('hidden');
+            if (mobileMenuIcon) {
+                if (isOpen) {
+                    mobileMenuIcon.classList.remove('fa-xmark');
+                    mobileMenuIcon.classList.add('fa-bars');
+                } else {
+                    mobileMenuIcon.classList.remove('fa-bars');
+                    mobileMenuIcon.classList.add('fa-xmark');
+                }
+            }
         });
     }
 
-    // 4. Filterable Gallery Logic
+    // 4. Floating Action Button (FAB) Toggle for Mobile
+    const fabToggle = document.getElementById('fab-toggle');
+    const fabMenu = document.getElementById('fab-menu');
+    const fabOverlay = document.getElementById('fab-overlay');
+    const fabIcon = document.getElementById('fab-icon');
+
+    function closeFab() {
+        if (fabToggle) fabToggle.classList.remove('active');
+        if (fabMenu) fabMenu.classList.remove('open');
+        if (fabOverlay) fabOverlay.classList.remove('open');
+    }
+
+    function openFab() {
+        if (fabToggle) fabToggle.classList.add('active');
+        if (fabMenu) fabMenu.classList.add('open');
+        if (fabOverlay) fabOverlay.classList.add('open');
+    }
+
+    if (fabToggle) {
+        fabToggle.addEventListener('click', () => {
+            const isOpen = fabToggle.classList.contains('active');
+            if (isOpen) {
+                closeFab();
+            } else {
+                openFab();
+            }
+        });
+    }
+
+    if (fabOverlay) {
+        fabOverlay.addEventListener('click', closeFab);
+    }
+
+    // Close FAB menu on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeFab();
+        }
+    });
+
+    // 5. Filterable Gallery Logic
     const filterBtns = document.querySelectorAll('.gallery-filter-btn');
     const galleryItems = document.querySelectorAll('.gallery-item');
 
@@ -90,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. Download Question Paper Simulation
+    // 6. Download Question Paper Simulation
     const downloadBtns = document.querySelectorAll('.download-paper-btn');
     downloadBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -100,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 6. Toast Notification Helper
+    // 7. Toast Notification Helper
     window.showToast = function(message, type = 'info') {
         let toastBox = document.getElementById('toast-container');
         if (!toastBox) {
@@ -131,6 +182,24 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => toast.remove(), 300);
         }, 4000);
     };
+
+    // 8. Hide floating sidebar when scrolled to footer to avoid overlap
+    const sidebar = document.getElementById('floating-sidebar');
+    const footer = document.querySelector('footer');
+    if (sidebar && footer) {
+        const sidebarObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    sidebar.style.opacity = '0';
+                    sidebar.style.pointerEvents = 'none';
+                } else {
+                    sidebar.style.opacity = '1';
+                    sidebar.style.pointerEvents = 'auto';
+                }
+            });
+        }, { threshold: 0.1 });
+        sidebarObserver.observe(footer);
+    }
 });
 
 // ============ DARK MODE TOGGLE ============

@@ -1,91 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- HERO SECTION (Exact visual design from laptop screenshot) -->
-<section class="hero-gradient-box text-white py-16 lg:py-24 px-4 relative">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-        
-        <!-- Left Hero Content -->
-        <div class="lg:col-span-7 space-y-6" data-aos="fade-right">
-            <!-- Badge -->
-            <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-200 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide">
-                <i class="fa-solid fa-sparkles text-amber-400"></i>
-                Admissions Open for Academic Year 2026-27
-            </div>
-
-            <!-- Main Heading -->
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                Shaping Futures, <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-amber-300">
-                    Building Leaders
-                </span>
-            </h1>
-
-            <!-- Paragraph -->
-            <p class="text-slate-300 text-base md:text-lg max-w-xl font-normal leading-relaxed">
-                We are committed to providing quality education, value-based learning, and placement excellence in every step of your academic journey.
-            </p>
-
-            <!-- Buttons -->
-            <div class="flex flex-wrap gap-4 pt-4">
-                <a href="{{ url_for('apply') }}" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2 text-sm">
-                    Apply Now <i class="fa-solid fa-arrow-right text-xs"></i>
-                </a>
-                <a href="{{ url_for('about') }}" class="bg-navy-900/80 hover:bg-navy-900 border border-slate-700 text-slate-200 font-semibold px-7 py-3.5 rounded-xl hover:border-slate-500 transition-all text-sm">
-                    Read More
-                </a>
-            </div>
+<!-- HERO SECTION (Full Width — action cards moved to floating sidebar) -->
+<section class="hero-gradient-box text-white py-16 lg:py-28 px-4 relative">
+    <div class="max-w-5xl mx-auto text-center relative z-10" data-aos="fade-up">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-200 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide mb-6">
+            <i class="fa-solid fa-sparkles text-amber-400"></i>
+            Admissions Open for Academic Year 2026-27
         </div>
 
-        <!-- Right Hero Interactive Cards Grid (Matching reference photos) -->
-        <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4" data-aos="fade-left">
-            
-            <!-- Card 1: News & Circulars -->
-            <a href="{{ url_for('students_corner') }}" class="hero-action-card p-6 rounded-2xl flex flex-col justify-between group">
-                <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-bell"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">News & Circulars</h3>
-                    <p class="text-xs text-slate-300">Latest updates & announcements</p>
-                </div>
-            </a>
+        <!-- Main Heading -->
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight leading-tight mb-6">
+            Shaping Futures, <br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-amber-300">
+                Building Leaders
+            </span>
+        </h1>
 
-            <!-- Card 2: Admission Query -->
-            <a href="{{ url_for('admission') }}" class="hero-action-card p-6 rounded-2xl flex flex-col justify-between group">
-                <div class="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-file-signature"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-white mb-1 group-hover:text-blue-300 transition-colors">Admission Query</h3>
-                    <p class="text-xs text-slate-300">Eligibility, fees & application</p>
-                </div>
-            </a>
+        <!-- Paragraph -->
+        <p class="text-slate-300 text-base md:text-lg max-w-2xl mx-auto font-normal leading-relaxed mb-8">
+            We are committed to providing quality education, value-based learning, and placement excellence in every step of your academic journey.
+        </p>
 
-            <!-- Card 3: Campus Gallery -->
-            <a href="{{ url_for('gallery') }}" class="hero-action-card p-6 rounded-2xl flex flex-col justify-between group">
-                <div class="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-400 text-xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-images"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">Campus Gallery</h3>
-                    <p class="text-xs text-slate-300">Explore photo archives & fests</p>
-                </div>
+        <!-- Buttons -->
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="{{ url_for('apply') }}" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2 text-sm">
+                Apply Now <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
-
-            <!-- Card 4: Campus Forum -->
-            <a href="{{ url_for('forum') }}" class="hero-action-card p-6 rounded-2xl flex flex-col justify-between group">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-comments"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-white mb-1 group-hover:text-emerald-300 transition-colors">Campus Forum</h3>
-                    <p class="text-xs text-slate-300">Peer & Alumni Discussions</p>
-                </div>
+            <a href="{{ url_for('about') }}" class="bg-navy-900/80 hover:bg-navy-900 border border-slate-700 text-slate-200 font-semibold px-8 py-4 rounded-xl hover:border-slate-500 transition-all text-sm">
+                Read More
             </a>
-
         </div>
-
     </div>
 </section>
 
@@ -336,34 +282,138 @@
 </section>
 
 <!-- SECTION 5: CAMPUS RECRUITERS & PLACEMENT PARTNERS -->
-<section class="py-14 bg-white border-t border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-8">Top Corporate Placement Partners</p>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div class="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 hover:shadow-lg transition-all hover-lift">
-                <img src="https://img.logo.dev/infosys.com?token=pk_a8sVJMoVTlOkGMH7dQb_5w&size=60" alt="Infosys" class="h-10 object-contain" onerror="this.style.display='none'">
-                <span class="text-sm font-black text-slate-800 dark:text-white tracking-wider">INFOSYS</span>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 hover:shadow-lg transition-all hover-lift">
-                <img src="https://img.logo.dev/tcs.com?token=pk_a8sVJMoVTlOkGMH7dQb_5w&size=60" alt="TCS" class="h-10 object-contain" onerror="this.style.display='none'">
-                <span class="text-sm font-black text-slate-800 dark:text-white tracking-wider">TCS</span>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 hover:shadow-lg transition-all hover-lift">
-                <img src="https://img.logo.dev/wipro.com?token=pk_a8sVJMoVTlOkGMH7dQb_5w&size=60" alt="Wipro" class="h-10 object-contain" onerror="this.style.display='none'">
-                <span class="text-sm font-black text-slate-800 dark:text-white tracking-wider">WIPRO</span>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 hover:shadow-lg transition-all hover-lift">
-                <img src="https://img.logo.dev/accenture.com?token=pk_a8sVJMoVTlOkGMH7dQb_5w&size=60" alt="Accenture" class="h-10 object-contain" onerror="this.style.display='none'">
-                <span class="text-sm font-black text-slate-800 dark:text-white tracking-wider">ACCENTURE</span>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 hover:shadow-lg transition-all hover-lift">
-                <img src="https://img.logo.dev/deloitte.com?token=pk_a8sVJMoVTlOkGMH7dQb_5w&size=60" alt="Deloitte" class="h-10 object-contain" onerror="this.style.display='none'">
-                <span class="text-sm font-black text-slate-800 dark:text-white tracking-wider">DELOITTE</span>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 hover:shadow-lg transition-all hover-lift">
-                <img src="https://img.logo.dev/amazon.com?token=pk_a8sVJMoVTlOkGMH7dQb_5w&size=60" alt="Amazon" class="h-10 object-contain" onerror="this.style.display='none'">
-                <span class="text-sm font-black text-slate-800 dark:text-white tracking-wider">AMAZON</span>
-            </div>
+<section class="py-16 bg-white border-t border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Section Header -->
+        <div class="text-center max-w-2xl mx-auto mb-12" data-aos="fade-up">
+            <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full">Our Recruiters</span>
+            <h2 class="text-3xl font-extrabold text-navy-900 dark:text-white mt-3">Top Corporate Placement Partners</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Leading companies that recruit our graduates every year.</p>
+        </div>
+
+        <!-- Company Logo Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+
+            <!-- Infosys -->
+            <a href="https://www.infosys.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="50">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/infosys.com" alt="Infosys Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white text-lg font-black\'>I</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">INFOSYS</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- TCS -->
+            <a href="https://www.tcs.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="100">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/tcs.com" alt="TCS Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center text-white text-lg font-black\'>TCS</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">TCS</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Wipro -->
+            <a href="https://www.wipro.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="150">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/wipro.com" alt="Wipro Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white text-lg font-black\'>W</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">WIPRO</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Accenture -->
+            <a href="https://www.accenture.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="200">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/accenture.com" alt="Accenture Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center text-white text-lg font-black\'>A</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">ACCENTURE</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Deloitte -->
+            <a href="https://www.deloitte.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="250">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/deloitte.com" alt="Deloitte Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-green-700 to-green-900 flex items-center justify-center text-white text-lg font-black\'>D</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">DELOITTE</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Amazon -->
+            <a href="https://www.amazon.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="300">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/amazon.com" alt="Amazon Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white text-lg font-black\'>A</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">AMAZON</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Cognizant -->
+            <a href="https://www.cognizant.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="350">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/cognizant.com" alt="Cognizant Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center text-white text-lg font-black\'>C</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">COGNIZANT</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- HCL Technologies -->
+            <a href="https://www.hcltech.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="400">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/hcltech.com" alt="HCL Technologies Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-sky-600 to-sky-800 flex items-center justify-center text-white text-lg font-black\'>HCL</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">HCL TECH</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- IBM -->
+            <a href="https://www.ibm.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="450">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/ibm.com" alt="IBM Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-blue-800 to-blue-950 flex items-center justify-center text-white text-lg font-black\'>IBM</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">IBM</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Capgemini -->
+            <a href="https://www.capgemini.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="500">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/capgemini.com" alt="Capgemini Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white text-lg font-black\'>CG</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">CAPGEMINI</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Tech Mahindra -->
+            <a href="https://www.techmahindra.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="550">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/techmahindra.com" alt="Tech Mahindra Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white text-lg font-black\'>TM</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">TECH MAHINDRA</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
+            <!-- Google -->
+            <a href="https://www.google.com" target="_blank" rel="noopener noreferrer"
+               class="partner-card group bg-white dark:bg-slate-700/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all hover-lift relative" data-aos="fade-up" data-aos-delay="600">
+                <div class="w-16 h-16 flex items-center justify-center">
+                    <img src="https://logo.clearbit.com/google.com" alt="Google Logo" class="max-h-14 max-w-full object-contain" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 via-red-500 to-yellow-500 flex items-center justify-center text-white text-lg font-black\'>G</div>';">
+                </div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide text-center">GOOGLE</span>
+                <i class="fa-solid fa-arrow-up-right-from-square absolute top-3 right-3 text-[10px] text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+
         </div>
     </div>
 </section>
