@@ -115,7 +115,35 @@
             <div class="hidden lg:flex items-center gap-4 xl:gap-7 text-sm lg:text-[15px] font-bold text-slate-700">
                 <a href="{{ url_for('index') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'index' }}">Home</a>
                 <a href="{{ url_for('about') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'about' }}">About Us</a>
-                <a href="{{ url_for('departments') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'departments' }}">Academics</a>
+                
+                <!-- Academics Dropdown with direct BSc and MSc links -->
+                <div class="relative group py-1.5">
+                    <a href="{{ url_for('departments') }}" class="nav-link hover:text-navy-900 flex items-center gap-1 {{ 'active' if request.endpoint in ['departments', 'course_detail'] }}">
+                        <span>Academics</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] opacity-70 group-hover:rotate-180 transition-transform"></i>
+                    </a>
+                    <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-fade-in">
+                        <a href="{{ url_for('departments') }}" class="block px-3 py-2 rounded-xl text-xs font-bold text-navy-900 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                            <i class="fa-solid fa-list mr-1.5 text-blue-600"></i> All Departments
+                        </a>
+                        <div class="my-1 border-t border-slate-100"></div>
+                        <span class="block px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Science Programs</span>
+                        <a href="{{ url_for('course_detail', course_code='bsc') }}" class="block px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                            <i class="fa-solid fa-flask mr-1.5 text-emerald-600"></i> BSc (Bachelor of Science)
+                        </a>
+                        <a href="{{ url_for('course_detail', course_code='msc') }}" class="block px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors">
+                            <i class="fa-solid fa-atom mr-1.5 text-purple-600"></i> MSc (Master of Science)
+                        </a>
+                        <div class="my-1 border-t border-slate-100"></div>
+                        <span class="block px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Other Programs</span>
+                        <a href="{{ url_for('course_detail', course_code='bca') }}" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600">BCA (Computer Applications)</a>
+                        <a href="{{ url_for('course_detail', course_code='mca') }}" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600">MCA (Master of Computer App)</a>
+                        <a href="{{ url_for('course_detail', course_code='bba') }}" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600">BBA (Business Admin)</a>
+                        <a href="{{ url_for('course_detail', course_code='bcom') }}" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600">BCom (Commerce)</a>
+                        <a href="{{ url_for('course_detail', course_code='mba') }}" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600">MBA (Master of Business Admin)</a>
+                    </div>
+                </div>
+
                 <a href="{{ url_for('admission') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'admission' }}">Admission</a>
                 <a href="{{ url_for('facilities') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'facilities' }}">Facilities</a>
                 <a href="{{ url_for('placements') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'placements' }}">Placements</a>
@@ -144,8 +172,16 @@
                 <i class="fa-solid fa-info-circle mr-2 text-xs"></i>About Us
             </a>
             <a href="{{ url_for('departments') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'departments' }}">
-                <i class="fa-solid fa-book mr-2 text-xs"></i>Academics
+                <i class="fa-solid fa-book mr-2 text-xs"></i>Academics & Departments
             </a>
+            <div class="pl-6 space-y-1 py-1">
+                <a href="{{ url_for('course_detail', course_code='bsc') }}" class="block px-3 py-1.5 rounded-md text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                    <i class="fa-solid fa-flask mr-1.5"></i>BSc Program & Papers &rarr;
+                </a>
+                <a href="{{ url_for('course_detail', course_code='msc') }}" class="block px-3 py-1.5 rounded-md text-xs font-semibold text-purple-700 hover:bg-purple-50">
+                    <i class="fa-solid fa-atom mr-1.5"></i>MSc Program & Papers &rarr;
+                </a>
+            </div>
             <a href="{{ url_for('admission') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'admission' }}">
                 <i class="fa-solid fa-file-signature mr-2 text-xs"></i>Admission
             </a>
