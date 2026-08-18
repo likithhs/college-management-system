@@ -76,14 +76,14 @@
         <div class="px-5 sm:px-8 lg:px-12 py-2.5 flex justify-between items-center gap-4">
             <!-- EXTREME LEFT: College Logo + Name -->
             <a href="{{ url_for('index') }}" class="flex items-center gap-3 group flex-shrink-0">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white text-lg sm:text-xl lg:text-2xl shadow-md group-hover:scale-105 transition-transform flex-shrink-0">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-lg sm:text-xl lg:text-2xl shadow-md group-hover:scale-105 transition-transform flex-shrink-0">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div class="flex-shrink-0">
                     <h1 class="text-sm sm:text-base lg:text-lg font-extrabold tracking-tight text-white leading-tight">
                         SESHADRIPURAM COLLEGE
                     </h1>
-                    <p class="text-[9px] sm:text-[10px] lg:text-[11px] font-medium text-amber-200/80 hidden sm:block">
+                    <p class="text-[9px] sm:text-[10px] lg:text-[11px] font-medium text-blue-200/70 hidden sm:block">
                         Excellence Since 1998 • Affiliated to Bengaluru City University
                     </p>
                 </div>
@@ -91,22 +91,22 @@
 
             <!-- CENTER: Info Badges (desktop only) -->
             <div class="hidden lg:flex items-center gap-3 text-xs font-medium">
-                <span class="flex items-center gap-1.5 bg-amber-500/15 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/20">
-                    <i class="fa-solid fa-trophy text-amber-400 text-[10px]"></i> NAAC A++ Accredited
+                <span class="flex items-center gap-1.5 bg-yellow-500/15 text-yellow-300 px-2.5 py-1 rounded-full border border-yellow-500/20">
+                    <i class="fa-solid fa-trophy text-yellow-400 text-[10px]"></i> NAAC A++ Accredited
                 </span>
                 <span class="text-slate-400">ISO 9001:2015 Certified</span>
                 <span class="flex items-center gap-1 text-slate-300">
-                    <i class="fa-solid fa-phone text-amber-400 text-[10px]"></i> +91 6363179389
+                    <i class="fa-solid fa-phone text-blue-400 text-[10px]"></i> +91 6363179389
                 </span>
             </div>
 
             <!-- EXTREME RIGHT: Quick links + Student Login -->
             <div class="flex items-center gap-3 flex-shrink-0">
-                <a href="{{ url_for('about') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-amber-400 transition-colors">NIRF</a>
+                <a href="{{ url_for('about') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-yellow-400 transition-colors">NIRF</a>
                 <span class="hidden md:inline-block text-slate-700">|</span>
-                <a href="{{ url_for('contact') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-amber-400 transition-colors">Contact</a>
-                <a href="{{ url_for('login') }}" class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
-                    <i class="fa-solid fa-user text-[10px] sm:text-xs text-amber-400"></i>
+                <a href="{{ url_for('contact') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-yellow-400 transition-colors">Contact</a>
+                <a href="{{ url_for('login') }}" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
+                    <i class="fa-solid fa-user text-[10px] sm:text-xs"></i>
                     <span>Student Login</span>
                 </a>
             </div>
@@ -184,8 +184,8 @@
             <!-- Right: Apply CTA + Mobile Hamburger -->
             <div class="flex items-center gap-2.5 flex-shrink-0 ml-auto">
                 {% if modules['admission'].enabled %}
-                <a href="{{ url_for('apply') }}" class="whitespace-nowrap flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-extrabold rounded-xl bg-gradient-to-r from-amber-500 via-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md hover:shadow-amber-500/25 transition-all group">
-                    <i class="fa-solid fa-star text-amber-100 group-hover:rotate-12 transition-transform text-xs"></i>
+                <a href="{{ url_for('apply') }}" class="whitespace-nowrap flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-800 hover:to-indigo-900 text-white shadow-sm hover:shadow-md transition-all group">
+                    <i class="fa-solid fa-star text-gold-400 group-hover:rotate-12 transition-transform text-xs"></i>
                     <span>Apply 2026-27</span>
                 </a>
                 {% endif %}

@@ -1,12 +1,11 @@
 /* Seshadripuram College Custom Design Tokens & Micro-Animations */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 :root {
-  --primary-navy: #0b1536;
-  --royal-blue: #1d4ed8;
+  --primary-navy: #0f172a;
+  --royal-blue: #1e3a8a;
   --accent-gold: #f59e0b;
-  --accent-orange: #ea580c;
   --gold-hover: #d97706;
   --bg-dark-blue: #0b132b;
 }
@@ -26,11 +25,11 @@ body {
   background: #0f172a;
 }
 ::-webkit-scrollbar-thumb {
-  background: #f59e0b;
+  background: #3b82f6;
   border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d97706;
+  background: #60a5fa;
 }
 
 /* Marquee Ticker Animation */
@@ -57,7 +56,7 @@ body {
 
 /* Glassmorphism Cards */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(226, 232, 240, 0.8);
@@ -65,16 +64,15 @@ body {
 }
 
 .glass-card-dark {
-  background: rgba(11, 21, 54, 0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Hero Cinematic Box matching reference theme */
+/* Hero Dark Blue Container matching laptop photo */
 .hero-gradient-box {
-  background: linear-gradient(180deg, rgba(11, 21, 54, 0.92) 0%, rgba(15, 23, 42, 0.95) 100%),
-              radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.12) 0%, transparent 60%);
+  background: linear-gradient(135deg, #0b1536 0%, #111e4e 50%, #1e3a8a 100%);
   position: relative;
   overflow: hidden;
 }
@@ -86,13 +84,13 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(30, 58, 138, 0.15) 50%, transparent 70%);
-  animation: pulseGlow 10s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+  animation: pulseGlow 8s ease-in-out infinite alternate;
 }
 
 @keyframes pulseGlow {
   0% { transform: scale(1) translate(0, 0); }
-  100% { transform: scale(1.08) translate(15px, -15px); }
+  100% { transform: scale(1.1) translate(20px, -20px); }
 }
 
 /* Interactive Card Hover Elevate */
@@ -101,11 +99,11 @@ body {
 }
 
 .hover-lift:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 35px -10px rgba(245, 158, 11, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 35px -10px rgba(30, 58, 138, 0.15);
 }
 
-/* Hero Action Cards */
+/* Hero Action Cards Right Side (as seen in photo) */
 .hero-action-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -116,7 +114,7 @@ body {
 .hero-action-card:hover {
   background: rgba(255, 255, 255, 0.22);
   transform: translateY(-4px) scale(1.02);
-  border-color: rgba(245, 158, 11, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
 }
 
@@ -146,7 +144,7 @@ body {
   left: 0;
   width: 0%;
   height: 3px;
-  background: linear-gradient(90deg, #f59e0b, #ea580c);
+  background: linear-gradient(90deg, #f59e0b, #d97706);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -157,33 +155,23 @@ body {
 }
 
 .nav-link.active {
-  color: #d97706;
+  color: #1e3a8a;
   font-weight: 800;
 }
 
 /* Mobile nav active state */
 .mobile-nav-link.active {
-  background-color: #fffbeb;
-  color: #d97706;
+  background-color: #eff6ff;
+  color: #1e3a8a;
   font-weight: 700;
-  border-left: 3px solid #f59e0b;
+  border-left: 3px solid #1e3a8a;
 }
 
 /* Counter numbers styling */
 .stat-number {
-  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 100%;
-}
-
-.nav-link.active {
-  color: #1e3a8a;
-  font-weight: 800;
 }
 
 /* Mobile nav active state */
