@@ -133,9 +133,12 @@
             <!-- Desktop Menu Links — Bolder & with Active State -->
             <div class="hidden lg:flex items-center gap-4 xl:gap-7 text-sm lg:text-[15px] font-bold text-slate-700">
                 <a href="{{ url_for('index') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'index' }}">Home</a>
+                {% if modules['about'].enabled %}
                 <a href="{{ url_for('about') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'about' }}">About Us</a>
+                {% endif %}
                 
                 <!-- Academics Dropdown with direct BSc and MSc links -->
+                {% if modules['academics'].enabled %}
                 <div class="relative group py-1.5">
                     <a href="{{ url_for('departments') }}" class="nav-link hover:text-navy-900 flex items-center gap-1 {{ 'active' if request.endpoint in ['departments', 'course_detail'] }}">
                         <span>Academics</span>
@@ -162,19 +165,30 @@
                         <a href="{{ url_for('course_detail', course_code='mba') }}" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600">MBA (Master of Business Admin)</a>
                     </div>
                 </div>
+                {% endif %}
 
+                {% if modules['admission'].enabled %}
                 <a href="{{ url_for('admission') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'admission' }}">Admission</a>
+                {% endif %}
+                {% if modules['facilities'].enabled %}
                 <a href="{{ url_for('facilities') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'facilities' }}">Facilities</a>
+                {% endif %}
+                {% if modules['placements'].enabled %}
                 <a href="{{ url_for('placements') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'placements' }}">Placements</a>
+                {% endif %}
+                {% if modules['students_corner'].enabled %}
                 <a href="{{ url_for('students_corner') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'students_corner' }}">Students Corner</a>
+                {% endif %}
             </div>
 
             <!-- Right: Apply CTA + Mobile Hamburger -->
             <div class="flex items-center gap-2.5 flex-shrink-0 ml-auto">
+                {% if modules['admission'].enabled %}
                 <a href="{{ url_for('apply') }}" class="whitespace-nowrap flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-800 hover:to-indigo-900 text-white shadow-sm hover:shadow-md transition-all group">
                     <i class="fa-solid fa-star text-gold-400 group-hover:rotate-12 transition-transform text-xs"></i>
                     <span>Apply 2026-27</span>
                 </a>
+                {% endif %}
                 
                 <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none" aria-label="Toggle mobile menu">
                     <i class="fa-solid fa-bars text-xl" id="mobile-menu-icon"></i>
@@ -187,9 +201,12 @@
             <a href="{{ url_for('index') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'index' }}">
                 <i class="fa-solid fa-house mr-2 text-xs"></i>Home
             </a>
+            {% if modules['about'].enabled %}
             <a href="{{ url_for('about') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'about' }}">
                 <i class="fa-solid fa-info-circle mr-2 text-xs"></i>About Us
             </a>
+            {% endif %}
+            {% if modules['academics'].enabled %}
             <a href="{{ url_for('departments') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'departments' }}">
                 <i class="fa-solid fa-book mr-2 text-xs"></i>Academics & Departments
             </a>
@@ -201,24 +218,37 @@
                     <i class="fa-solid fa-atom mr-1.5"></i>MSc Program & Papers &rarr;
                 </a>
             </div>
+            {% endif %}
+            {% if modules['admission'].enabled %}
             <a href="{{ url_for('admission') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'admission' }}">
                 <i class="fa-solid fa-file-signature mr-2 text-xs"></i>Admission
             </a>
+            {% endif %}
+            {% if modules['facilities'].enabled %}
             <a href="{{ url_for('facilities') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'facilities' }}">
                 <i class="fa-solid fa-building mr-2 text-xs"></i>Facilities
             </a>
+            {% endif %}
+            {% if modules['placements'].enabled %}
             <a href="{{ url_for('placements') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'placements' }}">
                 <i class="fa-solid fa-briefcase mr-2 text-xs"></i>Placements
             </a>
+            {% endif %}
+            {% if modules['gallery'].enabled %}
             <a href="{{ url_for('gallery') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'gallery' }}">
                 <i class="fa-solid fa-images mr-2 text-xs"></i>Gallery
             </a>
+            {% endif %}
+            {% if modules['students_corner'].enabled %}
             <a href="{{ url_for('students_corner') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'students_corner' }}">
                 <i class="fa-solid fa-user-graduate mr-2 text-xs"></i>Students Corner
             </a>
+            {% endif %}
+            {% if modules['forum'].enabled %}
             <a href="{{ url_for('forum') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'forum' }}">
                 <i class="fa-solid fa-comments mr-2 text-xs"></i>Community Forum
             </a>
+            {% endif %}
             <a href="{{ url_for('contact') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'contact' }}">
                 <i class="fa-solid fa-envelope mr-2 text-xs"></i>Contact Us
             </a>
