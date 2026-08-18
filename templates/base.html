@@ -284,7 +284,8 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- ============ LOCATION MAP SECTION (Google Maps embed + floating card) ============ -->
+    <!-- ============ LOCATION MAP SECTION (Shown ONLY on Home and Contact pages) ============ -->
+    {% if request.endpoint in ['index', 'contact'] %}
     <section class="location-map-section relative w-full" style="height: 420px;" id="campus-map">
         <!-- Embedded Google Map (full width) -->
         <iframe
@@ -325,6 +326,7 @@
             </a>
         </div>
     </section>
+    {% endif %}
 
     <!-- 3. FOOTER -->
     <footer class="bg-navy-950 text-slate-300 border-t border-slate-800">
