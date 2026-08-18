@@ -327,6 +327,70 @@ ACADEMIC_CALENDAR = [
     {'date': 'Mar 15, 2027', 'event': 'Annual Convocation Ceremony', 'type': 'event'}
 ]
 
+# Dynamic Gallery Data (Editable by both Super Admin and College Admin when granted access)
+GALLERY_ITEMS = [
+    {
+        'id': 1,
+        'title': 'TechVanguard Hackathon 2026',
+        'category': 'tech',
+        'category_label': 'Tech & Hackathons',
+        'description': '24-hour coding marathon with over 500+ participants.',
+        'icon': 'fa-solid fa-laptop-code',
+        'gradient': 'from-blue-900 to-indigo-700',
+        'image_url': ''
+    },
+    {
+        'id': 2,
+        'title': 'Annual Youth Fest Seshadri Utsav',
+        'category': 'cultural',
+        'category_label': 'Cultural Extravaganza',
+        'description': 'Dance, music performance, and fashion show showcase.',
+        'icon': 'fa-solid fa-guitar',
+        'gradient': 'from-amber-600 to-rose-600',
+        'image_url': ''
+    },
+    {
+        'id': 3,
+        'title': 'Inter-Collegiate Athletics Championship',
+        'category': 'sports',
+        'category_label': 'Sports Meet',
+        'description': 'Seshadripuram sports teams winning gold medals.',
+        'icon': 'fa-solid fa-trophy',
+        'gradient': 'from-emerald-700 to-teal-600',
+        'image_url': ''
+    },
+    {
+        'id': 4,
+        'title': '100+ Terminal Cloud Computing Lab',
+        'category': 'campus',
+        'category_label': 'Campus Infrastructure',
+        'description': 'Students working in high-end software development environment.',
+        'icon': 'fa-solid fa-building-columns',
+        'gradient': 'from-slate-800 to-slate-900',
+        'image_url': ''
+    },
+    {
+        'id': 5,
+        'title': 'Annual Convocation Day',
+        'category': 'cultural',
+        'category_label': 'Graduation',
+        'description': 'Awarding university rank holders and graduating batches.',
+        'icon': 'fa-solid fa-graduation-cap',
+        'gradient': 'from-purple-800 to-indigo-900',
+        'image_url': ''
+    },
+    {
+        'id': 6,
+        'title': 'Generative AI & Cloud Summit',
+        'category': 'tech',
+        'category_label': 'AI Workshop',
+        'description': 'Industry tech experts speaking to computer science scholars.',
+        'icon': 'fa-solid fa-robot',
+        'gradient': 'from-blue-700 to-cyan-600',
+        'image_url': ''
+    }
+]
+
 @app.context_processor
 def inject_modules():
     return dict(modules=MODULE_CONTROL_MATRIX)
@@ -338,42 +402,42 @@ def index():
 @app.route('/about')
 def about():
     if not MODULE_CONTROL_MATRIX['about']['enabled']:
-        flash("About Us module is currently disabled by Super Admin.", "warning")
+        flash("⚠️ About Us module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     return render_template('about.html', title="About Us - Seshadripuram College")
 
 @app.route('/admission')
 def admission():
     if not MODULE_CONTROL_MATRIX['admission']['enabled']:
-        flash("Admission module is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Admission module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     return render_template('admission.html', title="Admissions 2026-27 - Seshadripuram College")
 
 @app.route('/apply', methods=['GET', 'POST'])
 def apply():
     if not MODULE_CONTROL_MATRIX['admission']['enabled']:
-        flash("Online Applications are currently closed by Super Admin.", "warning")
+        flash("⚠️ Online Applications are currently closed site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     if request.method == 'POST':
         name = request.form.get('full_name')
         course = request.form.get('course')
         phone = request.form.get('phone')
         email = request.form.get('email')
-        flash(f"Thank you {name}! Your application for {course} has been submitted successfully. Application ID: SC2026-{os.urandom(2).hex().upper()}.", "success")
+        flash(f"🎉 Thank you {name}! Your application for {course} has been submitted successfully. Application ID: SC2026-{os.urandom(2).hex().upper()}.", "success")
         return redirect(url_for('apply'))
     return render_template('apply.html', title="Online Application Form 2026-27")
 
 @app.route('/departments')
 def departments():
     if not MODULE_CONTROL_MATRIX['departments']['enabled']:
-        flash("Departments module is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Departments module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     return render_template('departments.html', title="Academic Departments - Seshadripuram College")
 
 @app.route('/course/<course_code>')
 def course_detail(course_code):
     if not MODULE_CONTROL_MATRIX['academics']['enabled']:
-        flash("Course details are currently offline by Super Admin.", "warning")
+        flash("⚠️ Course details are currently offline site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     code_lower = course_code.lower()
     course = COURSES_DATA.get(code_lower)
@@ -384,35 +448,85 @@ def course_detail(course_code):
 @app.route('/facilities')
 def facilities():
     if not MODULE_CONTROL_MATRIX['facilities']['enabled']:
-        flash("Facilities module is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Facilities module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     return render_template('facilities.html', title="Campus Infrastructure & Facilities - Seshadripuram College")
 
 @app.route('/placements')
 def placements():
     if not MODULE_CONTROL_MATRIX['placements']['enabled']:
-        flash("Placements module is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Placements module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     return render_template('placements.html', title="Placements & Career Cell - Seshadripuram College")
 
 @app.route('/gallery')
 def gallery():
     if not MODULE_CONTROL_MATRIX['gallery']['enabled']:
-        flash("Gallery module is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Gallery module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    return render_template('gallery.html', title="Campus Photo & Video Gallery - Seshadripuram College")
+    return render_template('gallery.html', title="Campus Photo & Video Gallery - Seshadripuram College", gallery_items=GALLERY_ITEMS)
+
+# Gallery Add Photo (Accessible by Super Admin AND College Admin when granted access)
+@app.route('/gallery/add', methods=['POST'])
+def gallery_add():
+    title = request.form.get('title')
+    category = request.form.get('category', 'campus')
+    description = request.form.get('description', '')
+    image_url = request.form.get('image_url', '').strip()
+    
+    category_labels = {
+        'tech': 'Tech & Hackathons',
+        'cultural': 'Cultural Fests',
+        'sports': 'Sports Meet',
+        'campus': 'Campus Life'
+    }
+    
+    new_id = (max([item['id'] for item in GALLERY_ITEMS]) + 1) if GALLERY_ITEMS else 1
+    new_item = {
+        'id': new_id,
+        'title': title if title else 'Campus Event Highlight',
+        'category': category,
+        'category_label': category_labels.get(category, 'Campus Highlight'),
+        'description': description if description else 'New photo uploaded to college archives.',
+        'icon': 'fa-solid fa-image',
+        'gradient': 'from-blue-600 to-indigo-700',
+        'image_url': image_url
+    }
+    GALLERY_ITEMS.insert(0, new_item)
+    flash(f"🖼️ Photo '{new_item['title']}' added to Campus Gallery successfully!", "success")
+    
+    ref = request.referrer
+    if ref and ('superadmin' in ref or 'admin' in ref or 'gallery' in ref):
+        return redirect(ref)
+    return redirect(url_for('gallery'))
+
+# Gallery Delete Photo (Accessible by Super Admin AND College Admin when granted access)
+@app.route('/gallery/delete/<int:item_id>', methods=['POST'])
+def gallery_delete(item_id):
+    global GALLERY_ITEMS
+    target = next((item for item in GALLERY_ITEMS if item['id'] == item_id), None)
+    if target:
+        GALLERY_ITEMS = [item for item in GALLERY_ITEMS if item['id'] != item_id]
+        flash(f"🗑️ Photo '{target['title']}' removed from Campus Gallery.", "info")
+    else:
+        flash("⚠️ Gallery image not found.", "warning")
+    
+    ref = request.referrer
+    if ref and ('superadmin' in ref or 'admin' in ref or 'gallery' in ref):
+        return redirect(ref)
+    return redirect(url_for('gallery'))
 
 @app.route('/students-corner')
 def students_corner():
     if not MODULE_CONTROL_MATRIX['students_corner']['enabled']:
-        flash("Students Corner is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Students Corner is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     return render_template('students_corner.html', title="Students Corner, Clubs & Examination - Seshadripuram College")
 
 @app.route('/forum', methods=['GET', 'POST'])
 def forum():
     if not MODULE_CONTROL_MATRIX['forum']['enabled']:
-        flash("Community Forum is currently disabled by Super Admin.", "warning")
+        flash("⚠️ Community Forum is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     if request.method == 'POST':
         author = request.form.get('author')
@@ -430,7 +544,7 @@ def forum():
             'likes': 1
         }
         FORUM_POSTS.insert(0, new_post)
-        flash("Your discussion topic has been published successfully!", "success")
+        flash("🎉 Your discussion topic has been published successfully!", "success")
         return redirect(url_for('forum'))
     return render_template('forum.html', posts=FORUM_POSTS, title="Campus Community Forum - Seshadripuram College")
 
@@ -438,7 +552,7 @@ def forum():
 def contact():
     if request.method == 'POST':
         name = request.form.get('name')
-        flash(f"Thank you {name}! Your message has been sent to Seshadripuram College Admin Office. We will get back to you shortly.", "success")
+        flash(f"✉️ Thank you {name}! Your message has been sent to Seshadripuram College Admin Office.", "success")
         return redirect(url_for('contact'))
     return render_template('contact.html', title="Contact Us - Seshadripuram College")
 
@@ -448,27 +562,31 @@ def login():
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html', title="College Admin Portal", modules=MODULE_CONTROL_MATRIX)
+    return render_template('admin.html', title="College Admin Portal", modules=MODULE_CONTROL_MATRIX, gallery_items=GALLERY_ITEMS)
 
 # SUPER ADMIN MODULE CONTROL MATRIX PORTAL (Controlled strictly by Super Admin)
 @app.route('/superadmin')
 def superadmin():
-    return render_template('superadmin.html', title="Super Admin - Module Control Matrix", modules=MODULE_CONTROL_MATRIX)
+    return render_template('superadmin.html', title="Super Admin - Module Control Matrix", modules=MODULE_CONTROL_MATRIX, gallery_items=GALLERY_ITEMS)
 
 @app.route('/superadmin/toggle-enable/<module_key>', methods=['POST'])
 def toggle_enable(module_key):
     if module_key in MODULE_CONTROL_MATRIX:
         MODULE_CONTROL_MATRIX[module_key]['enabled'] = not MODULE_CONTROL_MATRIX[module_key]['enabled']
-        status_str = "ENABLED" if MODULE_CONTROL_MATRIX[module_key]['enabled'] else "DISABLED"
-        flash(f"Module '{MODULE_CONTROL_MATRIX[module_key]['name']}' public view is now {status_str}.", "success")
+        is_enabled = MODULE_CONTROL_MATRIX[module_key]['enabled']
+        status_str = "ENABLED ✅" if is_enabled else "DISABLED ⚡"
+        msg_type = "success" if is_enabled else "warning"
+        flash(f"Notification: Module '{MODULE_CONTROL_MATRIX[module_key]['name']}' site-wide view is now {status_str}!", msg_type)
     return redirect(url_for('superadmin'))
 
 @app.route('/superadmin/toggle-admin/<module_key>', methods=['POST'])
 def toggle_admin(module_key):
     if module_key in MODULE_CONTROL_MATRIX:
         MODULE_CONTROL_MATRIX[module_key]['admin_access'] = not MODULE_CONTROL_MATRIX[module_key]['admin_access']
-        status_str = "GRANTED" if MODULE_CONTROL_MATRIX[module_key]['admin_access'] else "REVOKED"
-        flash(f"College Admin access for '{MODULE_CONTROL_MATRIX[module_key]['name']}' has been {status_str}.", "success")
+        is_granted = MODULE_CONTROL_MATRIX[module_key]['admin_access']
+        status_str = "GRANTED 🔑" if is_granted else "REVOKED 🔒"
+        msg_type = "success" if is_granted else "info"
+        flash(f"Notification: College Admin access for '{MODULE_CONTROL_MATRIX[module_key]['name']}' has been {status_str}!", msg_type)
     return redirect(url_for('superadmin'))
 
 # Download route simulation for past question papers
@@ -482,12 +600,13 @@ def download_paper(filename):
 
 @app.route('/ca')
 def admin_shortcut():
-    return render_template('admin.html', title="College Admin Portal", modules=MODULE_CONTROL_MATRIX)
+    return render_template('admin.html', title="College Admin Portal", modules=MODULE_CONTROL_MATRIX, gallery_items=GALLERY_ITEMS)
 
 @app.route('/sa')
 def superadmin_shortcut():
-    return render_template('superadmin.html', title="Super Admin - Module Control Matrix", modules=MODULE_CONTROL_MATRIX)
+    return render_template('superadmin.html', title="Super Admin - Module Control Matrix", modules=MODULE_CONTROL_MATRIX, gallery_items=GALLERY_ITEMS)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
 

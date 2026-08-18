@@ -37,17 +37,36 @@
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
     <!-- Flash Messages -->
+    <!-- Dynamic Notification Flash Popup Container -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div id="flash-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2">
+        <div id="flash-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4">
           {% for category, message in messages %}
-            <div class="px-5 py-4 rounded-xl shadow-2xl text-white font-medium flex items-center gap-3 bg-emerald-600 border border-emerald-500 animate-bounce">
-              <i class="fa-solid fa-circle-check text-xl"></i>
-              <span>{{ message }}</span>
-              <button onclick="this.parentElement.remove()" class="ml-4 text-emerald-200 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <div class="toast-popup px-5 py-4 rounded-2xl shadow-2xl text-white font-bold flex items-center justify-between gap-3 border transition-all animate-bounce {{ 'bg-emerald-600 border-emerald-400' if category == 'success' else ('bg-amber-600 border-amber-400' if category == 'warning' else 'bg-blue-600 border-blue-400') }}">
+              <div class="flex items-center gap-3 text-xs sm:text-sm">
+                {% if category == 'success' %}
+                  <i class="fa-solid fa-circle-check text-xl text-emerald-200"></i>
+                {% elif category == 'warning' %}
+                  <i class="fa-solid fa-triangle-exclamation text-xl text-amber-200"></i>
+                {% else %}
+                  <i class="fa-solid fa-bell text-xl text-blue-200"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+              </div>
+              <button onclick="this.parentElement.remove()" class="text-white opacity-80 hover:opacity-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
           {% endfor %}
         </div>
+        <script>
+          setTimeout(() => {
+            const container = document.getElementById('flash-container');
+            if (container) {
+              container.style.opacity = '0';
+              container.style.transition = 'opacity 0.5s ease';
+              setTimeout(() => container.remove(), 500);
+            }
+          }, 4500);
+        </script>
       {% endif %}
     {% endwith %}
 
