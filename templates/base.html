@@ -215,7 +215,8 @@
     {% block breadcrumb %}
     {% endblock %}
 
-    <!-- ============ FLOATING ACTION SIDEBAR (Desktop — right side) ============ -->
+    <!-- ============ FLOATING ACTION SIDEBAR & FAB (Hidden on Admin & Super Admin pages) ============ -->
+    {% if request.endpoint not in ['admin', 'superadmin'] %}
     <aside class="floating-sidebar" id="floating-sidebar" aria-label="Quick Actions">
         <a href="{{ url_for('students_corner') }}" class="floating-sidebar-card card-news" title="News & Notifications">
             <div class="sidebar-icon"><i class="fa-solid fa-bell"></i></div>
@@ -278,6 +279,7 @@
     <button class="fab-toggle" id="fab-toggle" aria-label="Quick Actions">
         <i class="fa-solid fa-plus" id="fab-icon"></i>
     </button>
+    {% endif %}
 
     <!-- MAIN PAGE CONTENT -->
     <main class="flex-grow">
