@@ -134,7 +134,12 @@ body {
   position: relative;
   font-weight: 700;
   letter-spacing: 0.01em;
+  color: #334155;
   transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #0f172a;
 }
 
 .nav-link::after {
@@ -155,7 +160,7 @@ body {
 }
 
 .nav-link.active {
-  color: #1e3a8a;
+  color: #1e3a8a !important;
   font-weight: 800;
 }
 
@@ -965,7 +970,7 @@ body.dark .glass-panel h3,
 
 .dark .glass-panel p,
 body.dark .glass-panel p,
-.dark p, .dark span:not(.live-badge) {
+.dark main p, .dark main span:not(.live-badge) {
   color: #e2e8f0;
 }
 
