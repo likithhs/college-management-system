@@ -267,6 +267,7 @@
     <!-- ============ FLOATING ACTION SIDEBAR & FAB (Hidden on Admin & Super Admin pages) ============ -->
     {% if request.endpoint not in ['admin', 'superadmin'] %}
     <aside class="floating-sidebar" id="floating-sidebar" aria-label="Quick Actions">
+        {% if modules['students_corner'].enabled or modules['news_events'].enabled %}
         <a href="{{ url_for('students_corner') }}" class="floating-sidebar-card card-news" title="News & Notifications">
             <div class="sidebar-icon"><i class="fa-solid fa-bell"></i></div>
             <div class="sidebar-text">
@@ -274,6 +275,8 @@
                 <span class="sidebar-subtitle">Latest updates</span>
             </div>
         </a>
+        {% endif %}
+        {% if modules['admission'].enabled %}
         <a href="{{ url_for('admission') }}" class="floating-sidebar-card card-admission" title="Admission Query">
             <div class="sidebar-icon"><i class="fa-solid fa-file-signature"></i></div>
             <div class="sidebar-text">
@@ -281,6 +284,8 @@
                 <span class="sidebar-subtitle">Fees & eligibility</span>
             </div>
         </a>
+        {% endif %}
+        {% if modules['gallery'].enabled %}
         <a href="{{ url_for('gallery') }}" class="floating-sidebar-card card-gallery" title="Campus Gallery">
             <div class="sidebar-icon"><i class="fa-solid fa-images"></i></div>
             <div class="sidebar-text">
@@ -288,6 +293,8 @@
                 <span class="sidebar-subtitle">Photo archives</span>
             </div>
         </a>
+        {% endif %}
+        {% if modules['forum'].enabled %}
         <a href="{{ url_for('forum') }}" class="floating-sidebar-card card-forum" title="Alumni & Forum">
             <div class="sidebar-icon"><i class="fa-solid fa-comments"></i></div>
             <div class="sidebar-text">
@@ -295,35 +302,44 @@
                 <span class="sidebar-subtitle">Alumni & peers</span>
             </div>
         </a>
+        {% endif %}
     </aside>
 
     <!-- ============ MOBILE FAB BUTTON & MENU ============ -->
     <div class="fab-overlay" id="fab-overlay"></div>
     <div class="fab-menu" id="fab-menu">
+        {% if modules['students_corner'].enabled or modules['news_events'].enabled %}
         <a href="{{ url_for('students_corner') }}" class="fab-menu-item">
             <span class="fab-menu-icon" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:#d97706;">
                 <i class="fa-solid fa-bell"></i>
             </span>
             News & Alerts
         </a>
+        {% endif %}
+        {% if modules['admission'].enabled %}
         <a href="{{ url_for('admission') }}" class="fab-menu-item">
             <span class="fab-menu-icon" style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#2563eb;">
                 <i class="fa-solid fa-file-signature"></i>
             </span>
             Admission Query
         </a>
+        {% endif %}
+        {% if modules['gallery'].enabled %}
         <a href="{{ url_for('gallery') }}" class="fab-menu-item">
             <span class="fab-menu-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;">
                 <i class="fa-solid fa-images"></i>
             </span>
             Campus Gallery
         </a>
+        {% endif %}
+        {% if modules['forum'].enabled %}
         <a href="{{ url_for('forum') }}" class="fab-menu-item">
             <span class="fab-menu-icon" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#059669;">
                 <i class="fa-solid fa-comments"></i>
             </span>
             Campus Forum
         </a>
+        {% endif %}
     </div>
     <button class="fab-toggle" id="fab-toggle" aria-label="Quick Actions">
         <i class="fa-solid fa-plus" id="fab-icon"></i>
