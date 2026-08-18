@@ -858,3 +858,92 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* ============================================================
+   DARK THEME HIGH CONTRAST TEXT & VISIBILITY ENHANCEMENTS
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  .floating-sidebar-card {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-color: rgba(51, 65, 85, 0.9) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .floating-sidebar-card .sidebar-title {
+    color: #f8fafc !important;
+  }
+
+  .floating-sidebar-card .sidebar-subtitle {
+    color: #94a3b8 !important;
+  }
+
+  .fab-menu-item {
+    background: rgba(15, 23, 42, 0.95) !important;
+    color: #f8fafc !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+  }
+
+  .glass-panel {
+    background: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+  }
+
+  .glass-panel h3 {
+    color: #ffffff !important;
+  }
+
+  .glass-panel p {
+    color: #cbd5e1 !important;
+  }
+
+  .glass-panel .counter-value {
+    color: #ffffff !important;
+  }
+}
+
+/* Explicit class-based dark mode rules */
+.dark .floating-sidebar-card,
+body.dark .floating-sidebar-card {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(51, 65, 85, 0.9) !important;
+  color: #f8fafc !important;
+}
+
+.dark .floating-sidebar-card .sidebar-title,
+body.dark .floating-sidebar-card .sidebar-title {
+  color: #f8fafc !important;
+}
+
+.dark .floating-sidebar-card .sidebar-subtitle,
+body.dark .floating-sidebar-card .sidebar-subtitle {
+  color: #94a3b8 !important;
+}
+
+.dark .fab-menu-item,
+body.dark .fab-menu-item {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #f8fafc !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+.dark .glass-panel,
+body.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+.dark .glass-panel h3,
+body.dark .glass-panel h3 {
+  color: #ffffff !important;
+}
+
+.dark .glass-panel p,
+body.dark .glass-panel p {
+  color: #cbd5e1 !important;
+}
+
+.dark .glass-panel .counter-value,
+body.dark .glass-panel .counter-value {
+  color: #ffffff !important;
+}

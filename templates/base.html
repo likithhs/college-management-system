@@ -268,38 +268,38 @@
     {% if request.endpoint not in ['admin', 'superadmin'] and modules['floating_sidebar'].enabled %}
     <aside class="floating-sidebar" id="floating-sidebar" aria-label="Quick Actions">
         {% if modules['students_corner'].enabled or modules['news_events'].enabled %}
-        <a href="{{ url_for('students_corner') }}" class="floating-sidebar-card card-news" title="News & Notifications">
+        <a href="{{ url_for('students_corner') }}" class="floating-sidebar-card card-news dark:bg-slate-900/95 dark:border-slate-700" title="News & Notifications">
             <div class="sidebar-icon"><i class="fa-solid fa-bell"></i></div>
             <div class="sidebar-text">
-                <span class="sidebar-title">News & Alerts</span>
-                <span class="sidebar-subtitle">Latest updates</span>
+                <span class="sidebar-title dark:text-white">News & Alerts</span>
+                <span class="sidebar-subtitle dark:text-slate-400">Latest updates</span>
             </div>
         </a>
         {% endif %}
         {% if modules['admission'].enabled %}
-        <a href="{{ url_for('admission') }}" class="floating-sidebar-card card-admission" title="Admission Query">
+        <a href="{{ url_for('admission') }}" class="floating-sidebar-card card-admission dark:bg-slate-900/95 dark:border-slate-700" title="Admission Query">
             <div class="sidebar-icon"><i class="fa-solid fa-file-signature"></i></div>
             <div class="sidebar-text">
-                <span class="sidebar-title">Admission Query</span>
-                <span class="sidebar-subtitle">Fees & eligibility</span>
+                <span class="sidebar-title dark:text-white">Admission Query</span>
+                <span class="sidebar-subtitle dark:text-slate-400">Fees & eligibility</span>
             </div>
         </a>
         {% endif %}
         {% if modules['gallery'].enabled %}
-        <a href="{{ url_for('gallery') }}" class="floating-sidebar-card card-gallery" title="Campus Gallery">
+        <a href="{{ url_for('gallery') }}" class="floating-sidebar-card card-gallery dark:bg-slate-900/95 dark:border-slate-700" title="Campus Gallery">
             <div class="sidebar-icon"><i class="fa-solid fa-images"></i></div>
             <div class="sidebar-text">
-                <span class="sidebar-title">Campus Gallery</span>
-                <span class="sidebar-subtitle">Photo archives</span>
+                <span class="sidebar-title dark:text-white">Campus Gallery</span>
+                <span class="sidebar-subtitle dark:text-slate-400">Photo archives</span>
             </div>
         </a>
         {% endif %}
         {% if modules['forum'].enabled %}
-        <a href="{{ url_for('forum') }}" class="floating-sidebar-card card-forum" title="Alumni & Forum">
+        <a href="{{ url_for('forum') }}" class="floating-sidebar-card card-forum dark:bg-slate-900/95 dark:border-slate-700" title="Alumni & Forum">
             <div class="sidebar-icon"><i class="fa-solid fa-comments"></i></div>
             <div class="sidebar-text">
-                <span class="sidebar-title">Campus Forum</span>
-                <span class="sidebar-subtitle">Alumni & peers</span>
+                <span class="sidebar-title dark:text-white">Campus Forum</span>
+                <span class="sidebar-subtitle dark:text-slate-400">Alumni & peers</span>
             </div>
         </a>
         {% endif %}
@@ -309,7 +309,7 @@
     <div class="fab-overlay" id="fab-overlay"></div>
     <div class="fab-menu" id="fab-menu">
         {% if modules['students_corner'].enabled or modules['news_events'].enabled %}
-        <a href="{{ url_for('students_corner') }}" class="fab-menu-item">
+        <a href="{{ url_for('students_corner') }}" class="fab-menu-item dark:bg-slate-900 dark:border-slate-700 dark:text-white">
             <span class="fab-menu-icon" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:#d97706;">
                 <i class="fa-solid fa-bell"></i>
             </span>
@@ -317,7 +317,7 @@
         </a>
         {% endif %}
         {% if modules['admission'].enabled %}
-        <a href="{{ url_for('admission') }}" class="fab-menu-item">
+        <a href="{{ url_for('admission') }}" class="fab-menu-item dark:bg-slate-900 dark:border-slate-700 dark:text-white">
             <span class="fab-menu-icon" style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#2563eb;">
                 <i class="fa-solid fa-file-signature"></i>
             </span>
@@ -325,7 +325,7 @@
         </a>
         {% endif %}
         {% if modules['gallery'].enabled %}
-        <a href="{{ url_for('gallery') }}" class="fab-menu-item">
+        <a href="{{ url_for('gallery') }}" class="fab-menu-item dark:bg-slate-900 dark:border-slate-700 dark:text-white">
             <span class="fab-menu-icon" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;">
                 <i class="fa-solid fa-images"></i>
             </span>
@@ -333,7 +333,7 @@
         </a>
         {% endif %}
         {% if modules['forum'].enabled %}
-        <a href="{{ url_for('forum') }}" class="fab-menu-item">
+        <a href="{{ url_for('forum') }}" class="fab-menu-item dark:bg-slate-900 dark:border-slate-700 dark:text-white">
             <span class="fab-menu-icon" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#059669;">
                 <i class="fa-solid fa-comments"></i>
             </span>
