@@ -536,7 +536,7 @@ def forum():
         content = request.form.get('content')
         new_post = {
             'id': len(FORUM_POSTS) + 1,
-            'author': author if author else 'Anonymous Student',
+            'author': author if author else 'College Administrator',
             'title': title,
             'category': category,
             'content': content,
@@ -545,7 +545,10 @@ def forum():
             'likes': 1
         }
         FORUM_POSTS.insert(0, new_post)
-        flash("🎉 Your discussion topic has been published successfully!", "success")
+        flash("🎉 Discussion topic has been published successfully to Campus Forum!", "success")
+        ref = request.referrer
+        if ref and ('superadmin' in ref or 'admin' in ref):
+            return redirect(ref)
         return redirect(url_for('forum'))
     return render_template('forum.html', posts=FORUM_POSTS, title="Campus Community Forum - Seshadripuram College")
 
