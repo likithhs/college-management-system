@@ -268,7 +268,8 @@ MODULE_CONTROL_MATRIX = {
     'gallery': {'name': 'Gallery', 'enabled': True, 'admin_access': True},
     'placements': {'name': 'Placements', 'enabled': True, 'admin_access': True},
     'forum': {'name': 'Community Forum', 'enabled': True, 'admin_access': True},
-    'news_events': {'name': 'News & Events', 'enabled': True, 'admin_access': True}
+    'news_events': {'name': 'News & Events', 'enabled': True, 'admin_access': True},
+    'floating_sidebar': {'name': 'Floating Right-Corner Quick Buttons', 'enabled': True, 'admin_access': True}
 }
 
 # Upcoming Events Data

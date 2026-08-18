@@ -264,8 +264,8 @@
     {% block breadcrumb %}
     {% endblock %}
 
-    <!-- ============ FLOATING ACTION SIDEBAR & FAB (Hidden on Admin & Super Admin pages) ============ -->
-    {% if request.endpoint not in ['admin', 'superadmin'] %}
+    <!-- ============ FLOATING ACTION SIDEBAR & FAB (Master Toggle + Hidden on Admin & Super Admin pages) ============ -->
+    {% if request.endpoint not in ['admin', 'superadmin'] and modules['floating_sidebar'].enabled %}
     <aside class="floating-sidebar" id="floating-sidebar" aria-label="Quick Actions">
         {% if modules['students_corner'].enabled or modules['news_events'].enabled %}
         <a href="{{ url_for('students_corner') }}" class="floating-sidebar-card card-news" title="News & Notifications">
