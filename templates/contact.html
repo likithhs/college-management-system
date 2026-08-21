@@ -4,7 +4,7 @@
 <section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4" data-aos="fade-down">
         <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Reach Out</span>
-        <h1 class="text-3xl md:text-4xl font-black mt-3">Contact Seshadripuram College</h1>
+        <h1 class="text-3xl md:text-4xl font-black mt-3">Contact {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "Seshadripuram College") }}</h1>
         <p class="text-sm text-slate-300 max-w-2xl mt-2">Have questions about admissions, course syllabus, or campus visits? Contact our administration desk.</p>
     </div>
 </section>
@@ -24,7 +24,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-navy-900 dark:text-white">Address</h4>
-                            <p class="text-slate-600 dark:text-slate-300 mt-0.5">Seshadripuram Main Campus, Bengaluru - 560020, Karnataka, India.</p>
+                            <p class="text-slate-600 dark:text-slate-300 mt-0.5">{{ settings.address if (settings and settings.address) else "Seshadripuram Main Campus, Bengaluru - 560020, Karnataka, India." }}</p>
                         </div>
                     </div>
 
@@ -34,7 +34,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-navy-900 dark:text-white">Admission Hotline</h4>
-                            <p class="text-slate-600 dark:text-slate-300 mt-0.5">+91 6363179389 / 080-22955354</p>
+                            <p class="text-slate-600 dark:text-slate-300 mt-0.5">{{ settings.phone_primary if (settings and settings.phone_primary) else "+91 6363179389 / 080-22955354" }}</p>
                         </div>
                     </div>
 
@@ -44,7 +44,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-navy-900 dark:text-white">Email Address</h4>
-                            <p class="text-slate-600 dark:text-slate-300 mt-0.5">info@spmcollege.ac.in / admissions@spmcollege.ac.in</p>
+                            <p class="text-slate-600 dark:text-slate-300 mt-0.5">{{ settings.email_info if (settings and settings.email_info) else "info@spmcollege.ac.in" }}</p>
                         </div>
                     </div>
                 </div>

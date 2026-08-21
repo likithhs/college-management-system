@@ -80,11 +80,11 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div class="flex-shrink-0">
-                    <h1 class="text-sm sm:text-base lg:text-lg font-extrabold tracking-tight text-white leading-tight">
-                        SESHADRIPURAM COLLEGE
+                    <h1 class="text-sm sm:text-base lg:text-lg font-extrabold tracking-tight text-white leading-tight uppercase">
+                        {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "SESHADRIPURAM COLLEGE") }}
                     </h1>
                     <p class="text-[9px] sm:text-[10px] lg:text-[11px] font-medium text-blue-200/70 hidden sm:block">
-                        Excellence Since 1998 • Affiliated to Bengaluru City University
+                        {{ settings.tagline if (settings and settings.tagline) else "Excellence Since 1998 • Affiliated to Bengaluru City University" }}
                     </p>
                 </div>
             </a>
@@ -92,11 +92,11 @@
             <!-- CENTER: Info Badges (desktop only) -->
             <div class="hidden lg:flex items-center gap-3 text-xs font-medium">
                 <span class="flex items-center gap-1.5 bg-yellow-500/15 text-yellow-300 px-2.5 py-1 rounded-full border border-yellow-500/20">
-                    <i class="fa-solid fa-trophy text-yellow-400 text-[10px]"></i> NAAC A++ Accredited
+                    <i class="fa-solid fa-trophy text-yellow-400 text-[10px]"></i> {{ settings.accreditation if (settings and settings.accreditation) else "NAAC A++ Accredited" }}
                 </span>
                 <span class="text-slate-400">ISO 9001:2015 Certified</span>
                 <span class="flex items-center gap-1 text-slate-300">
-                    <i class="fa-solid fa-phone text-blue-400 text-[10px]"></i> +91 6363179389
+                    <i class="fa-solid fa-phone text-blue-400 text-[10px]"></i> {{ settings.phone_primary if (settings and settings.phone_primary) else "+91 6363179389" }}
                 </span>
             </div>
 
@@ -105,10 +105,17 @@
                 <a href="{{ url_for('about') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-yellow-400 transition-colors">NIRF</a>
                 <span class="hidden md:inline-block text-slate-700">|</span>
                 <a href="{{ url_for('contact') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-yellow-400 transition-colors">Contact</a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}" class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
+                    <i class="fa-solid fa-right-from-bracket text-[10px] sm:text-xs"></i>
+                    <span>Logout</span>
+                </a>
+                {% else %}
                 <a href="{{ url_for('login') }}" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
                     <i class="fa-solid fa-user text-[10px] sm:text-xs"></i>
                     <span>Student Login</span>
                 </a>
+                {% endif %}
             </div>
         </div>
 
@@ -406,11 +413,11 @@
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-white tracking-tight leading-tight">SESHADRIPURAM<br>COLLEGE</h3>
+                        <h3 class="text-base font-extrabold text-white tracking-tight leading-tight uppercase">{{ settings.college_name if (settings and settings.college_name) else (college.name if college else "SESHADRIPURAM COLLEGE") }}</h3>
                     </div>
                 </div>
                 <p class="text-xs text-slate-400 leading-relaxed">
-                    Committed to academic excellence, holistic development of students, and value-based education since 1998. Affiliated to Bengaluru City University.
+                    Committed to academic excellence, holistic development of students, and value-based education since 1998. {{ settings.tagline if (settings and settings.tagline) else "Affiliated to Bengaluru City University." }}
                 </p>
                 <div class="flex gap-3 text-slate-400 pt-2">
                     <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-facebook-f text-xs"></i></a>
@@ -440,11 +447,11 @@
                 <ul class="space-y-3 text-xs">
                     <li class="flex items-center gap-2.5">
                         <i class="fa-solid fa-phone text-amber-500"></i>
-                        <span>+91 6363179389</span>
+                        <span>{{ settings.phone_primary if (settings and settings.phone_primary) else "+91 6363179389" }}</span>
                     </li>
                     <li class="flex items-center gap-2.5">
                         <i class="fa-solid fa-envelope text-amber-500"></i>
-                        <span>info@spmcollege.ac.in</span>
+                        <span>{{ settings.email_info if (settings and settings.email_info) else "info@spmcollege.ac.in" }}</span>
                     </li>
                     <li class="flex items-center gap-2.5">
                         <i class="fa-solid fa-clock text-amber-500"></i>
@@ -488,7 +495,7 @@
         <!-- Sub-footer copyright -->
         <div class="border-t border-slate-900 bg-black/40 py-4 text-center text-xs text-slate-500">
             <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-                <p>&copy; 2026 Seshadripuram College. All Rights Reserved. Affiliated to Bengaluru City University.</p>
+                <p>&copy; 2026 {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "Seshadripuram College") }}. All Rights Reserved. Affiliated to Bengaluru City University.</p>
                 <div class="flex gap-4">
                     <a href="#" class="hover:underline">Privacy Policy</a>
                     <a href="#" class="hover:underline">Terms of Service</a>

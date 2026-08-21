@@ -9,23 +9,23 @@
                 <div class="w-14 h-14 bg-navy-900 dark:bg-slate-900 text-white rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold shadow-md border border-slate-700">
                     <i class="fa-solid fa-lock"></i>
                 </div>
-                <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white">Student & Faculty Portal</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Access attendance records, marks cards, & e-learning LMS</p>
+                <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white">Administrator & Portal Login</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Authenticate securely to access College Administration or Super Admin Matrix</p>
             </div>
 
-            <form onsubmit="event.preventDefault(); showToast('🔓 Student login portal demo verified!', 'success');" class="space-y-4">
+            <form action="{{ url_for('login', next=request.args.get('next')) }}" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Registration No. / Staff ID</label>
-                    <input type="text" placeholder="e.g. SC2024BCA042" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email / Account ID</label>
+                    <input type="email" name="email" placeholder="e.g. admin@spmcollege.ac.in" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                    <input type="password" placeholder="••••••••" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                    <input type="password" name="password" placeholder="••••••••" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">
                 </div>
 
                 <div class="flex items-center justify-between text-xs">
                     <label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 cursor-pointer">
-                        <input type="checkbox" class="rounded text-blue-600"> Remember me
+                        <input type="checkbox" name="remember" class="rounded text-blue-600"> Remember me
                     </label>
                     <a href="#" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Forgot password?</a>
                 </div>
@@ -35,8 +35,17 @@
                 </button>
             </form>
 
+            <!-- Dev Credentials Helper Box -->
+            <div class="p-3.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 rounded-2xl text-[11px] text-slate-600 dark:text-slate-300 space-y-1">
+                <div class="font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-key text-amber-500"></i> Local Development Credentials:
+                </div>
+                <div><strong class="text-slate-800 dark:text-slate-200">College Admin:</strong> admin@spmcollege.ac.in (Pass: CollegeAdmin@123)</div>
+                <div><strong class="text-slate-800 dark:text-slate-200">Super Admin:</strong> superadmin@spmcollege.ac.in (Pass: SuperAdmin@123)</div>
+            </div>
+
             <div class="text-center pt-2 border-t border-slate-100 dark:border-slate-700">
-                <p class="text-xs text-slate-500 dark:text-slate-400">Are you an Administrator? <a href="{{ url_for('admin') }}" class="text-amber-600 dark:text-amber-400 font-bold hover:underline">Go to Admin Dashboard</a></p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Looking for institutional information? <a href="{{ url_for('index') }}" class="text-amber-600 dark:text-amber-400 font-bold hover:underline">Return to Public Website</a></p>
             </div>
         </div>
 

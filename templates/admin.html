@@ -92,22 +92,39 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                            <td class="p-3 font-mono text-blue-700 dark:text-blue-400 font-bold">SC2026-9A4B</td>
-                            <td class="p-3 font-semibold text-slate-800 dark:text-white">Naveen Kumar</td>
-                            <td class="p-3 text-slate-600 dark:text-slate-300">BCA (Bachelor of Computer Applications)</td>
-                            <td class="p-3 font-bold text-slate-900 dark:text-white">92.4%</td>
-                            <td class="p-3 text-slate-500 dark:text-slate-400">Today, 06:45 PM</td>
-                            <td class="p-3"><span class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full font-bold text-[10px]">VERIFIED</span></td>
-                        </tr>
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                            <td class="p-3 font-mono text-blue-700 dark:text-blue-400 font-bold">SC2026-7C12</td>
-                            <td class="p-3 font-semibold text-slate-800 dark:text-white">Pooja Hegde</td>
-                            <td class="p-3 text-slate-600 dark:text-slate-300">BBA (Bachelor of Business Administration)</td>
-                            <td class="p-3 font-bold text-slate-900 dark:text-white">89.1%</td>
-                            <td class="p-3 text-slate-500 dark:text-slate-400">Today, 05:30 PM</td>
-                            <td class="p-3"><span class="bg-yellow-100 dark:bg-amber-950/60 text-yellow-800 dark:text-amber-300 px-2 py-0.5 rounded-full font-bold text-[10px]">UNDER REVIEW</span></td>
-                        </tr>
+                        {% if applications %}
+                            {% for app_item in applications %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                <td class="p-3 font-mono text-blue-700 dark:text-blue-400 font-bold">{{ app_item.application_number }}</td>
+                                <td class="p-3 font-semibold text-slate-800 dark:text-white">
+                                    {{ app_item.full_name }}
+                                    <div class="text-[10px] text-slate-400 font-normal">Guardian: {{ app_item.guardian_name }} | {{ app_item.phone }} | {{ app_item.email }}</div>
+                                </td>
+                                <td class="p-3 text-slate-600 dark:text-slate-300">{{ app_item.course }}</td>
+                                <td class="p-3 font-bold text-slate-900 dark:text-white">{{ app_item.percentage }}%</td>
+                                <td class="p-3 text-slate-500 dark:text-slate-400">{{ app_item.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="p-3 flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded-full font-bold text-[10px] {{ 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' if app_item.status == 'VERIFIED' else ('bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' if app_item.status == 'REJECTED' else 'bg-yellow-100 dark:bg-amber-950/60 text-yellow-800 dark:text-amber-300') }}">
+                                        {{ app_item.status }}
+                                    </span>
+                                    <form action="{{ url_for('update_application_status', app_id=app_item.id) }}" method="POST" class="inline-flex gap-1">
+                                        {% if app_item.status != 'VERIFIED' %}
+                                        <button type="submit" name="status" value="VERIFIED" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs" title="Mark as Verified">✓ Verify</button>
+                                        {% endif %}
+                                        {% if app_item.status != 'REJECTED' %}
+                                        <button type="submit" name="status" value="REJECTED" class="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs" title="Mark as Rejected">✗ Reject</button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="p-6 text-center text-slate-400 text-xs italic">
+                                    No online admission applications submitted yet for this college.
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
