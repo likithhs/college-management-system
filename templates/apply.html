@@ -17,6 +17,7 @@
         <!-- Form Card -->
         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm" data-aos="fade-up">
             <form action="{{ url_for('apply') }}" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 
                 <h3 class="text-base font-bold text-navy-900 border-b border-slate-200 pb-3 flex items-center gap-2">
                     <i class="fa-solid fa-user text-blue-600"></i> Personal Information

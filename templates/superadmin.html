@@ -43,6 +43,7 @@
                             <!-- Enable Toggle Switch -->
                             <td class="py-4 px-6 text-center">
                                 <form action="{{ url_for('toggle_enable', module_key=key) }}" method="POST" class="inline-block">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <button type="submit" class="relative inline-flex items-center h-6 rounded-full w-12 transition-colors focus:outline-none {{ 'bg-emerald-500' if mod.enabled else 'bg-slate-700' }}">
                                         <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform {{ 'translate-x-7' if mod.enabled else 'translate-x-1' }}"></span>
                                     </button>
@@ -65,6 +66,7 @@
                             <!-- Admin Access Granted Pill Button -->
                             <td class="py-4 px-6 text-center">
                                 <form action="{{ url_for('toggle_admin', module_key=key) }}" method="POST" class="inline-block">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     {% if mod.admin_access %}
                                     <button type="submit" title="Click to Revoke Admin Authority" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-full border border-emerald-400/40 shadow-sm transition-all text-xs flex items-center gap-1.5 mx-auto">
                                         <i class="fa-solid fa-check"></i> Admin Granted
@@ -97,6 +99,7 @@
 
             <!-- Add Gallery Photo Form -->
             <form action="{{ url_for('gallery_add') }}" method="POST" class="bg-slate-850 p-6 rounded-2xl border border-slate-700/80 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-plus-circle text-emerald-400"></i> Add New Image to Gallery
                 </h4>
@@ -146,6 +149,7 @@
                             </div>
                         </div>
                         <form action="{{ url_for('gallery_delete', item_id=item.id) }}" method="POST" onsubmit="return confirm('Delete photo: {{ item.title }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <button type="submit" title="Remove Photo" class="bg-rose-900/80 hover:bg-rose-700 text-rose-200 p-2 rounded-xl text-xs font-bold transition-all">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
@@ -170,6 +174,7 @@
 
             <!-- Start New Discussion Form -->
             <form action="{{ url_for('forum') }}" method="POST" class="bg-slate-850 p-6 rounded-2xl border border-slate-700/80 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-plus-circle text-emerald-400"></i> Start New Official Discussion Topic
                 </h4>

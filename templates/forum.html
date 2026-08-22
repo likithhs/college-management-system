@@ -60,7 +60,7 @@
                                 {% if 'Alumni' in post.author %}
                                 <span class="ml-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase">Alumni</span>
                                 {% endif %}
-                                <span class="text-[10px] text-slate-400 ml-2">• {{ post.date }}</span>
+                                <span class="text-[10px] text-slate-400 ml-2">• {{ post.created_at.strftime('%b %d, %Y') if post.created_at else 'Recent' }}</span>
                             </div>
                         </div>
                         <span class="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-semibold text-[10px] px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">

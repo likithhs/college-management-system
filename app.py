@@ -1,6 +1,9 @@
 import os
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, abort
+import secrets
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, abort, g, session
 from flask_login import login_user, logout_user, login_required, current_user
+from werkzeug.utils import secure_filename
+from sqlalchemy.orm import joinedload, selectinload
 from extensions import db, migrate, login_manager
 import models
 from seed import seed_default_college, get_default_college, get_database_module_matrix, DEFAULT_MODULE_MATRIX
@@ -8,6 +11,11 @@ from authz import platform_super_admin_required, college_admin_required, module_
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'seshadripuram_college_secret_key')
+
+# Production Session & Cookie Hardening
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('HTTPS', 'false').lower() == 'true'
 
 @app.errorhandler(403)
 def forbidden_error(e):
@@ -32,313 +40,35 @@ with app.app_context():
     except Exception as e:
         app.logger.warning(f"Seed startup warning: {e}")
 
-# Academic Courses Database Dictionary
-COURSES_DATA = {
-    'bca': {
-        'code': 'BCA',
-        'name': 'Bachelor of Computer Applications',
-        'level': 'Undergraduate (UG)',
-        'duration': '3 Years (6 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'The BCA program at Seshadripuram College is designed to build a strong foundation in computer science, software development, cloud computing, AI, and full-stack web engineering. Equipped with 100+ high-end computer labs.',
-        'eligibility': '10+2 / Pre-University Examination passed in any stream with a minimum of 40% aggregate marks.',
-        'outcomes': [
-            'Proficiency in Java, Python, C++, Web Technologies, and Database Systems.',
-            'Practical experience through industry projects and cloud labs.',
-            '100% placement assistance with top tech recruiters like Infosys, Wipro, TCS, and Accenture.'
-        ],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Programming in C', 'Computer Architecture', 'Discrete Mathematics', 'Digital Electronics']},
-            {'sem': 'Semester II', 'subjects': ['Data Structures using C++', 'Operating Systems', 'Numerical Analysis', 'Python Programming']},
-            {'sem': 'Semester III', 'subjects': ['Java Programming', 'Database Management Systems (DBMS)', 'Software Engineering', 'Computer Networks']},
-            {'sem': 'Semester IV', 'subjects': ['Web Technologies (HTML/CSS/JS/Node)', 'Design & Analysis of Algorithms', 'Cloud Computing Basics', 'Python for Data Science']},
-            {'sem': 'Semester V', 'subjects': ['Full Stack Web Development', 'Artificial Intelligence & ML', 'Cyber Security & Cryptography', 'Software Testing']},
-            {'sem': 'Semester VI', 'subjects': ['Major Industry Project', 'Mobile App Development (Android/Flutter)', 'Advanced Java & Spring Boot', 'Ethics in IT']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Full Stack Web Development', 'file': 'BCA_Sem5_FullStack_2025.pdf'},
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Artificial Intelligence', 'file': 'BCA_Sem5_AI_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 4', 'subject': 'Database Management Systems', 'file': 'BCA_Sem4_DBMS_2024.pdf'},
-            {'year': '2024', 'sem': 'Sem 3', 'subject': 'Java Programming', 'file': 'BCA_Sem3_Java_2024.pdf'},
-            {'year': '2023', 'sem': 'Sem 2', 'subject': 'Data Structures', 'file': 'BCA_Sem2_DataStructures_2023.pdf'}
-        ]
-    },
-    'mca': {
-        'code': 'MCA',
-        'name': 'Master of Computer Applications',
-        'level': 'Postgraduate (PG)',
-        'duration': '2 Years (4 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Advanced postgraduate program specializing in Cloud Microservices, Artificial Intelligence, Big Data Analytics, and Software Architecture.',
-        'eligibility': 'BCA / B.Sc (CS/IT) / Graduate degree with Mathematics at PUC or Graduation level with min 50% aggregate.',
-        'outcomes': [
-            'Architectural mastery in Cloud Microservices & Distributed Systems.',
-            'High-level positions like Software Development Engineer, Data Scientist, DevOps Engineer.'
-        ],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Advanced Data Structures', 'Cloud Microservices Architecture', 'Enterprise Java', 'Applied Statistics']},
-            {'sem': 'Semester II', 'subjects': ['Machine Learning & Deep Learning', 'Advanced Web Architectures', 'DevOps & CI/CD', 'Mobile Engineering']},
-            {'sem': 'Semester III', 'subjects': ['Big Data Engineering', 'Cybersecurity Engineering', 'Full Stack Frameworks', 'Research Methodology']},
-            {'sem': 'Semester IV', 'subjects': ['Postgraduate Thesis / Industry Internship', 'Publication & Project Defense']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 3', 'subject': 'Cloud Microservices', 'file': 'MCA_Sem3_Cloud_2025.pdf'},
-            {'year': '2025', 'sem': 'Sem 2', 'subject': 'Machine Learning', 'file': 'MCA_Sem2_ML_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 1', 'subject': 'Advanced Data Structures', 'file': 'MCA_Sem1_ADS_2024.pdf'}
-        ]
-    },
-    'bba': {
-        'code': 'BBA',
-        'name': 'Bachelor of Business Administration',
-        'level': 'Undergraduate (UG)',
-        'duration': '3 Years (6 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Empowering future business leaders with comprehensive skills in corporate management, marketing strategies, financial analytics, and entrepreneurship.',
-        'eligibility': '10+2 / PUC passed in any discipline with minimum 40% aggregate.',
-        'outcomes': [
-            'Business leadership and strategic decision-making capabilities.',
-            'Hands-on exposure to corporate internships, startup incubators, and business fests.'
-        ],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Principles of Management', 'Financial Accounting', 'Business Economics', 'Corporate Communication']},
-            {'sem': 'Semester II', 'subjects': ['Organizational Behavior', 'Cost Accounting', 'Business Law', 'Marketing Management']},
-            {'sem': 'Semester III', 'subjects': ['Human Resource Management', 'Corporate Environment', 'Business Statistics', 'Financial Management']},
-            {'sem': 'Semester IV', 'subjects': ['Entrepreneurship Development', 'Supply Chain Management', 'Services Management', 'Research Methods']},
-            {'sem': 'Semester V', 'subjects': ['Elective I (Finance/Marketing/HR)', 'Elective II', 'Strategic Management', 'Income Tax']},
-            {'sem': 'Semester VI', 'subjects': ['International Business', 'Corporate Governance', 'Project Report & Viva', 'Business Analytics']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Financial Management', 'file': 'BBA_Sem5_Finance_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 4', 'subject': 'Entrepreneurship', 'file': 'BBA_Sem4_Ent_2024.pdf'},
-            {'year': '2024', 'sem': 'Sem 2', 'subject': 'Marketing Management', 'file': 'BBA_Sem2_Marketing_2024.pdf'}
-        ]
-    },
-    'bcom': {
-        'code': 'BCom',
-        'name': 'Bachelor of Commerce',
-        'level': 'Undergraduate (UG)',
-        'duration': '3 Years (6 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Our flagship Commerce program focusing on Advanced Accounting, Taxation, Banking, Financial Auditing, and Corporate Finance.',
-        'eligibility': '10+2 / PUC in Commerce or Science stream.',
-        'outcomes': [
-            'Deep expertise in Tally Prime, GST, Corporate Taxation, and Auditing.',
-            'Seamless foundation for CA, CS, CMA, and MBA pursuits.'
-        ],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Financial Accounting I', 'Business Dynamics', 'Indian Financial System', 'Market Behavior']},
-            {'sem': 'Semester II', 'subjects': ['Advanced Accounting', 'Banking Law & Operations', 'Quantitative Analysis', 'Corporate Ethics']},
-            {'sem': 'Semester III', 'subjects': ['Corporate Accounting I', 'Financial Markets', 'Direct Taxes', 'Business Regulations']},
-            {'sem': 'Semester IV', 'subjects': ['Cost Accounting', 'E-Commerce', 'Indirect Taxes (GST)', 'Stock Market Operations']},
-            {'sem': 'Semester V', 'subjects': ['Income Tax II', 'Auditing & Assurance', 'Management Accounting', 'Elective Paper 1']},
-            {'sem': 'Semester VI', 'subjects': ['Business Taxation', 'International Financial Reporting', 'GST Practice', 'Project Work']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Auditing & Assurance', 'file': 'BCom_Sem5_Auditing_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 4', 'subject': 'Cost Accounting', 'file': 'BCom_Sem4_Cost_2024.pdf'}
-        ]
-    },
-    'mba': {
-        'code': 'MBA',
-        'name': 'Master of Business Administration',
-        'level': 'Postgraduate (PG)',
-        'duration': '2 Years (4 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Executive business leadership & strategic management degree offering dual specializations in Finance, Marketing, HR, and Business Analytics.',
-        'eligibility': 'Graduation in any stream with min 50% aggregate and valid PGCET/MAT/KMAT score.',
-        'outcomes': ['Executive positions in Fortune 500 companies, startup leadership, and management consulting.'],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Management & Organizational Behavior', 'Managerial Economics', 'Accounting for Managers', 'Marketing Management']},
-            {'sem': 'Semester II', 'subjects': ['Financial Management', 'Human Resource Management', 'Business Research Methods', 'Operations Management']},
-            {'sem': 'Semester III', 'subjects': ['Specialization Electives (Dual)', 'Corporate Strategy', 'Summer Internship Project']},
-            {'sem': 'Semester IV', 'subjects': ['International Business Dynamics', 'Strategic Leadership', 'Dissertation & Defense']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 3', 'subject': 'Corporate Strategy', 'file': 'MBA_Sem3_Strategy_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 2', 'subject': 'Financial Management', 'file': 'MBA_Sem2_FM_2024.pdf'}
-        ]
-    },
-    'mcom': {
-        'code': 'MCom',
-        'name': 'Master of Commerce',
-        'level': 'Postgraduate (PG)',
-        'duration': '2 Years (4 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Advanced corporate finance, taxation, and quantitative methods degree designed for research scholars, financial analysts, and corporate consultants.',
-        'eligibility': 'BCom / BBA degree with min 50% aggregate marks.',
-        'outcomes': ['Expertise in Financial Risk Analysis, Corporate Valuation, and Academic Research.'],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Advanced Financial Management', 'Monetary System', 'Macroeconomics', 'Statistical Methods']},
-            {'sem': 'Semester II', 'subjects': ['Corporate Tax Planning', 'Accounting Theory', 'Business Research', 'Financial Institutions']},
-            {'sem': 'Semester III', 'subjects': ['Security Analysis & Portfolio Management', 'International Finance', 'Elective Papers']},
-            {'sem': 'Semester IV', 'subjects': ['Derivatives Markets', 'Corporate Restructuring', 'Master Dissertation']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 3', 'subject': 'Security Analysis', 'file': 'MCom_Sem3_SAPM_2025.pdf'}
-        ]
-    },
-    'ba': {
-        'code': 'BA',
-        'name': 'Bachelor of Arts',
-        'level': 'Undergraduate (UG)',
-        'duration': '3 Years (6 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Fostering critical thinking, journalism, psychology, political science, and literature studies to develop empathetic society leaders.',
-        'eligibility': '10+2 / PUC passed in any stream.',
-        'outcomes': ['Careers in Media, Journalism, Public Administration, Civil Services, and Social Impact.'],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['English Literature', 'Introduction to Psychology', 'Political Theory', 'Sociology Fundamentals']},
-            {'sem': 'Semester II', 'subjects': ['Journalism & Mass Media', 'Developmental Psychology', 'Indian Constitution', 'Social Movements']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 2', 'subject': 'Journalism & Mass Media', 'file': 'BA_Sem2_Journalism_2025.pdf'}
-        ]
-    },
-    'bsc': {
-        'code': 'BSc',
-        'name': 'Bachelor of Science',
-        'level': 'Undergraduate (UG)',
-        'duration': '3 Years (6 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Postgraduate scientific research & data analytics degree focusing on Mathematics, Physics, Statistics, and Computer Science.',
-        'eligibility': '10+2 / PUC in Science stream.',
-        'outcomes': ['Scientific research careers, data analyst positions, and postgraduate specialization.'],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Calculus & Linear Algebra', 'Mechanics & Waves', 'Probability Theory', 'C Programming Lab']},
-            {'sem': 'Semester II', 'subjects': ['Differential Equations', 'Electromagnetism', 'Statistical Inference', 'Data Structures Lab']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 2', 'subject': 'Calculus & Linear Algebra', 'file': 'BSc_Sem2_Maths_2025.pdf'}
-        ]
-    },
-    'msc': {
-        'code': 'MSc',
-        'name': 'Master of Science',
-        'level': 'Postgraduate (PG)',
-        'duration': '2 Years (4 Semesters)',
-        'affiliation': 'Bengaluru City University',
-        'overview': 'Advanced research program in Computer Science, Data Analytics, and Applied Mathematics with state-of-the-art laboratory infrastructure.',
-        'eligibility': 'BSc in relevant discipline with min 50% aggregate.',
-        'outcomes': ['High-impact research, PhD progression, R&D engineering roles in tech firms.'],
-        'curriculum': [
-            {'sem': 'Semester I', 'subjects': ['Advanced Algorithms', 'Quantum Computing Concepts', 'Mathematical Modeling']},
-            {'sem': 'Semester II', 'subjects': ['Neural Networks', 'Distributed Database Systems', 'Scientific Python Lab']}
-        ],
-        'question_papers': [
-            {'year': '2025', 'sem': 'Sem 1', 'subject': 'Advanced Algorithms', 'file': 'MSc_Sem1_Algo_2025.pdf'}
-        ]
-    }
-}
+# Global CSRF Token Management & Verification
+@app.before_request
+def ensure_csrf_token():
+    if 'csrf_token' not in session:
+        session['csrf_token'] = secrets.token_hex(32)
 
-# Forum Mock Data
-FORUM_POSTS = [
-    {
-        'id': 1,
-        'author': 'Rahul Sharma (BCA 5th Sem)',
-        'title': 'Best resources for preparing for Campus Placements in Cloud & Full Stack?',
-        'category': 'Placements & Careers',
-        'content': 'Hey everyone! As the 2026-27 placement drive is approaching, what topics are top companies like Infosys and TCS focusing on most for BCA students?',
-        'replies': 8,
-        'date': '2 hours ago',
-        'likes': 14
-    },
-    {
-        'id': 2,
-        'author': 'Prof. Ananya Rao (Dept of CS)',
-        'title': 'Hackathon 2026 Registration Announcement - TechVanguard',
-        'category': 'Events & Fests',
-        'content': 'Seshadripuram College is organizing the annual state-level hackathon "TechVanguard 2026" on Sept 15th. Cash prizes up to ₹1,00,000! Register at the CS Dept office.',
-        'replies': 15,
-        'date': 'Yesterday',
-        'likes': 42
-    },
-    {
-        'id': 3,
-        'author': 'Priya Nair (MBA 3rd Sem)',
-        'title': 'Discussion on Bangalore Startup Summit & College Incubator Grants',
-        'category': 'Entrepreneurship',
-        'content': 'Our college incubator cell is accepting pitch decks for student startups till August end. Seed grant up to ₹2 Lakhs available for selected teams.',
-        'replies': 5,
-        'date': '3 days ago',
-        'likes': 29
-    },
-    {
-        'id': 4,
-        'author': 'Sneha Gupta (Alumni - BCA 2022)',
-        'title': 'My Journey from Seshadripuram to Google - Tips for Juniors',
-        'category': 'Alumni Network',
-        'content': 'After graduating from BCA in 2022, I joined TCS and later cracked Google interview. Happy to mentor current students. DM me for guidance!',
-        'replies': 22,
-        'date': '1 week ago',
-        'likes': 67
-    },
-    {
-        'id': 5,
-        'author': 'Vikram Reddy (Alumni - MBA 2020)',
-        'title': 'Alumni Meetup Bangalore - August 2026',
-        'category': 'Alumni Network',
-        'content': 'Organizing an alumni get-together at Cubbon Park on Aug 25th. All batches welcome! RSVP in comments.',
-        'replies': 11,
-        'date': '4 days ago',
-        'likes': 38
-    }
-]
+@app.before_request
+def verify_csrf_protection():
+    if request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
+        form_token = request.form.get('csrf_token') or request.headers.get('X-CSRFToken')
+        session_token = session.get('csrf_token')
+        if not form_token or not session_token or not secrets.compare_digest(str(form_token), str(session_token)):
+            abort(400, description="CSRF Token Missing or Invalid")
 
-# Upcoming Events Data
-UPCOMING_EVENTS = [
-    {
-        'title': 'TechVanguard Hackathon 2026',
-        'date': 'Sept 15, 2026',
-        'day': '15',
-        'month': 'SEP',
-        'category': 'Technology',
-        'description': 'State-level hackathon with cash prizes up to \u20b91,00,000. Open to all departments.',
-        'icon': 'fa-solid fa-code'
-    },
-    {
-        'title': 'Annual Sports Meet',
-        'date': 'Oct 5-7, 2026',
-        'day': '05',
-        'month': 'OCT',
-        'category': 'Sports',
-        'description': 'Inter-departmental athletics, cricket, volleyball, and badminton championships.',
-        'icon': 'fa-solid fa-trophy'
-    },
-    {
-        'title': 'Cultural Fest - Utsav 2026',
-        'date': 'Nov 20-22, 2026',
-        'day': '20',
-        'month': 'NOV',
-        'category': 'Cultural',
-        'description': 'Three-day mega cultural festival featuring dance, music, drama, and fashion shows.',
-        'icon': 'fa-solid fa-music'
-    },
-    {
-        'title': 'Campus Placement Drive',
-        'date': 'Dec 10, 2026',
-        'day': '10',
-        'month': 'DEC',
-        'category': 'Placements',
-        'description': 'Top recruiters including Infosys, TCS, Wipro, and Accenture on campus.',
-        'icon': 'fa-solid fa-briefcase'
-    }
-]
+@app.after_request
+def add_security_and_cache_headers(response):
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=86400'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
 
-# Academic Calendar Data
-ACADEMIC_CALENDAR = [
-    {'date': 'Aug 1, 2026', 'event': 'Odd Semester Classes Begin', 'type': 'academic'},
-    {'date': 'Aug 15, 2026', 'event': 'Independence Day Celebration', 'type': 'holiday'},
-    {'date': 'Sept 15, 2026', 'event': 'TechVanguard Hackathon', 'type': 'event'},
-    {'date': 'Oct 2, 2026', 'event': 'Gandhi Jayanti Holiday', 'type': 'holiday'},
-    {'date': 'Oct 15-25, 2026', 'event': 'Internal Assessment Tests (IAT-1)', 'type': 'exam'},
-    {'date': 'Nov 1, 2026', 'event': 'Kannada Rajyotsava', 'type': 'holiday'},
-    {'date': 'Nov 20-22, 2026', 'event': 'Cultural Fest - Utsav 2026', 'type': 'event'},
-    {'date': 'Dec 1-10, 2026', 'event': 'Internal Assessment Tests (IAT-2)', 'type': 'exam'},
-    {'date': 'Dec 15, 2026', 'event': 'Last Working Day (Odd Sem)', 'type': 'academic'},
-    {'date': 'Jan 5-20, 2027', 'event': 'University End Semester Examinations', 'type': 'exam'},
-    {'date': 'Feb 1, 2027', 'event': 'Even Semester Classes Begin', 'type': 'academic'},
-    {'date': 'Mar 15, 2027', 'event': 'Annual Convocation Ceremony', 'type': 'event'}
-]
+# Academic Courses are now fully database-backed via models.Course and seed_default_courses()
+
+
+
+# Campus Events and Academic Calendar items are now fully database-backed via models.CampusEvent and models.AcademicCalendarItem
 
 # Centralized Gallery Category & Fallback Metadata Map
 GALLERY_FALLBACK_MAP = {
@@ -375,24 +105,38 @@ def get_current_modules():
         return DEFAULT_MODULE_MATRIX
 
 def get_current_college():
-    try:
-        return get_default_college()
-    except Exception:
-        return None
+    if not hasattr(g, '_current_college'):
+        try:
+            g._current_college = get_default_college()
+        except Exception:
+            g._current_college = None
+    return g._current_college
 
 @app.context_processor
 def inject_college_context():
     college = get_current_college()
     settings = college.settings if (college and hasattr(college, 'settings')) else None
+    if not hasattr(g, '_academic_calendar'):
+        if college:
+            g._academic_calendar = models.AcademicCalendarItem.query.filter_by(
+                college_id=college.id
+            ).order_by(models.AcademicCalendarItem.display_order).all()
+        else:
+            g._academic_calendar = []
     return dict(
         modules=get_current_modules(),
         college=college,
-        settings=settings
+        settings=settings,
+        academic_calendar=g._academic_calendar,
+        csrf_token=session.get('csrf_token', '')
     )
 
 @app.route('/')
 def index():
-    return render_template('index.html', title="Seshadripuram College - Shaping Futures, Building Leaders", events=UPCOMING_EVENTS, academic_calendar=ACADEMIC_CALENDAR)
+    college = get_default_college()
+    events = models.CampusEvent.query.filter_by(college_id=college.id).order_by(models.CampusEvent.display_order).all()
+    academic_calendar = models.AcademicCalendarItem.query.filter_by(college_id=college.id).order_by(models.AcademicCalendarItem.display_order).all()
+    return render_template('index.html', title="Seshadripuram College - Shaping Futures, Building Leaders", events=events, academic_calendar=academic_calendar)
 
 @app.route('/about')
 def about():
@@ -506,7 +250,7 @@ def apply():
             phone=phone,
             course=course,
             percentage=percentage,
-            status='UNDER_REVIEW'
+            status='PENDING'
         )
 
         db.session.add(new_app)
@@ -517,13 +261,25 @@ def apply():
 
     return render_template('apply.html', title="Online Application Form 2026-27")
 
+@app.route('/academics')
+def academics():
+    modules = get_current_modules()
+    if not modules['academics']['enabled']:
+        flash("⚠️ Academics & Syllabus module is currently disabled site-wide by Super Admin.", "warning")
+        return redirect(url_for('index'))
+    college = get_default_college()
+    courses = models.Course.query.filter_by(college_id=college.id).order_by(models.Course.id).all()
+    return render_template('departments.html', courses=courses, title="Academics & Syllabus - Seshadripuram College")
+
 @app.route('/departments')
 def departments():
     modules = get_current_modules()
     if not modules['departments']['enabled']:
         flash("⚠️ Departments module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    return render_template('departments.html', title="Academic Departments - Seshadripuram College")
+    college = get_default_college()
+    courses = models.Course.query.filter_by(college_id=college.id).order_by(models.Course.id).all()
+    return render_template('departments.html', courses=courses, title="Academic Departments - Seshadripuram College")
 
 @app.route('/course/<course_code>')
 def course_detail(course_code):
@@ -531,11 +287,13 @@ def course_detail(course_code):
     if not modules['academics']['enabled']:
         flash("⚠️ Course details are currently offline site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    code_lower = course_code.lower()
-    course = COURSES_DATA.get(code_lower)
-    if not course:
-        course = COURSES_DATA['bca']
-    return render_template('course_detail.html', course=course, title=f"{course['code']} - {course['name']}")
+    college = get_default_college()
+    course = models.Course.query.options(
+        joinedload(models.Course.outcome_records),
+        selectinload(models.Course.semesters).selectinload(models.CurriculumSemester.subjects),
+        selectinload(models.Course.question_papers)
+    ).filter_by(college_id=college.id, code=course_code.upper()).first_or_404()
+    return render_template('course_detail.html', course=course, title=f"{course.code} - {course.name}")
 
 @app.route('/facilities')
 def facilities():
@@ -638,34 +396,96 @@ def students_corner():
         return redirect(url_for('index'))
     return render_template('students_corner.html', title="Students Corner, Clubs & Examination - Seshadripuram College")
 
-@app.route('/forum', methods=['GET', 'POST'])
+FORUM_CATEGORIES = [
+    'Placements & Careers',
+    'Events & Fests',
+    'Entrepreneurship',
+    'Alumni Network',
+    'Academics & Question Papers'
+]
+
+@app.route('/forum', methods=['GET'])
 def forum():
     modules = get_current_modules()
     if not modules['forum']['enabled']:
         flash("⚠️ Community Forum is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    if request.method == 'POST':
-        author = request.form.get('author')
-        title = request.form.get('title')
-        category = request.form.get('category')
-        content = request.form.get('content')
-        new_post = {
-            'id': len(FORUM_POSTS) + 1,
-            'author': author if author else 'College Administrator',
-            'title': title,
-            'category': category,
-            'content': content,
-            'replies': 0,
-            'date': 'Just now',
-            'likes': 1
-        }
-        FORUM_POSTS.insert(0, new_post)
-        flash("🎉 Discussion topic has been published successfully to Campus Forum!", "success")
-        ref = request.referrer
-        if ref and ('superadmin' in ref or 'admin' in ref):
-            return redirect(ref)
-        return redirect(url_for('forum'))
-    return render_template('forum.html', posts=FORUM_POSTS, title="Campus Community Forum - Seshadripuram College")
+        
+    college = get_default_college()
+    posts = models.ForumPost.query.filter_by(
+        college_id=college.id
+    ).order_by(
+        models.ForumPost.created_at.desc(),
+        models.ForumPost.id.desc()
+    ).all()
+
+    return render_template('forum.html', posts=posts, title="Campus Community Forum - Seshadripuram College")
+
+@app.route('/forum/add', methods=['POST'])
+@module_admin_required('forum')
+def add_forum_post():
+    author = request.form.get('author', '').strip()
+    category = request.form.get('category', '').strip()
+    title = request.form.get('title', '').strip()
+    content = request.form.get('content', '').strip()
+    
+    if not title:
+        flash("⚠️ Validation Error: Forum title is required.", "warning")
+        return redirect(request.referrer or url_for('admin'))
+        
+    if len(title) > 250:
+        flash("⚠️ Validation Error: Forum title is too long.", "warning")
+        return redirect(request.referrer or url_for('admin'))
+
+    if not category or category not in FORUM_CATEGORIES:
+        flash("⚠️ Validation Error: Invalid forum category selected.", "warning")
+        return redirect(request.referrer or url_for('admin'))
+
+    if not content:
+        flash("⚠️ Validation Error: Forum content is required.", "warning")
+        return redirect(request.referrer or url_for('admin'))
+
+    if len(author) > 150:
+        flash("⚠️ Validation Error: Author name is too long.", "warning")
+        return redirect(request.referrer or url_for('admin'))
+
+    new_post = models.ForumPost(
+        college_id=current_user.college_id,
+        author=author if author else 'College Administrator',
+        title=title,
+        category=category,
+        content=content,
+        replies=0,
+        likes=0
+    )
+    db.session.add(new_post)
+    db.session.commit()
+    
+    flash(f"💬 Discussion topic '{new_post.title}' published successfully!", "success")
+    
+    ref = request.referrer
+    if ref and ('superadmin' in ref or 'admin' in ref or 'forum' in ref):
+        return redirect(ref)
+    return redirect(url_for('forum'))
+
+@app.route('/forum/delete/<int:post_id>', methods=['POST'])
+@module_admin_required('forum')
+def delete_forum_post(post_id):
+    target = models.ForumPost.query.get_or_404(post_id)
+    
+    # Tenant ownership security check
+    if not check_tenant_ownership(target.college_id):
+        abort(403)
+        
+    db.session.delete(target)
+    db.session.commit()
+    
+    flash(f"🗑️ Forum post deleted successfully.", "info")
+    
+    ref = request.referrer
+    if ref and ('superadmin' in ref or 'admin' in ref or 'forum' in ref):
+        return redirect(ref)
+    return redirect(url_for('forum'))
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -692,8 +512,8 @@ def login():
         if user and user.is_active and user.check_password(password):
             login_user(user, remember=remember)
             flash(f"🔓 Welcome back, {user.email}!", "success")
-            next_page = request.args.get('next')
-            if next_page and next_page.startswith('/'):
+            next_page = request.args.get('next') or request.form.get('next')
+            if next_page and next_page.startswith('/') and not next_page.startswith('//') and '\\' not in next_page and 'http:' not in next_page and 'https:' not in next_page:
                 return redirect(next_page)
             if user.is_super_admin:
                 return redirect(url_for('superadmin'))
@@ -716,7 +536,12 @@ def admin():
     modules = get_current_modules()
     applications = []
     gallery_items = []
-    
+    forum_posts = []
+    courses = []
+    question_papers = []
+    campus_events = []
+    academic_calendar_items = []
+
     if current_user.college_id:
         if modules.get('admission', {}).get('admin_access'):
             applications = models.AdmissionApplication.query.filter_by(
@@ -728,20 +553,65 @@ def admin():
                 college_id=current_user.college_id
             ).order_by(models.GalleryItem.created_at.desc(), models.GalleryItem.id.desc()).all()
 
+        if modules.get('forum', {}).get('admin_access'):
+            forum_posts = models.ForumPost.query.filter_by(
+                college_id=current_user.college_id
+            ).order_by(models.ForumPost.created_at.desc(), models.ForumPost.id.desc()).all()
+
+        if modules.get('academics', {}).get('admin_access'):
+            courses = models.Course.query.filter_by(
+                college_id=current_user.college_id
+            ).order_by(models.Course.code).all()
+            question_papers = models.QuestionPaper.query.options(
+                joinedload(models.QuestionPaper.course)
+            ).join(models.Course).filter(
+                models.Course.college_id == current_user.college_id
+            ).order_by(models.QuestionPaper.created_at.desc(), models.QuestionPaper.id.desc()).all()
+
+        if modules.get('news_events', {}).get('admin_access'):
+            campus_events = models.CampusEvent.query.filter_by(
+                college_id=current_user.college_id
+            ).order_by(models.CampusEvent.display_order).all()
+            academic_calendar_items = models.AcademicCalendarItem.query.filter_by(
+                college_id=current_user.college_id
+            ).order_by(models.AcademicCalendarItem.display_order).all()
+
     return render_template(
         'admin.html',
         title="College Admin Portal",
         modules=modules,
         gallery_items=gallery_items,
-        applications=applications
+        applications=applications,
+        forum_posts=forum_posts,
+        courses=courses,
+        question_papers=question_papers,
+        campus_events=campus_events,
+        academic_calendar_items=academic_calendar_items
     )
+
+ADMISSION_STATUSES = {
+    'PENDING',
+    'UNDER_REVIEW',
+    'VERIFIED',
+    'SEAT_LOCKED',
+    'REJECTED'
+}
+
+ALLOWED_ADMISSION_TRANSITIONS = {
+    'PENDING': {'UNDER_REVIEW', 'REJECTED'},
+    'UNDER_REVIEW': {'PENDING', 'VERIFIED', 'REJECTED'},
+    'VERIFIED': {'SEAT_LOCKED', 'UNDER_REVIEW', 'REJECTED'},
+    'SEAT_LOCKED': {'VERIFIED'},
+    'REJECTED': {'UNDER_REVIEW'}
+}
 
 @app.route('/admin/admission/status/<int:app_id>', methods=['POST'])
 @module_admin_required('admission')
 def update_application_status(app_id):
     new_status = request.form.get('status', '').strip().upper()
-    if new_status not in ['UNDER_REVIEW', 'VERIFIED', 'REJECTED']:
-        flash("⚠️ Invalid application status specified.", "warning")
+    
+    if new_status not in ADMISSION_STATUSES:
+        flash("⚠️ Validation Error: Invalid admission status specified.", "warning")
         return redirect(url_for('admin'))
         
     app_record = models.AdmissionApplication.query.get_or_404(app_id)
@@ -749,10 +619,432 @@ def update_application_status(app_id):
     # Tenant ownership security check
     if not check_tenant_ownership(app_record.college_id):
         abort(403)
+
+    current_status = app_record.status.upper()
+    
+    if new_status == current_status:
+        flash(f"ℹ️ Application '{app_record.application_number}' is already in {current_status} status.", "info")
+        return redirect(url_for('admin'))
+        
+    allowed_next = ALLOWED_ADMISSION_TRANSITIONS.get(current_status, set())
+    
+    if new_status not in allowed_next:
+        flash(f"⚠️ Validation Error: Illegal status transition from {current_status} to {new_status}.", "warning")
+        return redirect(url_for('admin'))
         
     app_record.status = new_status
     db.session.commit()
+    
     flash(f"📋 Application '{app_record.application_number}' status updated to {new_status}.", "success")
+    return redirect(url_for('admin'))
+
+# ==============================================================================
+# STEP 11B: COURSE & CURRICULUM MANAGEMENT ADMIN ROUTES
+# ==============================================================================
+
+@app.route('/admin/course/add', methods=['POST'])
+@module_admin_required('academics')
+def admin_add_course():
+    code = request.form.get('code', '').strip().upper()
+    name = request.form.get('name', '').strip()
+    level = request.form.get('level', '').strip()
+    duration = request.form.get('duration', '').strip()
+    affiliation = request.form.get('affiliation', '').strip()
+    overview = request.form.get('overview', '').strip()
+    eligibility = request.form.get('eligibility', '').strip()
+
+    if not code or not name or not level or not duration or not overview:
+        flash("⚠️ Validation Error: Course Code, Name, Level, Duration, and Overview are required.", "warning")
+        return redirect(url_for('admin'))
+
+    # Duplicate course code check within tenant
+    existing = models.Course.query.filter_by(college_id=current_user.college_id, code=code).first()
+    if existing:
+        flash(f"⚠️ Validation Error: Course with code '{code}' already exists for this college.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        new_course = models.Course(
+            college_id=current_user.college_id,
+            code=code,
+            name=name,
+            level=level,
+            duration=duration,
+            affiliation=affiliation or 'Bengaluru City University',
+            overview=overview,
+            eligibility=eligibility or '10+2 / Pre-University Examination passed in any stream.'
+        )
+        db.session.add(new_course)
+        db.session.commit()
+        flash(f"🎓 Course '{code} - {name}' created successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding course: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/course/delete/<int:course_id>', methods=['POST'])
+@module_admin_required('academics')
+def admin_delete_course(course_id):
+    course = models.Course.query.get_or_404(course_id)
+    if not check_tenant_ownership(course.college_id):
+        abort(403)
+
+    try:
+        course_code = course.code
+        db.session.delete(course)
+        db.session.commit()
+        flash(f"🗑️ Course '{course_code}' and all related outcomes, semesters, and subjects deleted.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting course: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/course/outcome/add/<int:course_id>', methods=['POST'])
+@module_admin_required('academics')
+def admin_add_course_outcome(course_id):
+    course = models.Course.query.get_or_404(course_id)
+    if not check_tenant_ownership(course.college_id):
+        abort(403)
+
+    content = request.form.get('content', '').strip()
+    if not content:
+        flash("⚠️ Validation Error: Outcome content cannot be empty.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        max_order = db.session.query(db.func.max(models.CourseOutcome.display_order)).filter_by(course_id=course_id).scalar() or 0
+        new_outcome = models.CourseOutcome(
+            course_id=course_id,
+            content=content,
+            display_order=max_order + 1
+        )
+        db.session.add(new_outcome)
+        db.session.commit()
+        flash(f"✅ Learning outcome added to course '{course.code}'.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding outcome: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/course/outcome/delete/<int:outcome_id>', methods=['POST'])
+@module_admin_required('academics')
+def admin_delete_course_outcome(outcome_id):
+    outcome = models.CourseOutcome.query.get_or_404(outcome_id)
+    if not check_tenant_ownership(outcome.course.college_id):
+        abort(403)
+
+    try:
+        db.session.delete(outcome)
+        db.session.commit()
+        flash("🗑️ Learning outcome removed.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting outcome: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/course/semester/add/<int:course_id>', methods=['POST'])
+@module_admin_required('academics')
+def admin_add_course_semester(course_id):
+    course = models.Course.query.get_or_404(course_id)
+    if not check_tenant_ownership(course.college_id):
+        abort(403)
+
+    semester_name = request.form.get('semester_name', '').strip()
+    if not semester_name:
+        flash("⚠️ Validation Error: Semester name is required (e.g. 'Semester I').", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        max_order = db.session.query(db.func.max(models.CurriculumSemester.display_order)).filter_by(course_id=course_id).scalar() or 0
+        new_sem = models.CurriculumSemester(
+            course_id=course_id,
+            semester_name=semester_name,
+            display_order=max_order + 1
+        )
+        db.session.add(new_sem)
+        db.session.commit()
+        flash(f"✅ Semester '{semester_name}' added to course '{course.code}'.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding semester: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/course/subject/add/<int:semester_id>', methods=['POST'])
+@module_admin_required('academics')
+def admin_add_course_subject(semester_id):
+    sem = models.CurriculumSemester.query.get_or_404(semester_id)
+    if not check_tenant_ownership(sem.course.college_id):
+        abort(403)
+
+    subject_name = request.form.get('subject_name', '').strip()
+    if not subject_name:
+        flash("⚠️ Validation Error: Subject name is required.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        max_order = db.session.query(db.func.max(models.CurriculumSubject.display_order)).filter_by(semester_id=semester_id).scalar() or 0
+        new_subject = models.CurriculumSubject(
+            semester_id=semester_id,
+            subject_name=subject_name,
+            display_order=max_order + 1
+        )
+        db.session.add(new_subject)
+        db.session.commit()
+        flash(f"📚 Subject '{subject_name}' added to '{sem.semester_name}'.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding subject: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+# ==============================================================================
+# STEP 11C: CAMPUS EVENTS & ACADEMIC CALENDAR MANAGEMENT ADMIN ROUTES
+# ==============================================================================
+
+@app.route('/admin/event/add', methods=['POST'])
+@module_admin_required('news_events')
+def admin_add_event():
+    title = request.form.get('title', '').strip()
+    date_display = request.form.get('date_display', '').strip()
+    day = request.form.get('day', '').strip()
+    month = request.form.get('month', '').strip().upper()
+    category = request.form.get('category', '').strip()
+    description = request.form.get('description', '').strip()
+    icon = request.form.get('icon', '').strip() or 'fa-solid fa-calendar'
+
+    if not title or not date_display or not day or not month or not category or not description:
+        flash("⚠️ Validation Error: Event Title, Date, Day, Month, Category, and Description are required.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        max_order = db.session.query(db.func.max(models.CampusEvent.display_order)).filter_by(college_id=current_user.college_id).scalar() or 0
+        new_event = models.CampusEvent(
+            college_id=current_user.college_id,
+            title=title,
+            date_display=date_display,
+            day=day,
+            month=month,
+            category=category,
+            description=description,
+            icon=icon,
+            display_order=max_order + 1
+        )
+        db.session.add(new_event)
+        db.session.commit()
+        flash(f"🎉 Event '{title}' added successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding event: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/event/edit/<int:event_id>', methods=['POST'])
+@module_admin_required('news_events')
+def admin_edit_event(event_id):
+    event_item = models.CampusEvent.query.get_or_404(event_id)
+    if not check_tenant_ownership(event_item.college_id):
+        abort(403)
+
+    title = request.form.get('title', '').strip()
+    date_display = request.form.get('date_display', '').strip()
+    day = request.form.get('day', '').strip()
+    month = request.form.get('month', '').strip().upper()
+    category = request.form.get('category', '').strip()
+    description = request.form.get('description', '').strip()
+    icon = request.form.get('icon', '').strip()
+
+    if not title or not date_display or not day or not month or not category or not description:
+        flash("⚠️ Validation Error: Event fields cannot be empty.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        event_item.title = title
+        event_item.date_display = date_display
+        event_item.day = day
+        event_item.month = month
+        event_item.category = category
+        event_item.description = description
+        if icon:
+            event_item.icon = icon
+        db.session.commit()
+        flash(f"✏️ Event '{title}' updated successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error updating event: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/event/delete/<int:event_id>', methods=['POST'])
+@module_admin_required('news_events')
+def admin_delete_event(event_id):
+    event_item = models.CampusEvent.query.get_or_404(event_id)
+    if not check_tenant_ownership(event_item.college_id):
+        abort(403)
+
+    try:
+        title = event_item.title
+        db.session.delete(event_item)
+        db.session.commit()
+        flash(f"🗑️ Campus event '{title}' deleted.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting event: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/calendar/add', methods=['POST'])
+@module_admin_required('news_events')
+def admin_add_calendar_item():
+    event_name = request.form.get('event_name', '').strip()
+    date_display = request.form.get('date_display', '').strip()
+    event_type = request.form.get('event_type', '').strip().lower()
+
+    if not event_name or not date_display or not event_type:
+        flash("⚠️ Validation Error: Event Name, Date, and Type are required.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        max_order = db.session.query(db.func.max(models.AcademicCalendarItem.display_order)).filter_by(college_id=current_user.college_id).scalar() or 0
+        new_item = models.AcademicCalendarItem(
+            college_id=current_user.college_id,
+            event_name=event_name,
+            date_display=date_display,
+            event_type=event_type,
+            display_order=max_order + 1
+        )
+        db.session.add(new_item)
+        db.session.commit()
+        flash(f"📅 Academic calendar item '{event_name}' added successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding calendar item: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/calendar/edit/<int:item_id>', methods=['POST'])
+@module_admin_required('news_events')
+def admin_edit_calendar_item(item_id):
+    cal_item = models.AcademicCalendarItem.query.get_or_404(item_id)
+    if not check_tenant_ownership(cal_item.college_id):
+        abort(403)
+
+    event_name = request.form.get('event_name', '').strip()
+    date_display = request.form.get('date_display', '').strip()
+    event_type = request.form.get('event_type', '').strip().lower()
+
+    if not event_name or not date_display or not event_type:
+        flash("⚠️ Validation Error: Calendar item fields cannot be empty.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        cal_item.event_name = event_name
+        cal_item.date_display = date_display
+        cal_item.event_type = event_type
+        db.session.commit()
+        flash(f"✏️ Calendar item '{event_name}' updated successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error updating calendar item: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/calendar/delete/<int:item_id>', methods=['POST'])
+@module_admin_required('news_events')
+def admin_delete_calendar_item(item_id):
+    cal_item = models.AcademicCalendarItem.query.get_or_404(item_id)
+    if not check_tenant_ownership(cal_item.college_id):
+        abort(403)
+
+    try:
+        event_name = cal_item.event_name
+        db.session.delete(cal_item)
+        db.session.commit()
+        flash(f"🗑️ Calendar item '{event_name}' deleted.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting calendar item: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+# ==============================================================================
+# STEP 11D: QUESTION PAPER MANAGEMENT ADMIN ROUTES
+# ==============================================================================
+
+@app.route('/admin/question-paper/add', methods=['POST'])
+@module_admin_required('academics')
+def admin_add_question_paper():
+    course_id = request.form.get('course_id', type=int)
+    year = request.form.get('year', '').strip()
+    semester = request.form.get('semester', '').strip()
+    subject = request.form.get('subject', '').strip()
+    filename = request.form.get('filename', '').strip()
+
+    if not course_id or not year or not semester or not subject or not filename:
+        flash("⚠️ Validation Error: Course, Year, Semester, Subject, and Filename are required.", "warning")
+        return redirect(url_for('admin'))
+
+    course = models.Course.query.get_or_404(course_id)
+
+    # Tenant ownership security check (verifies target course belongs to active admin's college)
+    if not check_tenant_ownership(course.college_id):
+        abort(403)
+
+    clean_filename = secure_filename(filename)
+    if not clean_filename or not clean_filename.lower().endswith('.pdf'):
+        flash("⚠️ Validation Error: Question paper filename must be a valid .pdf file.", "warning")
+        return redirect(url_for('admin'))
+
+    try:
+        new_paper = models.QuestionPaper(
+            course_id=course_id,
+            year=year,
+            semester=semester,
+            subject=subject,
+            filename=clean_filename
+        )
+        db.session.add(new_paper)
+        db.session.commit()
+        flash(f"📄 Past Question Paper '{clean_filename}' added to course '{course.code}'.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding question paper: {str(e)}", "warning")
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/question-paper/delete/<int:paper_id>', methods=['POST'])
+@module_admin_required('academics')
+def admin_delete_question_paper(paper_id):
+    paper = models.QuestionPaper.query.get_or_404(paper_id)
+
+    # Tenant ownership security check via relationship (paper -> course -> college_id)
+    if not check_tenant_ownership(paper.course.college_id):
+        abort(403)
+
+    try:
+        filename = paper.filename
+        db.session.delete(paper)
+        db.session.commit()
+        flash(f"🗑️ Question paper entry '{filename}' deleted.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting question paper: {str(e)}", "warning")
+
     return redirect(url_for('admin'))
 
 # SUPER ADMIN MODULE CONTROL MATRIX PORTAL (Controlled strictly by Super Admin)
@@ -806,10 +1098,16 @@ def toggle_admin(module_key):
 # Download route simulation for past question papers
 @app.route('/download-paper/<filename>')
 def download_paper(filename):
+    college = get_default_college()
+    paper = models.QuestionPaper.query.join(models.Course).filter(
+        models.Course.college_id == college.id,
+        models.QuestionPaper.filename == filename
+    ).first_or_404()
+    
     return jsonify({
         'status': 'success',
-        'message': f'Downloading exam question paper sample: {filename}',
-        'filename': filename
+        'message': f'Downloading exam question paper sample: {paper.filename}',
+        'filename': paper.filename
     })
 
 @app.route('/ca')

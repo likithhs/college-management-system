@@ -14,6 +14,7 @@
             </div>
 
             <form action="{{ url_for('login', next=request.args.get('next')) }}" method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email / Account ID</label>
                     <input type="email" name="email" placeholder="e.g. admin@spmcollege.ac.in" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none">

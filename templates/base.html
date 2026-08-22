@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen overflow-x-hidden">
 
     <!-- Flash Messages -->
     <!-- Dynamic Notification Flash Popup Container -->
@@ -75,15 +75,15 @@
         <!-- Primary Header Row -->
         <div class="px-5 sm:px-8 lg:px-12 py-2.5 flex justify-between items-center gap-4">
             <!-- EXTREME LEFT: College Logo + Name -->
-            <a href="{{ url_for('index') }}" class="flex items-center gap-3 group flex-shrink-0">
+            <a href="{{ url_for('index') }}" class="flex items-center gap-3 group flex-shrink-0 min-w-0">
                 <div class="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-lg sm:text-xl lg:text-2xl shadow-md group-hover:scale-105 transition-transform flex-shrink-0">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
-                <div class="flex-shrink-0">
-                    <h1 class="text-sm sm:text-base lg:text-lg font-extrabold tracking-tight text-white leading-tight uppercase">
+                <div class="flex-shrink-0 truncate max-w-[200px] sm:max-w-xs md:max-w-none">
+                    <h1 class="text-xs sm:text-base lg:text-lg font-extrabold tracking-tight text-white leading-tight uppercase truncate">
                         {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "SESHADRIPURAM COLLEGE") }}
                     </h1>
-                    <p class="text-[9px] sm:text-[10px] lg:text-[11px] font-medium text-blue-200/70 hidden sm:block">
+                    <p class="text-[9px] sm:text-[10px] lg:text-[11px] font-medium text-blue-200/70 hidden sm:block truncate">
                         {{ settings.tagline if (settings and settings.tagline) else "Excellence Since 1998 • Affiliated to Bengaluru City University" }}
                     </p>
                 </div>
@@ -106,12 +106,12 @@
                 <span class="hidden md:inline-block text-slate-700">|</span>
                 <a href="{{ url_for('contact') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-yellow-400 transition-colors">Contact</a>
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('logout') }}" class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
+                <a href="{{ url_for('logout') }}" class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
                     <i class="fa-solid fa-right-from-bracket text-[10px] sm:text-xs"></i>
                     <span>Logout</span>
                 </a>
                 {% else %}
-                <a href="{{ url_for('login') }}" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
+                <a href="{{ url_for('login') }}" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
                     <i class="fa-solid fa-user text-[10px] sm:text-xs"></i>
                     <span>Student Login</span>
                 </a>
@@ -120,15 +120,15 @@
         </div>
 
         <!-- LIVE NEWS MARQUEE TICKER -->
-        <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-semibold py-1.5 px-4 flex items-center text-xs shadow-inner">
+        <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-semibold py-1.5 px-4 flex items-center text-xs shadow-inner overflow-hidden">
             <div class="live-badge bg-red-600 text-white px-2 py-0.5 rounded uppercase tracking-wider text-[10px] font-bold flex items-center gap-1 flex-shrink-0 mr-3">
                 <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span> LIVE NEWS
             </div>
-            <div class="ticker-wrap flex-1">
-                <div class="ticker-move flex gap-8">
-                    <span>🎓 Admissions Open For Academic Session 2026-27 | Apply Now for UG (BCA, BBA, BCom, BA, BSc) & PG (MCA, MBA, MCom, MSc) Programs!</span>
-                    <span>📄 Previous Exam Question Papers for BCA, MCA, MBA, BCom now live on Course Details pages!</span>
-                    <span>🚀 Join the Seshadripuram Campus Community Forum for peer discussions & alumni networking!</span>
+            <div class="ticker-wrap flex-1 overflow-hidden">
+                <div class="ticker-move flex gap-8 whitespace-nowrap">
+                    <span class="whitespace-nowrap">🎓 Admissions Open For Academic Session 2026-27 | Apply Now for UG (BCA, BBA, BCom, BA, BSc) & PG (MCA, MBA, MCom, MSc) Programs!</span>
+                    <span class="whitespace-nowrap">📄 Previous Exam Question Papers for BCA, MCA, MBA, BCom now live on Course Details pages!</span>
+                    <span class="whitespace-nowrap">🚀 Join the Seshadripuram Campus Community Forum for peer discussions & alumni networking!</span>
                 </div>
             </div>
         </div>
@@ -468,26 +468,35 @@
             <div>
                 <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Academic Calendar</h4>
                 <ul class="space-y-2.5 text-xs">
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-calendar-check text-emerald-400 mt-0.5"></i>
-                        <span>Aug 1 — Odd Semester Begins</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-pen-to-square text-amber-400 mt-0.5"></i>
-                        <span>Oct 15 — Internal Assessment (IAT-1)</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-masks-theater text-purple-400 mt-0.5"></i>
-                        <span>Nov 20 — Cultural Fest Utsav</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-file-lines text-blue-400 mt-0.5"></i>
-                        <span>Jan 5 — End Semester Exams</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-graduation-cap text-rose-400 mt-0.5"></i>
-                        <span>Mar 15 — Annual Convocation</span>
-                    </li>
+                    {% if academic_calendar %}
+                        {% for cal in academic_calendar[:5] %}
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-calendar-day {% if cal.event_type == 'exam' %}text-red-400{% elif cal.event_type == 'holiday' %}text-amber-400{% elif cal.event_type == 'event' %}text-purple-400{% else %}text-emerald-400{% endif %} mt-0.5 flex-shrink-0"></i>
+                            <span class="truncate">{{ cal.date_display }} — {{ cal.event_name }}</span>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-calendar-check text-emerald-400 mt-0.5"></i>
+                            <span>Aug 1 — Odd Semester Begins</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-pen-to-square text-amber-400 mt-0.5"></i>
+                            <span>Oct 15 — Internal Assessment (IAT-1)</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-masks-theater text-purple-400 mt-0.5"></i>
+                            <span>Nov 20 — Cultural Fest Utsav</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-file-lines text-blue-400 mt-0.5"></i>
+                            <span>Jan 5 — End Semester Exams</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-graduation-cap text-rose-400 mt-0.5"></i>
+                            <span>Mar 15 — Annual Convocation</span>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

@@ -103,16 +103,27 @@
                                 <td class="p-3 text-slate-600 dark:text-slate-300">{{ app_item.course }}</td>
                                 <td class="p-3 font-bold text-slate-900 dark:text-white">{{ app_item.percentage }}%</td>
                                 <td class="p-3 text-slate-500 dark:text-slate-400">{{ app_item.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td class="p-3 flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded-full font-bold text-[10px] {{ 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' if app_item.status == 'VERIFIED' else ('bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' if app_item.status == 'REJECTED' else 'bg-yellow-100 dark:bg-amber-950/60 text-yellow-800 dark:text-amber-300') }}">
+                                <td class="p-3 flex items-center gap-2 flex-wrap">
+                                    <span class="px-2 py-0.5 rounded-full font-bold text-[10px] {{ 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300' if app_item.status == 'SEAT_LOCKED' else ('bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' if app_item.status == 'VERIFIED' else ('bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' if app_item.status == 'REJECTED' else ('bg-yellow-100 dark:bg-amber-950/60 text-yellow-800 dark:text-amber-300' if app_item.status == 'UNDER_REVIEW' else 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300'))) }}">
                                         {{ app_item.status }}
                                     </span>
-                                    <form action="{{ url_for('update_application_status', app_id=app_item.id) }}" method="POST" class="inline-flex gap-1">
-                                        {% if app_item.status != 'VERIFIED' %}
-                                        <button type="submit" name="status" value="VERIFIED" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs" title="Mark as Verified">✓ Verify</button>
-                                        {% endif %}
-                                        {% if app_item.status != 'REJECTED' %}
-                                        <button type="submit" name="status" value="REJECTED" class="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs" title="Mark as Rejected">✗ Reject</button>
+                                    <form action="{{ url_for('update_application_status', app_id=app_item.id) }}" method="POST" class="inline-flex gap-1 flex-wrap">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        {% if app_item.status == 'PENDING' %}
+                                            <button type="submit" name="status" value="UNDER_REVIEW" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">🔍 Review</button>
+                                            <button type="submit" name="status" value="REJECTED" class="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">✗ Reject</button>
+                                        {% elif app_item.status == 'UNDER_REVIEW' %}
+                                            <button type="submit" name="status" value="VERIFIED" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">✓ Verify</button>
+                                            <button type="submit" name="status" value="PENDING" class="bg-slate-600 hover:bg-slate-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">⏳ Pending</button>
+                                            <button type="submit" name="status" value="REJECTED" class="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">✗ Reject</button>
+                                        {% elif app_item.status == 'VERIFIED' %}
+                                            <button type="submit" name="status" value="SEAT_LOCKED" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">🔒 Lock Seat</button>
+                                            <button type="submit" name="status" value="UNDER_REVIEW" class="bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">🔍 Re-Review</button>
+                                            <button type="submit" name="status" value="REJECTED" class="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">✗ Reject</button>
+                                        {% elif app_item.status == 'SEAT_LOCKED' %}
+                                            <button type="submit" name="status" value="VERIFIED" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">✓ Unlock</button>
+                                        {% elif app_item.status == 'REJECTED' %}
+                                            <button type="submit" name="status" value="UNDER_REVIEW" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">🔍 Reopen</button>
                                         {% endif %}
                                     </form>
                                 </td>
@@ -153,6 +164,7 @@
 
             <!-- Add Photo Form -->
             <form action="{{ url_for('gallery_add') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-plus-circle text-blue-600 dark:text-blue-400"></i> Add New Image to Campus Gallery
                 </h4>
@@ -202,6 +214,7 @@
                             </div>
                         </div>
                         <form action="{{ url_for('gallery_delete', item_id=item.id) }}" method="POST" onsubmit="return confirm('Delete photo: {{ item.title }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <button type="submit" title="Remove Photo" class="bg-red-100 dark:bg-red-950/60 hover:bg-red-600 dark:hover:bg-red-600 hover:text-white text-red-700 dark:text-red-400 p-2 rounded-xl text-xs font-bold transition-all">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
@@ -234,7 +247,8 @@
             </div>
 
             <!-- Start New Discussion Form -->
-            <form action="{{ url_for('forum') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <form action="{{ url_for('add_forum_post') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-plus-circle text-blue-600 dark:text-blue-400"></i> Post New Official Discussion Topic
                 </h4>
@@ -268,6 +282,35 @@
                     </button>
                 </div>
             </form>
+
+            <!-- Active Forum Posts Management List -->
+            {% if forum_posts %}
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
+                    <span><i class="fa-solid fa-list-check text-blue-600"></i> Active Forum Topics ({{ forum_posts|length }})</span>
+                </h4>
+                <div class="space-y-3">
+                    {% for post in forum_posts %}
+                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 gap-4">
+                        <div class="space-y-1 max-w-2xl">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-bold text-navy-900 dark:text-white">{{ post.title }}</span>
+                                <span class="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-semibold">{{ post.category }}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{{ post.content }}</p>
+                            <div class="text-[10px] text-slate-400">By {{ post.author }} • {{ post.created_at.strftime('%b %d, %Y') if post.created_at else '' }}</div>
+                        </div>
+                        <form action="{{ url_for('delete_forum_post', post_id=post.id) }}" method="POST" onsubmit="return confirm('Delete this forum topic?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
         {% else %}
         <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-60">
@@ -275,6 +318,332 @@
                 <i class="fa-solid fa-lock text-slate-400"></i> Community Forum Management — Access Restricted by Super Admin
             </h3>
             <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">Super Admin has revoked College Admin permission to post forum topics.</p>
+        </div>
+        {% endif %}
+
+        <!-- Course & Curriculum Management Center (ONLY IF GRANTED ACCESS BY SUPER ADMIN) -->
+        {% if modules['academics'].admin_access %}
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6" data-aos="fade-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div>
+                    <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">Admin Access Granted</span>
+                    <h3 class="text-xl font-bold text-navy-900 dark:text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-blue-600 dark:text-blue-400"></i> Course & Curriculum Management (College Admin Access)
+                    </h3>
+                </div>
+                <a href="{{ url_for('academics') }}" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">View Live Academics & Syllabus &rarr;</a>
+            </div>
+
+            <!-- Create New Course Form -->
+            <form action="{{ url_for('admin_add_course') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus-circle text-blue-600 dark:text-blue-400"></i> Add New Academic Course / Degree Program
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Course Code *</label>
+                        <input type="text" name="code" required placeholder="e.g. BCA, MCA, BBA" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Course Title *</label>
+                        <input type="text" name="name" required placeholder="e.g. Bachelor of Computer Applications" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Academic Level *</label>
+                        <select name="level" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                            <option value="Undergraduate (UG)">Undergraduate (UG)</option>
+                            <option value="Postgraduate (PG)">Postgraduate (PG)</option>
+                            <option value="Diploma">Diploma / Certificate</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Duration *</label>
+                        <input type="text" name="duration" required placeholder="e.g. 3 Years (6 Semesters)" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Affiliation / Board</label>
+                        <input type="text" name="affiliation" placeholder="e.g. Bengaluru City University" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Eligibility Criteria</label>
+                        <input type="text" name="eligibility" placeholder="e.g. 10+2 / PUC passed in any stream" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Program Overview & Highlights *</label>
+                    <textarea name="overview" rows="2" placeholder="Brief description of the course goals and labs..." required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Create Course Program
+                    </button>
+                </div>
+            </form>
+
+            <!-- Active Academic Courses List -->
+            {% if courses %}
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-4">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
+                    <span><i class="fa-solid fa-book-open text-blue-600"></i> Managed College Courses ({{ courses|length }})</span>
+                </h4>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for course_item in courses %}
+                    <div class="p-5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <span class="bg-blue-600 text-white text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full">{{ course_item.code }}</span>
+                                <h5 class="text-base font-bold text-navy-900 dark:text-white inline-block ml-2">{{ course_item.name }}</h5>
+                                <span class="text-xs text-slate-500 ml-2">({{ course_item.level }} • {{ course_item.duration }})</span>
+                            </div>
+                            <form action="{{ url_for('admin_delete_course', course_id=course_item.id) }}" method="POST" onsubmit="return confirm('Delete course {{ course_item.code }} and all related curriculum?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all flex items-center gap-1">
+                                    <i class="fa-solid fa-trash"></i> Delete Program
+                                </button>
+                            </form>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-400">{{ course_item.overview }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Add New Past Question Paper Form -->
+            <form action="{{ url_for('admin_add_question_paper') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf text-blue-600 dark:text-blue-400"></i> Add Past Exam Question Paper Sample
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Course *</label>
+                        <select name="course_id" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                            {% for c in courses %}
+                            <option value="{{ c.id }}">{{ c.code }} - {{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Exam Year *</label>
+                        <input type="text" name="year" required placeholder="e.g. 2025" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Semester *</label>
+                        <input type="text" name="semester" required placeholder="e.g. Sem 5" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Subject Name *</label>
+                        <input type="text" name="subject" required placeholder="e.g. Full Stack Web Dev" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Filename (.pdf) *</label>
+                        <input type="text" name="filename" required placeholder="e.g. BCA_Sem5_FullStack_2025.pdf" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-circle-plus"></i> Attach Question Paper
+                    </button>
+                </div>
+            </form>
+
+            <!-- Active Question Papers List -->
+            {% if question_papers %}
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
+                    <span><i class="fa-solid fa-folder-open text-blue-600"></i> Managed Past Question Papers ({{ question_papers|length }})</span>
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {% for paper in question_papers %}
+                    <div class="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                        <div class="space-y-0.5 truncate">
+                            <div class="flex items-center gap-1.5">
+                                <span class="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">{{ paper.course.code }}</span>
+                                <span class="text-xs font-bold text-navy-900 dark:text-white truncate">{{ paper.subject }}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 truncate">{{ paper.semester }} • {{ paper.year }} ({{ paper.filename }})</p>
+                        </div>
+                        <form action="{{ url_for('admin_delete_question_paper', paper_id=paper.id) }}" method="POST" onsubmit="return confirm('Delete question paper {{ paper.filename }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 p-2 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-60">
+            <h3 class="text-base font-bold text-slate-500 dark:text-slate-300 flex items-center gap-2">
+                <i class="fa-solid fa-lock text-slate-400"></i> Course & Curriculum Management — Access Restricted by Super Admin
+            </h3>
+            <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">Super Admin has revoked College Admin permission to manage courses and syllabus.</p>
+        </div>
+        {% endif %}
+
+        <!-- Campus Events & Academic Calendar Management Center (ONLY IF GRANTED ACCESS BY SUPER ADMIN) -->
+        {% if modules['news_events'].admin_access %}
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6" data-aos="fade-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div>
+                    <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest bg-purple-50 dark:bg-purple-950/60 px-2.5 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">Admin Access Granted</span>
+                    <h3 class="text-xl font-bold text-navy-900 dark:text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-purple-600 dark:text-purple-400"></i> Campus Events & Academic Calendar Management
+                    </h3>
+                </div>
+                <a href="{{ url_for('index') }}" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">View Live Events & Calendar &rarr;</a>
+            </div>
+
+            <!-- Create New Campus Event Form -->
+            <form action="{{ url_for('admin_add_event') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus-circle text-purple-600 dark:text-purple-400"></i> Add New Upcoming Campus Event
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Event Title *</label>
+                        <input type="text" name="title" required placeholder="e.g. Hackathon 2026" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Display Date *</label>
+                        <input type="text" name="date_display" required placeholder="e.g. Sept 15, 2026" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Day Badge *</label>
+                        <input type="text" name="day" required placeholder="e.g. 15" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Month Badge *</label>
+                        <input type="text" name="month" required placeholder="e.g. SEP" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Category *</label>
+                        <input type="text" name="category" required placeholder="e.g. Technology, Sports, Cultural, Placements" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">FontAwesome Icon Class</label>
+                        <input type="text" name="icon" placeholder="fa-solid fa-code" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Description *</label>
+                    <input type="text" name="description" required placeholder="Brief summary of event..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-purple-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Event
+                    </button>
+                </div>
+            </form>
+
+            <!-- Active Campus Events List -->
+            {% if campus_events %}
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
+                    <span><i class="fa-solid fa-bullhorn text-purple-600"></i> Active Campus Events ({{ campus_events|length }})</span>
+                </h4>
+                <div class="space-y-3">
+                    {% for ev in campus_events %}
+                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-navy-900 dark:text-white">{{ ev.title }}</span>
+                                <span class="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 px-2 py-0.5 rounded-full font-semibold">{{ ev.category }}</span>
+                                <span class="text-[10px] text-slate-400">({{ ev.date_display }})</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ ev.description }}</p>
+                        </div>
+                        <form action="{{ url_for('admin_delete_event', event_id=ev.id) }}" method="POST" onsubmit="return confirm('Delete campus event {{ ev.title }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Add New Academic Calendar Item Form -->
+            <form action="{{ url_for('admin_add_calendar_item') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-plus text-emerald-600 dark:text-emerald-400"></i> Add New Academic Calendar Item
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Event Name *</label>
+                        <input type="text" name="event_name" required placeholder="e.g. Odd Semester Classes Begin" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Display Date *</label>
+                        <input type="text" name="date_display" required placeholder="e.g. Aug 1, 2026" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Type Badge *</label>
+                        <select name="event_type" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                            <option value="academic">Academic</option>
+                            <option value="exam">Exam</option>
+                            <option value="holiday">Holiday</option>
+                            <option value="event">Event</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Calendar Item
+                    </button>
+                </div>
+            </form>
+
+            <!-- Active Academic Calendar Items List -->
+            {% if academic_calendar_items %}
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
+                    <span><i class="fa-solid fa-timeline text-emerald-600"></i> Active Academic Calendar Items ({{ academic_calendar_items|length }})</span>
+                </h4>
+                <div class="space-y-2">
+                    {% for item in academic_calendar_items %}
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold text-navy-900 dark:text-white">{{ item.event_name }}</span>
+                            <span class="text-[10px] text-slate-400">({{ item.date_display }})</span>
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full
+                                {% if item.event_type == 'exam' %}bg-red-50 text-red-600
+                                {% elif item.event_type == 'holiday' %}bg-amber-50 text-amber-600
+                                {% elif item.event_type == 'event' %}bg-purple-50 text-purple-600
+                                {% else %}bg-emerald-50 text-emerald-600{% endif %}
+                            ">{{ item.event_type }}</span>
+                        </div>
+                        <form action="{{ url_for('admin_delete_calendar_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Delete calendar item {{ item.event_name }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-60">
+            <h3 class="text-base font-bold text-slate-500 dark:text-slate-300 flex items-center gap-2">
+                <i class="fa-solid fa-lock text-slate-400"></i> Campus Events & Academic Calendar Management — Access Restricted by Super Admin
+            </h3>
+            <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">Super Admin has revoked College Admin permission to manage events and academic calendar.</p>
         </div>
         {% endif %}
 
