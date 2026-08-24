@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Submitted - {{ college.name }}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; color: #1e293b;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #0f172a; padding: 30px; text-align: center; border-bottom: 4px solid #f59e0b;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">{{ college.name }}</h1>
+                            {% if college.tagline %}
+                            <p style="color: #94a3b8; margin: 5px 0 0 0; font-size: 13px;">{{ college.tagline }}</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <!-- Body Content -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <h2 style="color: #0f172a; font-size: 18px; margin-top: 0;">Dear {{ app_record.full_name }},</h2>
+                            <p style="line-height: 1.6; color: #334155; font-size: 15px;">
+                                Thank you for submitting your online admission application to <strong>{{ college.name }}</strong>. We have successfully received your details and registered your submission in our admissions database.
+                            </p>
+                            
+                            <!-- Detail Card -->
+                            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin: 20px 0;">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="6">
+                                    <tr>
+                                        <td width="40%" style="font-weight: 600; color: #64748b; font-size: 14px;">Tracking / Application ID:</td>
+                                        <td width="60%" style="font-weight: 700; color: #0f172a; font-size: 16px;">{{ app_record.application_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600; color: #64748b; font-size: 14px;">Course Applied:</td>
+                                        <td style="font-weight: 600; color: #1e3a8a; font-size: 14px;">{{ app_record.course }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600; color: #64748b; font-size: 14px;">Current Status:</td>
+                                        <td>
+                                            <span style="background-color: #fef3c7; color: #92400e; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 9999px; display: inline-block;">
+                                                {{ app_record.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600; color: #64748b; font-size: 14px;">Submission Date:</td>
+                                        <td style="color: #334155; font-size: 14px;">{{ app_record.created_at.strftime('%B %d, %Y') if app_record.created_at else 'Today' }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <h3 style="color: #0f172a; font-size: 15px; margin-top: 25px;">Next Steps:</h3>
+                            <ul style="padding-left: 20px; color: #334155; line-height: 1.6; font-size: 14px;">
+                                <li>Our Admissions Desk is reviewing your academic records and eligibility criteria.</li>
+                                <li>You will receive an automated email notification whenever your application status changes.</li>
+                                <li>Please keep your Tracking ID (<strong>{{ app_record.application_number }}</strong>) safe for future reference.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">
+                            <p style="margin: 0 0 5px 0;">&copy; 2026 {{ college.name }}. All rights reserved.</p>
+                            <p style="margin: 0;">Contact Admissions Desk: {{ college.contact_email or 'admissions@spmcollege.ac.in' }} | {{ college.contact_phone or '+91 80 2335 1234' }}</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

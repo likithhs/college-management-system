@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Faculty Header Hero Section -->
+<section class="bg-gradient-to-br from-navy-950 via-navy-900 to-indigo-950 text-white py-14 md:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fbbf24_1px,transparent_1px)] [background-size:16px_16px]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center" data-aos="fade-up">
+        <span class="px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-widest inline-block mb-4">
+            <i class="fa-solid fa-graduation-cap mr-1.5"></i> Academic Leadership
+        </span>
+        <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight">Faculty & Staff Directory</h1>
+        <p class="mt-4 text-sm md:text-base text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed">
+            Meet our distinguished professors, department heads, researchers, and mentors committed to educational excellence.
+        </p>
+    </div>
+</section>
+
+<!-- Main Faculty Directory Content -->
+<section class="py-12 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        <!-- Department Filter Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs" data-aos="fade-up">
+            <a href="{{ url_for('faculty_directory') }}" class="px-4 py-2 rounded-xl text-xs font-extrabold transition-all {{ 'bg-blue-600 text-white shadow-sm' if not selected_dept else 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                <i class="fa-solid fa-layer-group mr-1.5"></i> All Departments
+            </a>
+            {% for code in dept_codes %}
+            <a href="{{ url_for('faculty_directory', dept=code) }}" class="px-4 py-2 rounded-xl text-xs font-extrabold transition-all {{ 'bg-blue-600 text-white shadow-sm' if selected_dept == code else 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                {{ code }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Faculty Profiles Grid -->
+        {% if faculty_members %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for faculty in faculty_members %}
+            <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group" data-aos="fade-up">
+                
+                <!-- Faculty Photo Header -->
+                <div class="relative h-56 bg-slate-100 dark:bg-slate-900 overflow-hidden flex items-center justify-center">
+                    {% if faculty.photo_url %}
+                    <img src="{{ url_for('static', filename='uploads/colleges/' ~ faculty.college_id ~ '/faculty/' ~ faculty.photo_url) }}" alt="{{ faculty.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    {% else %}
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-700 text-white flex items-center justify-center text-3xl font-black shadow-inner">
+                        {{ faculty.name[:1] }}
+                    </div>
+                    {% endif %}
+                    <span class="absolute top-3 right-3 px-3 py-1 bg-navy-900/80 backdrop-blur-md text-amber-400 text-[10px] font-black rounded-full border border-white/20 uppercase tracking-wider">
+                        {{ faculty.department_code }}
+                    </span>
+                </div>
+
+                <!-- Faculty Details Body -->
+                <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    <div class="space-y-1.5">
+                        <h3 class="text-base font-extrabold text-navy-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {{ faculty.name }}
+                        </h3>
+                        <p class="text-xs font-bold text-amber-600 dark:text-amber-400">{{ faculty.designation }}</p>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium space-y-1 pt-1">
+                            <p><i class="fa-solid fa-graduation-cap text-blue-500 mr-1.5"></i> {{ faculty.qualification }}</p>
+                            {% if faculty.specialization %}
+                            <p><i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i> {{ faculty.specialization }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Contact Footer -->
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                        <a href="mailto:{{ faculty.email }}" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1.5 truncate">
+                            <i class="fa-solid fa-envelope text-slate-400"></i>
+                            <span class="truncate">{{ faculty.email }}</span>
+                        </a>
+                        {% if faculty.phone %}
+                        <span class="text-slate-400 font-mono text-[10px]"><i class="fa-solid fa-phone mr-1"></i> {{ faculty.phone }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-700 shadow-xs max-w-xl mx-auto">
+            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
+                <i class="fa-solid fa-user-slash"></i>
+            </div>
+            <h3 class="text-lg font-bold text-navy-900 dark:text-white">No Faculty Members Found</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">No active faculty profiles match the selected department filter.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

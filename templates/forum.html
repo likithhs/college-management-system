@@ -77,15 +77,50 @@
                     </p>
 
                     <div class="flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700">
-                        <button onclick="showToast('❤️ Liked this post!')" class="flex items-center gap-1.5 hover:text-rose-500 transition-colors">
-                            <i class="fa-regular fa-heart"></i> {{ post.likes }} Likes
+                        <button onclick="likePost({{ post.id }})" class="flex items-center gap-1.5 hover:text-rose-500 transition-colors focus:outline-none">
+                            <i class="fa-solid fa-thumbs-up text-blue-600 dark:text-blue-400"></i>
+                            <span id="likes-count-{{ post.id }}" class="font-bold text-navy-900 dark:text-white">{{ post.likes_count if post.likes_count is not none else (post.likes or 0) }}</span> Upvotes
                         </button>
-                        <span class="flex items-center gap-1.5 hover:text-blue-600 cursor-pointer">
-                            <i class="fa-regular fa-comment"></i> {{ post.replies }} Replies
-                        </span>
-                        <button onclick="showToast('🔗 Link copied!')" class="flex items-center gap-1.5 hover:text-emerald-500 transition-colors ml-auto">
-                            <i class="fa-solid fa-share-nodes"></i> Share
+                        <button onclick="toggleReplyForm({{ post.id }})" class="flex items-center gap-1.5 hover:text-blue-600 cursor-pointer focus:outline-none">
+                            <i class="fa-regular fa-comment"></i> <span class="font-bold text-navy-900 dark:text-white">{{ post.reply_records|length if post.reply_records else (post.replies or 0) }}</span> Replies
                         </button>
+                    </div>
+
+                    <!-- Threaded Replies Container -->
+                    {% if post.reply_records %}
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 space-y-2.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Community Discussion</span>
+                        {% for reply in post.reply_records %}
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 text-xs space-y-1">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-navy-900 dark:text-white">{{ reply.author }}</span>
+                                    {% if reply.is_admin_reply %}
+                                    <span class="px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 text-[9px] font-extrabold rounded-full flex items-center gap-1">
+                                        <i class="fa-solid fa-circle-check text-[10px]"></i> Verified Staff
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <span class="text-[10px] text-slate-400">{{ reply.created_at.strftime('%b %d, %H:%M') if reply.created_at else '' }}</span>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-300 leading-normal">{{ reply.content }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Collapsible Reply Form -->
+                    <div id="reply-form-{{ post.id }}" class="hidden pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <form action="{{ url_for('add_forum_reply', post_id=post.id) }}" method="POST" class="space-y-2">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <div class="flex gap-2">
+                                <input type="text" name="author" placeholder="Your Name (Optional)" class="w-1/3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none">
+                                <input type="text" name="content" required placeholder="Write a reply..." class="w-2/3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none">
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition">Post Reply</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 {% endfor %}
@@ -147,4 +182,38 @@
 
     </div>
 </section>
+
+<script>
+function toggleReplyForm(postId) {
+    const el = document.getElementById(`reply-form-${postId}`);
+    if (el) {
+        el.classList.toggle('hidden');
+    }
+}
+
+function likePost(postId) {
+    const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+    fetch(`/forum/like/${postId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ csrf_token: csrfToken })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const countEl = document.getElementById(`likes-count-${postId}`);
+            if (countEl) countEl.innerText = data.likes_count;
+            if (typeof showToast === 'function') showToast('👍 Topic upvoted!');
+        } else if (data.status === 'already_liked') {
+            if (typeof showToast === 'function') showToast('ℹ️ You have already upvoted this topic.');
+        }
+    })
+    .catch(err => {
+        console.error('Like request failed:', err);
+    });
+}
+</script>
 {% endblock %}

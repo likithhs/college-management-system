@@ -45,39 +45,111 @@
             </div>
         </div>
 
-        <!-- Admin Quick Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up">
-                <span class="text-[10px] font-bold text-slate-400 uppercase">2026-27 Applications</span>
-                <h3 class="text-3xl font-black text-navy-900 dark:text-white mt-1">1,420</h3>
-                <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">↑ +14% compared to last year</p>
+        <!-- Top Analytics Summary Cards (Requirement 2: 5 Cards including Rejected) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Submissions</div>
+                <div class="text-2xl md:text-3xl font-black text-navy-900 dark:text-white mt-1">{{ stats.total if stats else 0 }}</div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1">Total Portal Records</p>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="100">
-                <span class="text-[10px] font-bold text-slate-400 uppercase">Seats Locked & Paid</span>
-                <h3 class="text-3xl font-black text-blue-700 dark:text-blue-400 mt-1">890</h3>
-                <p class="text-[11px] text-blue-600 dark:text-blue-400 font-medium mt-1">Verified Document Seats</p>
+
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="50">
+                <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Verified Credentials</div>
+                <div class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ stats.verified if stats else 0 }}</div>
+                <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">Document Verified</p>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="200">
-                <span class="text-[10px] font-bold text-slate-400 uppercase">Active Faculty</span>
-                <h3 class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">120</h3>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1">PhD & MPhil Scholars</p>
+
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="100">
+                <div class="text-[10px] font-bold text-blue-500 uppercase tracking-wider">Seats Locked 🔒</div>
+                <div class="text-2xl md:text-3xl font-black text-blue-700 dark:text-blue-400 mt-1">{{ stats.seat_locked if stats else 0 }}</div>
+                <p class="text-[11px] text-blue-600 dark:text-blue-400 font-medium mt-1">Confirmed Seats</p>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="300">
-                <span class="text-[10px] font-bold text-slate-400 uppercase">Total Enrolled Strength</span>
-                <h3 class="text-3xl font-black text-purple-700 dark:text-purple-400 mt-1">3,450</h3>
-                <p class="text-[11px] text-purple-600 dark:text-purple-400 font-medium mt-1">Across UG & PG Batches</p>
+
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="150">
+                <div class="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Pending & Review</div>
+                <div class="text-2xl md:text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ stats.pending_review if stats else 0 }}</div>
+                <p class="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-1">Awaiting Desk Action</p>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-[10px] font-bold text-rose-500 uppercase tracking-wider">Rejected Apps</div>
+                <div class="text-2xl md:text-3xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ stats.rejected if stats else 0 }}</div>
+                <p class="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-1">Ineligible / Closed</p>
             </div>
         </div>
+
+        <!-- Course Distribution Summary -->
+        {% if course_counts %}
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3" data-aos="fade-up">
+            <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Course-Wise Application Volume</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                {% for c_name, c_cnt in course_counts.items() %}
+                <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <span class="font-bold text-navy-900 dark:text-white truncate pr-2">{{ c_name }}</span>
+                    <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 font-extrabold rounded-full">{{ c_cnt }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Admissions Management Section (ONLY IF GRANTED ACCESS BY SUPER ADMIN) -->
         {% if modules['admission'].admin_access %}
         <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4" data-aos="fade-up">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <h3 class="text-base font-bold text-navy-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-file-signature text-blue-600 dark:text-blue-400"></i> Online Admissions Management (Admin Granted)
+                    <i class="fa-solid fa-file-signature text-blue-600 dark:text-blue-400"></i> Online Admissions Management
                 </h3>
-                <button onclick="showToast('🔄 Applications list refreshed!')" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">Refresh List</button>
+
+                <!-- CSV Export & Refresh Actions -->
+                <div class="flex items-center space-x-2">
+                    <a href="{{ url_for('export_admission_applications', q=q, course_filter=course_filter, status_filter=status_filter) }}" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Export CSV</span>
+                    </a>
+                    <button onclick="showToast('🔄 Applications list refreshed!')" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">Refresh List</button>
+                </div>
             </div>
+
+            <!-- Advanced Filter Bar (Requirement 5) -->
+            <form action="{{ url_for('admin') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Search Keywords</label>
+                    <input type="text" name="q" value="{{ q }}" placeholder="Name, ID, Email, Phone..." class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Course Filter</label>
+                    <select name="course_filter" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                        <option value="">All Courses</option>
+                        {% for c in courses %}
+                        <option value="{{ c.name }}" {{ 'selected' if course_filter == c.name }}>{{ c.code }} - {{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Status Filter</label>
+                    <select name="status_filter" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING" {{ 'selected' if status_filter == 'PENDING' }}>PENDING</option>
+                        <option value="UNDER_REVIEW" {{ 'selected' if status_filter == 'UNDER_REVIEW' }}>UNDER_REVIEW</option>
+                        <option value="VERIFIED" {{ 'selected' if status_filter == 'VERIFIED' }}>VERIFIED</option>
+                        <option value="SEAT_LOCKED" {{ 'selected' if status_filter == 'SEAT_LOCKED' }}>SEAT_LOCKED</option>
+                        <option value="REJECTED" {{ 'selected' if status_filter == 'REJECTED' }}>REJECTED</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end space-x-2">
+                    <button type="submit" class="w-full py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs flex items-center justify-center space-x-1">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>Apply Filters</span>
+                    </button>
+                    {% if q or course_filter or status_filter %}
+                    <a href="{{ url_for('admin') }}" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition">Reset</a>
+                    {% endif %}
+                </div>
+            </form>
 
             <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
                 <table class="w-full text-left text-xs">
@@ -95,7 +167,14 @@
                         {% if applications %}
                             {% for app_item in applications %}
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                                <td class="p-3 font-mono text-blue-700 dark:text-blue-400 font-bold">{{ app_item.application_number }}</td>
+                                <td class="p-3 font-mono text-blue-700 dark:text-blue-400 font-bold flex items-center gap-1.5">
+                                    <button onclick="viewApplicantDetail({{ app_item.id }})" class="text-blue-600 dark:text-blue-400 hover:text-blue-500 font-mono font-bold hover:underline" title="Quick View Detail">
+                                        <i class="fa-solid fa-eye text-xs"></i> {{ app_item.application_number }}
+                                    </button>
+                                    <a href="{{ url_for('download_application_receipt', app_number=app_item.application_number) }}" target="_blank" class="text-amber-600 hover:text-amber-500 dark:text-amber-400 text-xs transition ml-1" title="Download PDF Receipt">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </a>
+                                </td>
                                 <td class="p-3 font-semibold text-slate-800 dark:text-white">
                                     {{ app_item.full_name }}
                                     <div class="text-[10px] text-slate-400 font-normal">Guardian: {{ app_item.guardian_name }} | {{ app_item.phone }} | {{ app_item.email }}</div>
@@ -123,7 +202,7 @@
                                         {% elif app_item.status == 'SEAT_LOCKED' %}
                                             <button type="submit" name="status" value="VERIFIED" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">✓ Unlock</button>
                                         {% elif app_item.status == 'REJECTED' %}
-                                            <button type="submit" name="status" value="UNDER_REVIEW" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">🔍 Reopen</button>
+                                            <button type="submit" name="status" value="UNDER_REVIEW" class="bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">🔍 Re-Open</button>
                                         {% endif %}
                                     </form>
                                 </td>
@@ -131,14 +210,79 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="6" class="p-6 text-center text-slate-400 text-xs italic">
-                                    No online admission applications submitted yet for this college.
-                                </td>
+                                <td colspan="6" class="p-6 text-center text-slate-400">No applications matched the specified filter criteria.</td>
                             </tr>
                         {% endif %}
                     </tbody>
                 </table>
             </div>
+            <!-- Pagination Bar (Requirement 5: Preserves active filters) -->
+            {% if total_pages > 1 %}
+            <div class="flex items-center justify-between pt-3 text-xs text-slate-500 dark:text-slate-400">
+                <div>
+                    Showing Page <span class="font-bold text-slate-900 dark:text-white">{{ page }}</span> of <span class="font-bold text-slate-900 dark:text-white">{{ total_pages }}</span> (Total {{ total_filtered }} records)
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if page > 1 %}
+                    <a href="{{ url_for('admin', q=q, course_filter=course_filter, status_filter=status_filter, page=page-1) }}" class="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition font-semibold">&larr; Previous</a>
+                    {% endif %}
+                    {% if page < total_pages %}
+                    <a href="{{ url_for('admin', q=q, course_filter=course_filter, status_filter=status_filter, page=page+1) }}" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition font-semibold">Next &rarr;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Student Document & Certificate Requests Management Desk (Step 5) -->
+            {% if doc_requests %}
+            <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
+                    <span><i class="fa-solid fa-scroll text-amber-500"></i> Student Certificate & Document Requests Desk ({{ doc_requests|length }})</span>
+                </h4>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                        <thead class="bg-slate-100 dark:bg-slate-900/80 text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                            <tr>
+                                <th class="p-3">Student Name</th>
+                                <th class="p-3">App ID / Email</th>
+                                <th class="p-3">Document Type</th>
+                                <th class="p-3">Reason</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-right">Update Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                            {% for req in doc_requests %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                <td class="p-3 font-bold text-navy-900 dark:text-white">{{ req.student_name }}</td>
+                                <td class="p-3 font-mono text-[11px]">{{ req.application_number }}<br/><span class="text-slate-400 font-normal">{{ req.email }}</span></td>
+                                <td class="p-3 font-semibold text-blue-600 dark:text-blue-400">{{ req.document_type }}</td>
+                                <td class="p-3 max-w-xs truncate">{{ req.reason }}</td>
+                                <td class="p-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ 'bg-amber-100 text-amber-700' if req.status == 'PENDING' else ('bg-blue-100 text-blue-700' if req.status == 'PROCESSING' else ('bg-emerald-100 text-emerald-700' if req.status == 'ISSUED' else 'bg-rose-100 text-rose-700')) }}">
+                                        {{ req.status }}
+                                    </span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <form action="{{ url_for('admin_update_document_request_status', req_id=req.id) }}" method="POST" class="inline-flex items-center gap-1">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <input type="text" name="admin_remarks" placeholder="Remarks..." class="px-2 py-0.5 text-[10px] rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white w-24">
+                                        <select name="status" class="px-1.5 py-0.5 text-[10px] rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold">
+                                            <option value="PENDING" {% if req.status == 'PENDING' %}selected{% endif %}>PENDING</option>
+                                            <option value="PROCESSING" {% if req.status == 'PROCESSING' %}selected{% endif %}>PROCESSING</option>
+                                            <option value="ISSUED" {% if req.status == 'ISSUED' %}selected{% endif %}>ISSUED</option>
+                                            <option value="REJECTED" {% if req.status == 'REJECTED' %}selected{% endif %}>REJECTED</option>
+                                        </select>
+                                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] px-2 py-0.5 rounded shadow-xs">Save</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
         </div>
         {% else %}
         <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-60">
@@ -413,10 +557,10 @@
             {% endif %}
 
             <!-- Add New Past Question Paper Form -->
-            <form action="{{ url_for('admin_add_question_paper') }}" method="POST" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <form action="{{ url_for('admin_upload_question_paper') }}" method="POST" enctype="multipart/form-data" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-pdf text-blue-600 dark:text-blue-400"></i> Add Past Exam Question Paper Sample
+                    <i class="fa-solid fa-file-pdf text-blue-600 dark:text-blue-400"></i> Add Past Exam Question Paper Sample (.pdf)
                 </h4>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
@@ -440,13 +584,13 @@
                         <input type="text" name="subject" required placeholder="e.g. Full Stack Web Dev" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Filename (.pdf) *</label>
-                        <input type="text" name="filename" required placeholder="e.g. BCA_Sem5_FullStack_2025.pdf" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Upload PDF File (.pdf) *</label>
+                        <input type="file" name="file" accept=".pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-400">
                     </div>
                 </div>
                 <div class="flex justify-end">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-circle-plus"></i> Attach Question Paper
+                        <i class="fa-solid fa-file-circle-plus"></i> Upload PDF Question Paper
                     </button>
                 </div>
             </form>
@@ -647,6 +791,229 @@
         </div>
         {% endif %}
 
+        <!-- Faculty Directory Management Center (Step 3A) -->
+        {% if modules['academics'].admin_access %}
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6" data-aos="fade-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div>
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">Admin Access Granted</span>
+                    <h3 class="text-xl font-bold text-navy-900 dark:text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-amber-600 dark:text-amber-400"></i> Faculty & Staff Directory Management
+                    </h3>
+                </div>
+                <a href="{{ url_for('faculty_directory') }}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">View Public Directory &rarr;</a>
+            </div>
+
+            <!-- Add Faculty Profile Form -->
+            <form action="{{ url_for('admin_add_faculty_member') }}" method="POST" enctype="multipart/form-data" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus text-amber-500"></i> Add New Faculty Profile
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Full Name *</label>
+                        <input type="text" name="name" required placeholder="Prof. Dr. Jane Doe" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Designation *</label>
+                        <input type="text" name="designation" required placeholder="Associate Professor & HOD" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Department *</label>
+                        <select name="department_code" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                            <option value="BCA">Computer Applications (BCA/MCA)</option>
+                            <option value="BBA">Management Studies (BBA/MBA)</option>
+                            <option value="BCOM">Commerce (BCom/MCom)</option>
+                            <option value="HUMANITIES">Humanities & Arts</option>
+                            <option value="SCIENCE">Basic & Applied Sciences</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Qualification *</label>
+                        <input type="text" name="qualification" required placeholder="Ph.D. in CS, M.Tech" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Specialization</label>
+                        <input type="text" name="specialization" placeholder="Artificial Intelligence, Data Mining" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Email *</label>
+                        <input type="email" name="email" required placeholder="jane.doe@spmcollege.ac.in" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Phone</label>
+                        <input type="text" name="phone" placeholder="+91 9876543210" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Photo (PNG/JPG)</label>
+                        <input type="file" name="photo_file" accept=".png,.jpg,.jpeg,.webp" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-1">
+                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Publish Faculty Profile</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Campus Placement Drives Management Center (Step 3B) -->
+        {% if modules['placements'].admin_access %}
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6" data-aos="fade-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div>
+                    <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">Admin Access Granted</span>
+                    <h3 class="text-xl font-bold text-navy-900 dark:text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-briefcase text-blue-600 dark:text-blue-400"></i> Campus Placement Drives Management
+                    </h3>
+                </div>
+                <a href="{{ url_for('placements') }}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">View Live Placements Page &rarr;</a>
+            </div>
+
+            <!-- Create Placement Drive Form -->
+            <form action="{{ url_for('admin_add_placement_drive') }}" method="POST" enctype="multipart/form-data" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-building text-blue-500"></i> Create Campus Recruitment Drive
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Company Name *</label>
+                        <input type="text" name="company_name" required placeholder="e.g. Infosys / Deloitte" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Role Offered *</label>
+                        <input type="text" name="role_offered" required placeholder="Systems Engineer / Analyst" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Package (LPA) *</label>
+                        <input type="text" name="package_lpa" required placeholder="e.g. 7.5 LPA" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Drive Date *</label>
+                        <input type="text" name="drive_date" required placeholder="e.g. 25 Oct 2026" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Eligibility Criteria *</label>
+                        <input type="text" name="eligibility_criteria" required placeholder="BCA/MCA 60% aggregate" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Application Deadline</label>
+                        <input type="text" name="application_deadline" placeholder="e.g. 20 Oct 2026" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Drive Status *</label>
+                        <select name="status" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white focus:outline-none">
+                            <option value="UPCOMING">UPCOMING</option>
+                            <option value="ONGOING">ONGOING</option>
+                            <option value="COMPLETED">COMPLETED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 dark:text-slate-400 mb-1">Company Logo (PNG/JPG)</label>
+                        <input type="file" name="logo_file" accept=".png,.jpg,.jpeg,.webp" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-1">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Publish Placement Drive</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
     </div>
 </section>
+
+<!-- APPLICANT DETAIL MODAL (Requirement 3 & GET Read-Only Requirement 4) -->
+<div id="applicantDetailModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 max-w-lg w-full p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+            <h3 class="font-extrabold text-navy-900 dark:text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-id-card text-blue-600 dark:text-blue-400"></i> Applicant Profile Details
+            </h3>
+            <button onclick="closeApplicantDetailModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">&times;</button>
+        </div>
+        
+        <div id="applicantDetailContent" class="text-xs space-y-3 text-slate-700 dark:text-slate-200">
+            <div class="text-center py-6 text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin text-xl"></i>
+                <p class="mt-2">Fetching candidate details...</p>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-700">
+            <button onclick="closeApplicantDetailModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-200 transition">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewApplicantDetail(appId) {
+    const modal = document.getElementById('applicantDetailModal');
+    const content = document.getElementById('applicantDetailContent');
+    modal.classList.remove('hidden');
+    
+    fetch(`/admin/admission/detail/${appId}`)
+        .then(res => {
+            if (!res.ok) throw new Error('Access Denied or Not Found');
+            return res.json();
+        })
+        .then(data => {
+            content.innerHTML = `
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Tracking ID:</span>
+                        <span class="font-mono font-bold text-blue-600 dark:text-blue-400">${data.application_number}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Full Name:</span>
+                        <span class="font-bold text-slate-900 dark:text-white">${data.full_name}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Guardian Name:</span>
+                        <span>${data.guardian_name}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Course Applied:</span>
+                        <span class="font-semibold text-amber-600 dark:text-amber-400">${data.course}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Marks / Percentage:</span>
+                        <span class="font-bold text-emerald-600 dark:text-emerald-400">${data.percentage}%</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Email:</span>
+                        <span>${data.email}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Phone:</span>
+                        <span>${data.phone}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                        <span class="text-slate-400 font-semibold">Current Status:</span>
+                        <span class="font-bold px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-600 rounded">${data.status}</span>
+                    </div>
+                    <div class="flex justify-between py-1">
+                        <span class="text-slate-400 font-semibold">Submission Date:</span>
+                        <span>${data.created_at}</span>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(err => {
+            content.innerHTML = `<div class="p-4 bg-rose-500/10 text-rose-400 rounded-xl text-center">⚠️ Unable to fetch details: ${err.message}</div>`;
+        });
+}
+
+function closeApplicantDetailModal() {
+    document.getElementById('applicantDetailModal').classList.add('hidden');
+}
+</script>
 {% endblock %}

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - {{ student.full_name }} ({{ student.register_number }}){% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-900 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header Banner & Student Profile Card -->
+        <div class="bg-gradient-to-r from-navy-900 via-blue-900 to-indigo-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <div class="flex items-center gap-5">
+                    <div class="w-20 h-20 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-300 text-3xl font-black shadow-lg flex-shrink-0">
+                        {{ student.full_name[:2].upper() }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-3 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                {{ student.register_number }}
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                {{ student.status }}
+                            </span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ student.full_name }}</h1>
+                        <p class="text-sm text-slate-300 mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                            <span>{{ student.course_code }} • {{ student.semester }} (Section {{ student.section }})</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex items-center gap-3">
+                    <button onclick="document.getElementById('profile-edit-modal').classList.remove('hidden')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-pen text-amber-400"></i> Edit Contact Info
+                    </button>
+                    <a href="{{ url_for('student_logout') }}" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white font-bold text-xs rounded-xl border border-rose-500/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 3-Column Grid Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left 2-Columns: Enrolled Curriculum & Study Material -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Enrolled Course Subjects Desk -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-3xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                                <i class="fa-solid fa-book-bookmark text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Curriculum Subjects</h2>
+                                <p class="text-xs text-slate-400">Enrolled syllabus for {{ student.course_code }} • {{ student.semester }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if subjects %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for sub in subjects %}
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
+                                    {{ sub.subject_code if sub.subject_code else ('SUB-0' ~ loop.index) }}
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    {{ sub.credits if sub.credits else 4 }} Credits
+                                </span>
+                            </div>
+                            <h3 class="text-sm font-bold text-white leading-tight">{{ sub.subject_name }}</h3>
+                            
+                            {% if sub.faculty %}
+                            <p class="text-[11px] text-slate-400 flex items-center gap-1.5 pt-1 border-t border-slate-800">
+                                <i class="fa-solid fa-user-tie text-amber-400 text-[10px]"></i>
+                                <span>Faculty: <strong class="text-slate-200">{{ sub.faculty.name }}</strong> ({{ sub.faculty.designation }})</span>
+                            </p>
+                            {% endif %}
+
+                            {% if sub.materials %}
+                            <div class="pt-2 border-t border-slate-800/80 space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Study Materials:</span>
+                                {% for mat in sub.materials %}
+                                <a href="{{ url_for('static', filename='uploads/study_materials/' ~ student.college_id ~ '/' ~ mat.file_url) }}" target="_blank" class="text-[11px] text-blue-400 hover:text-blue-300 flex items-center justify-between hover:underline">
+                                    <span><i class="fa-solid fa-paperclip text-[10px] mr-1"></i> {{ mat.title }}</span>
+                                    <span class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">{{ mat.material_type }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-8 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-600 mb-2"></i>
+                        <p class="text-xs">No specific curriculum subjects mapped for {{ student.course_code }} yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Exam Timetable Desk (Phase 6 Step 2) -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-3xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+                                <i class="fa-solid fa-calendar-days text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Exam Timetable Schedule</h2>
+                                <p class="text-xs text-slate-400">Official examinations schedule for {{ student.course_code }} • {{ student.semester }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if exam_schedules %}
+                    <div class="divide-y divide-slate-700/50">
+                        {% for exam in exam_schedules %}
+                        <div class="py-3 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-white block">{{ exam.subject_name }}</span>
+                                <span class="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+                                    <i class="fa-regular fa-clock text-amber-400"></i> {{ exam.exam_time }} • Hall {{ exam.hall_number }}
+                                </span>
+                            </div>
+                            <span class="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-mono font-bold">
+                                {{ exam.exam_date }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-slate-400 text-center py-4">No examination timetable published for {{ student.course_code }} {{ student.semester }} yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Previous Year Question Papers (PYQ) -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-3xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
+                                <i class="fa-solid fa-file-pdf text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Question Papers Repository</h2>
+                                <p class="text-xs text-slate-400">Download previous exam question papers for {{ student.course_code }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if question_papers %}
+                    <div class="divide-y divide-slate-700/50">
+                        {% for qp in question_papers %}
+                        <div class="py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-file-pdf text-rose-400 text-lg"></i>
+                                <div>
+                                    <span class="text-xs font-bold text-white block">{{ qp.subject }}</span>
+                                    <span class="text-[10px] text-slate-400">{{ qp.year }} • {{ qp.semester }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('download_paper', filename=qp.filename) }}" class="px-3 py-1 bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white font-bold text-xs rounded-lg transition border border-purple-500/30 flex items-center gap-1">
+                                <i class="fa-solid fa-download"></i> PDF
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-slate-400 text-center py-4">No question papers uploaded for {{ student.course_code }} yet.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Right 1-Column: Certificate Requests & Event Passes -->
+            <div class="space-y-8">
+                
+                <!-- Document & Certificate Requests Desk -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-3xl p-6 shadow-xl">
+                    <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-certificate text-amber-400"></i> Certificate Requests
+                    </h2>
+
+                    {% if doc_requests %}
+                    <div class="space-y-3">
+                        {% for req in doc_requests %}
+                        <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-700/50">
+                            <div class="flex items-center justify-between text-xs font-bold text-white mb-1">
+                                <span>{{ req.document_type }}</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] {{ 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' if req.status == 'ISSUED' else ('bg-amber-500/20 text-amber-300 border border-amber-500/30' if req.status == 'PENDING' else 'bg-blue-500/20 text-blue-300') }}">
+                                    {{ req.status }}
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 leading-snug">{{ req.reason }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-slate-400 text-center py-4">No certificate requests submitted yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Event Passes -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-3xl p-6 shadow-xl">
+                    <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-ticket text-indigo-400"></i> Event Passes
+                    </h2>
+
+                    {% if event_passes %}
+                    <div class="space-y-3">
+                        {% for pass_item in event_passes %}
+                        <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-700/50">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-white">Pass Code: {{ pass_item.registration_code }}</span>
+                                <a href="{{ url_for('verify_event_registration', registration_code=pass_item.registration_code) }}" target="_blank" class="text-[10px] text-amber-400 hover:underline">
+                                    Verify Pass &rarr;
+                                </a>
+                            </div>
+                            <span class="text-[11px] text-slate-400 block">Registered for campus event</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-slate-400 text-center py-4">No campus event passes registered yet.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Profile Edit Modal -->
+<div id="profile-edit-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-white">Edit Student Contact Details</h3>
+            <button onclick="document.getElementById('profile-edit-modal').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <form action="{{ url_for('student_profile_update') }}" method="POST" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+                <input type="text" name="phone" value="{{ student.phone or '' }}" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            </div>
+            <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs transition">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

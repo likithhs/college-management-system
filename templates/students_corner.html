@@ -1,18 +1,312 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Header Banner -->
 <section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4" data-aos="fade-down">
-        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Student Portal</span>
-        <h1 class="text-3xl md:text-4xl font-black mt-3">Students Corner & Campus Life</h1>
-        <p class="text-sm text-slate-300 max-w-2xl mt-2">Clubs, NSS/NCC units, examination schedules, circulars, and student council activities.</p>
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">
+            <i class="fa-solid fa-graduation-cap mr-1"></i> Student Portal
+        </span>
+        <h1 class="text-3xl md:text-4xl font-black mt-3">Student Portal & Applicant Dashboard</h1>
+        <p class="text-sm text-slate-300 max-w-2xl mt-2">Track online admission status, download PDF receipts, view examination timetables, and access question papers.</p>
     </div>
 </section>
 
-<section class="py-16 bg-white dark:bg-slate-900">
+<section class="py-12 bg-white dark:bg-slate-900">
     <div class="max-w-7xl mx-auto px-4 space-y-12">
         
-        <!-- Student Clubs Grid -->
+        <!-- SECTION 1: APPLICANT DASHBOARD OR TRACKING LOOKUP -->
+        {% if active_app %}
+        <!-- Active Applicant Dashboard Card -->
+        <div class="bg-slate-900 dark:bg-slate-800 rounded-3xl border border-slate-800 dark:border-slate-700 shadow-2xl p-6 md:p-8 text-white" data-aos="fade-up">
+            <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full mb-2">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>VERIFIED APPLICANT SESSION</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">{{ active_app.full_name }}</h2>
+                    <p class="text-xs text-slate-400 font-mono mt-0.5">Tracking ID: {{ active_app.application_number }} | Course: <span class="text-amber-400 font-semibold">{{ active_app.course }}</span></p>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    {% if active_app.status in ['VERIFIED', 'SEAT_LOCKED'] %}
+                    <a href="{{ url_for('download_provisional_letter', app_number=active_app.application_number) }}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow-lg">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Provisional Admission Letter</span>
+                    </a>
+                    {% endif %}
+
+                    <!-- Secure PDF Receipt Download Button -->
+                    <a href="{{ url_for('download_application_receipt', app_number=active_app.application_number) }}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl text-xs transition shadow-lg">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Download PDF Receipt</span>
+                    </a>
+                    
+                    <!-- Dashboard Session Logout -->
+                    <a href="{{ url_for('student_dashboard_logout') }}" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-semibold transition" title="Logout of Applicant Dashboard">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Exit Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Application Status Section -->
+            <div class="mt-8">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-6">Admission Pipeline Status</h3>
+
+                {% if active_app.status == 'REJECTED' %}
+                <!-- Terminal REJECTED Status Box (Requirement 4) -->
+                <div class="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 mb-3">
+                        <i class="fa-solid fa-circle-xmark text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-rose-400 mb-1">Application Status: REJECTED</h4>
+                    <p class="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        We regret to inform you that your application for {{ active_app.course }} could not be approved at this time based on seat availability or eligibility criteria. If you believe this is in error, please contact the Admissions Office.
+                    </p>
+                </div>
+
+                {% else %}
+                <!-- 4-Step Progress Pipeline -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative">
+                    <!-- Step 1: PENDING -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border {{ 'border-amber-500 text-amber-400' if active_app.status == 'PENDING' else 'border-slate-700 text-slate-400' }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Step 1</span>
+                            <i class="fa-solid {{ 'fa-circle-check text-emerald-400' if active_app.status in ['UNDER_REVIEW', 'VERIFIED', 'SEAT_LOCKED'] else ('fa-spinner fa-spin text-amber-400' if active_app.status == 'PENDING' else 'fa-circle') }}"></i>
+                        </div>
+                        <div class="font-bold text-sm text-white">PENDING</div>
+                        <div class="text-[11px] text-slate-400 mt-1">Application Received</div>
+                    </div>
+
+                    <!-- Step 2: UNDER_REVIEW -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border {{ 'border-amber-500 text-amber-400' if active_app.status == 'UNDER_REVIEW' else ('border-emerald-500/50 text-emerald-400' if active_app.status in ['VERIFIED', 'SEAT_LOCKED'] else 'border-slate-700 text-slate-400') }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Step 2</span>
+                            <i class="fa-solid {{ 'fa-circle-check text-emerald-400' if active_app.status in ['VERIFIED', 'SEAT_LOCKED'] else ('fa-spinner fa-spin text-amber-400' if active_app.status == 'UNDER_REVIEW' else 'fa-clock') }}"></i>
+                        </div>
+                        <div class="font-bold text-sm text-white">UNDER REVIEW</div>
+                        <div class="text-[11px] text-slate-400 mt-1">Document Scrutiny</div>
+                    </div>
+
+                    <!-- Step 3: VERIFIED -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border {{ 'border-emerald-500 text-emerald-400' if active_app.status == 'VERIFIED' else ('border-blue-500/50 text-blue-400' if active_app.status == 'SEAT_LOCKED' else 'border-slate-700 text-slate-400') }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Step 3</span>
+                            <i class="fa-solid {{ 'fa-circle-check text-emerald-400' if active_app.status in ['VERIFIED', 'SEAT_LOCKED'] else 'fa-shield-check' }}"></i>
+                        </div>
+                        <div class="font-bold text-sm text-white">VERIFIED</div>
+                        <div class="text-[11px] text-slate-400 mt-1">Eligibility Confirmed</div>
+                    </div>
+
+                    <!-- Step 4: SEAT_LOCKED -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border {{ 'border-blue-500 text-blue-400 bg-blue-950/20' if active_app.status == 'SEAT_LOCKED' else 'border-slate-700 text-slate-400' }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Step 4</span>
+                            <i class="fa-solid {{ 'fa-lock text-blue-400' if active_app.status == 'SEAT_LOCKED' else 'fa-lock-open' }}"></i>
+                        </div>
+                        <div class="font-bold text-sm text-white">SEAT LOCKED 🔒</div>
+                        <div class="text-[11px] text-slate-400 mt-1">Admission Finalized</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Student Document & Certificate Request Center (Step 5) -->
+                <div class="mt-8 pt-8 border-t border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-scroll text-amber-400"></i> Online Student Document & Certificate Desk
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Request official Bonafide, Transfer, Conduct certificates, or marks transcripts directly.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Request Form -->
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Request New Document</h4>
+                            <form action="{{ url_for('submit_student_document_request') }}" method="POST" class="space-y-3">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Document Type</label>
+                                    <select name="document_type" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                        <option value="Bonafide Certificate">Bonafide Certificate</option>
+                                        <option value="Transfer Certificate (TC)">Transfer Certificate (TC)</option>
+                                        <option value="Provisional Marks Card">Provisional Marks Card</option>
+                                        <option value="Character & Conduct Certificate">Character & Conduct Certificate</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Purpose / Reason</label>
+                                    <textarea name="reason" rows="2" required placeholder="Specify why you need this document..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"></textarea>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition">
+                                    Submit Certificate Request
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Requests Tracker List -->
+                        <div class="lg:col-span-2 bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Document Requests Status</h4>
+                            {% if doc_requests %}
+                            <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                {% for req in doc_requests %}
+                                <div class="p-3 bg-slate-900 rounded-xl border border-slate-700/80 flex items-center justify-between text-xs">
+                                    <div>
+                                        <div class="font-bold text-white">{{ req.document_type }}</div>
+                                        <div class="text-[10px] text-slate-400">Reason: {{ req.reason }} • Submitted: {{ req.created_at.strftime('%b %d, %Y') if req.created_at else '' }}</div>
+                                        {% if req.admin_remarks %}
+                                        <div class="text-[10px] text-amber-300 mt-1">Admin Remarks: {{ req.admin_remarks }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase {{ 'bg-amber-500/20 text-amber-400 border border-amber-500/30' if req.status == 'PENDING' else ('bg-blue-500/20 text-blue-400 border border-blue-500/30' if req.status == 'PROCESSING' else ('bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' if req.status == 'ISSUED' else 'bg-rose-500/20 text-rose-400 border border-rose-500/30')) }}">
+                                        {{ req.status }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-6 text-slate-400 text-xs">
+                                No document requests submitted yet.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Track Application Lookup Form -->
+        <div class="bg-slate-900 dark:bg-slate-800 rounded-3xl border border-slate-800 dark:border-slate-700 shadow-2xl p-6 md:p-8 text-white max-w-2xl mx-auto" data-aos="fade-up">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 mb-3 border border-amber-500/20">
+                    <i class="fa-solid fa-magnifying-glass-location text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white">Track Admission Application</h2>
+                <p class="text-xs text-slate-400 mt-1">Enter your Tracking ID (e.g. SC2026-XXXXXX) and registered Email Address to access your live dashboard.</p>
+            </div>
+
+            {% if lookup_error %}
+            <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-300 text-xs flex items-start space-x-2">
+                <i class="fa-solid fa-circle-exclamation text-base mt-0.5"></i>
+                <span>{{ lookup_error }}</span>
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('students_corner') }}" method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tracking / Application ID *</label>
+                    <input type="text" name="tracking_id" placeholder="e.g. SC2026-7984B5" required class="w-full bg-slate-800 border border-slate-700 focus:border-amber-400 rounded-xl px-4 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Registered Email Address *</label>
+                    <input type="email" name="email" placeholder="e.g. student@example.com" required class="w-full bg-slate-800 border border-slate-700 focus:border-amber-400 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-extrabold py-3 rounded-xl transition text-sm shadow-lg flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Access Applicant Dashboard</span>
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- SECTION 2: ACADEMIC CALENDAR & EXAMINATION NOTIFICATIONS -->
+        <div class="bg-slate-900 dark:bg-slate-800 p-8 rounded-3xl border border-slate-800 dark:border-slate-700 shadow-xl" data-aos="fade-up">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+                    <i class="fa-solid fa-calendar-days text-amber-400"></i> Academic Calendar & Exam Schedules
+                </h2>
+                <span class="text-xs text-slate-400 font-mono">Academic Year 2026-27</span>
+            </div>
+
+            {% if calendar_items %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for item in calendar_items %}
+                <div class="bg-slate-800/90 p-4 rounded-2xl border border-slate-700 flex items-start space-x-3">
+                    <div class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-2 rounded-xl text-center min-w-[90px]">
+                        <div class="text-xs font-bold font-mono">{{ item.date_display }}</div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">{{ item.event_name }}</h4>
+                        <span class="inline-block mt-1 text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded uppercase">
+                            {{ item.event_type }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6 text-slate-400 text-xs">
+                No academic calendar events published for the current session.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SECTION 3: PREVIOUS QUESTION PAPERS (PYQ) REPOSITORY -->
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl" data-aos="fade-up">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-navy-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-blue-600 dark:text-blue-400"></i> Previous University Question Papers (PYQ)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Download official Bengaluru City University semester exam question papers.</p>
+                </div>
+
+                <!-- Server-Side Search Filter (Requirement 3) -->
+                <form action="{{ url_for('students_corner') }}" method="GET" class="flex items-center space-x-2">
+                    <input type="text" name="q" value="{{ search_q }}" placeholder="Search subject, year..." class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
+                    <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-500 transition">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    {% if search_q %}
+                    <a href="{{ url_for('students_corner') }}" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            {% if question_papers %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 uppercase font-semibold">
+                            <th class="py-3 px-4">Subject</th>
+                            <th class="py-3 px-4">Course & Semester</th>
+                            <th class="py-3 px-4">Exam Year</th>
+                            <th class="py-3 px-4 text-right">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50 text-slate-700 dark:text-slate-200">
+                        {% for qp in question_papers %}
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+                            <td class="py-3 px-4 font-semibold text-navy-900 dark:text-white">{{ qp.subject }}</td>
+                            <td class="py-3 px-4">{{ qp.course.code if qp.course else 'Degree' }} — {{ qp.semester }}</td>
+                            <td class="py-3 px-4 font-mono">{{ qp.year }}</td>
+                            <td class="py-3 px-4 text-right">
+                                <a href="{{ url_for('download_paper', filename=qp.filename) }}" target="_blank" class="inline-flex items-center space-x-1 px-3 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
+                                    <i class="fa-solid fa-download"></i>
+                                    <span>PDF</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-500 dark:text-slate-400 text-xs">
+                No question papers matched your search filter.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SECTION 4: STUDENT CLUBS & SOCIETIES -->
         <div>
             <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white mb-8">Clubs & Co-Curricular Societies</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -41,23 +335,6 @@
                     <p class="text-xs text-slate-500 dark:text-slate-300 mt-2 leading-relaxed">Promoting campus sustainability, rainwater harvesting awareness, and solar energy initiatives.</p>
                 </div>
 
-            </div>
-        </div>
-
-        <!-- Examination Cell Notices -->
-        <div class="bg-slate-900 dark:bg-slate-800 p-8 rounded-3xl border border-slate-800 dark:border-slate-700 shadow-xl" data-aos="fade-up">
-            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-white">
-                <i class="fa-solid fa-bell text-amber-400"></i> Examination & Time Table Notifications
-            </h2>
-            <div class="space-y-3 text-xs">
-                <div class="bg-slate-800/90 dark:bg-slate-900/80 p-4 rounded-xl flex items-center justify-between border border-slate-700">
-                    <span class="text-slate-200">📅 Final Semester Bengaluru City University Exam Timetable (May/June 2026) Published</span>
-                    <a href="#" class="text-amber-400 font-bold hover:underline">Download PDF &rarr;</a>
-                </div>
-                <div class="bg-slate-800/90 dark:bg-slate-900/80 p-4 rounded-xl flex items-center justify-between border border-slate-700">
-                    <span class="text-slate-200">📝 Internal Assessment (IA-2) Schedule for BCA, BBA & BCom</span>
-                    <a href="#" class="text-amber-400 font-bold hover:underline">View Schedule &rarr;</a>
-                </div>
             </div>
         </div>
 

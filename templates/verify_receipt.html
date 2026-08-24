@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Application Verification - {{ college_setting.college_name if college_setting else 'Seshadripuram College' }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-xl mx-auto">
+        
+        <!-- Header Banner -->
+        <div class="bg-navy-900 border border-slate-800 rounded-2xl p-6 mb-8 text-center shadow-xl">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 text-amber-400 mb-4 border border-amber-500/20">
+                <i class="fa-solid fa-shield-halved text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-wide">Institutional Document Verification</h1>
+            <p class="text-slate-400 text-sm mt-1">Official Registry Portal • {{ college_setting.college_name if college_setting else 'Seshadripuram College' }}</p>
+        </div>
+
+        {% if details %}
+        <!-- Generic Verified Record Card (Event Pass / Certificate) -->
+        <div class="bg-slate-800/80 backdrop-blur border border-emerald-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="bg-emerald-500/10 border-b border-emerald-500/20 -mx-6 -mt-6 p-4 mb-6 flex items-center justify-between px-6">
+                <div class="flex items-center space-x-2 text-emerald-400 font-semibold text-sm">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>AUTHENTIC {{ receipt_type|upper if receipt_type else 'RECORD' }} VERIFIED</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">CODE: {{ record_id }}</span>
+            </div>
+
+            <div class="space-y-4">
+                {% for key, val in details.items() %}
+                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                    <span class="text-slate-400 text-sm">{{ key }}</span>
+                    <span class="text-white font-semibold text-sm">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-6 p-3 bg-slate-900/60 rounded-xl border border-slate-700/60 text-xs text-slate-400 flex items-start space-x-2">
+                <i class="fa-solid fa-lock text-amber-400 mt-0.5"></i>
+                <p>Participant contact details are masked on this public verification page to protect user data privacy.</p>
+            </div>
+        </div>
+
+        {% elif app_record %}
+        <!-- Verified Application Card -->
+        <div class="bg-slate-800/80 backdrop-blur border border-emerald-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <!-- Top Verified Badge Bar -->
+            <div class="bg-emerald-500/10 border-b border-emerald-500/20 -mx-6 -mt-6 p-4 mb-6 flex items-center justify-between px-6">
+                <div class="flex items-center space-x-2 text-emerald-400 font-semibold text-sm">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>AUTHENTIC RECORD VERIFIED</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">REGISTRY ID: {{ app_record.application_number }}</span>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Non-sensitive Public Info Grid -->
+                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                    <span class="text-slate-400 text-sm">Tracking ID</span>
+                    <span class="text-white font-mono font-bold">{{ app_record.application_number }}</span>
+                </div>
+
+                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                    <span class="text-slate-400 text-sm">Academic Course</span>
+                    <span class="text-amber-400 font-semibold text-sm">{{ app_record.course }}</span>
+                </div>
+
+                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                    <span class="text-slate-400 text-sm">Current Admission Status</span>
+                    <div>
+                        {% if app_record.status == 'VERIFIED' %}
+                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-bold">VERIFIED</span>
+                        {% elif app_record.status == 'SEAT_LOCKED' %}
+                            <span class="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-xs font-bold">SEAT LOCKED 🔒</span>
+                        {% elif app_record.status == 'UNDER_REVIEW' %}
+                            <span class="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-xs font-bold">UNDER REVIEW</span>
+                        {% elif app_record.status == 'REJECTED' %}
+                            <span class="px-3 py-1 bg-red-500/10 text-red-400 border border-red-500/30 rounded-full text-xs font-bold">REJECTED</span>
+                        {% else %}
+                            <span class="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs font-bold">{{ app_record.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                    <span class="text-slate-400 text-sm">Registration Date</span>
+                    <span class="text-slate-300 text-sm">{{ app_record.created_at.strftime('%B %d, %Y') if app_record.created_at else 'Current Session' }}</span>
+                </div>
+            </div>
+
+            <!-- Privacy Protection Notice -->
+            <div class="mt-6 p-3 bg-slate-900/60 rounded-xl border border-slate-700/60 text-xs text-slate-400 flex items-start space-x-2">
+                <i class="fa-solid fa-lock text-amber-400 mt-0.5"></i>
+                <p>Candidate personal identity, marks, and contact details are masked on this public verification page to protect applicant data privacy.</p>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Record Not Found Card -->
+        <div class="bg-slate-800/80 border border-red-500/30 rounded-2xl p-8 text-center shadow-2xl">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-500/10 text-red-400 mb-4 border border-red-500/20">
+                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-2">Record Not Found</h2>
+            <p class="text-slate-400 text-sm max-w-md mx-auto mb-6">
+                The specified application tracking ID (<code class="text-amber-400 bg-slate-900 px-2 py-1 rounded">{{ app_number }}</code>) could not be located in our official admissions registry database.
+            </p>
+            <a href="{{ url_for('apply') }}" class="inline-flex items-center space-x-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl transition">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Submit New Application</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-8">
+            <a href="{{ url_for('index') }}" class="text-slate-400 hover:text-white text-sm transition">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Return to Campus Homepage
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

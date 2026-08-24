@@ -36,6 +36,9 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen overflow-x-hidden">
 
+    <!-- Skip to Main Content Link for Accessibility (a11y) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:p-3 focus:bg-amber-500 focus:text-slate-950 focus:font-bold focus:rounded-xl shadow-2xl">Skip to main content</a>
+
     <!-- Flash Messages -->
     <!-- Dynamic Notification Flash Popup Container -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -155,6 +158,9 @@
                         <a href="{{ url_for('departments') }}" class="block px-3 py-2 rounded-xl text-xs font-bold text-navy-900 hover:bg-blue-50 hover:text-blue-700 transition-colors">
                             <i class="fa-solid fa-list mr-1.5 text-blue-600"></i> All Departments
                         </a>
+                        <a href="{{ url_for('faculty_directory') }}" class="block px-3 py-2 rounded-xl text-xs font-bold text-navy-900 hover:bg-amber-50 hover:text-amber-700 transition-colors">
+                            <i class="fa-solid fa-graduation-cap mr-1.5 text-amber-500"></i> Faculty Directory
+                        </a>
                         <div class="my-1 border-t border-slate-100"></div>
                         <span class="block px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Science Programs</span>
                         <a href="{{ url_for('course_detail', course_code='bsc') }}" class="block px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
@@ -188,8 +194,29 @@
                 {% endif %}
             </div>
 
-            <!-- Right: Apply CTA + Mobile Hamburger -->
-            <div class="flex items-center gap-2.5 flex-shrink-0 ml-auto">
+            <!-- Right: Notification Bell + Apply CTA + Mobile Hamburger -->
+            <div class="flex items-center gap-2.5 flex-shrink-0 ml-auto relative">
+                <!-- Notification Bell Component -->
+                <div class="relative">
+                    <button id="notif-bell-btn" onclick="toggleNotificationDropdown()" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition relative focus:outline-none" title="In-App Notifications">
+                        <i class="fa-solid fa-bell text-lg"></i>
+                        <span id="notif-badge-count" class="hidden absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-black rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-white">0</span>
+                    </button>
+
+                    <!-- Notifications Dropdown Menu -->
+                    <div id="notif-dropdown-menu" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
+                        <div class="p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                            <span class="text-xs font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-bell text-amber-400"></i> In-App Notifications
+                            </span>
+                            <button onclick="markAllNotificationsRead()" class="text-[10px] font-bold text-amber-400 hover:underline">Mark All Read</button>
+                        </div>
+                        <div id="notif-list-container" class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs">
+                            <div class="p-4 text-center text-slate-400">Loading notifications...</div>
+                        </div>
+                    </div>
+                </div>
+
                 {% if modules['admission'].enabled %}
                 <a href="{{ url_for('apply') }}" class="whitespace-nowrap flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-800 hover:to-indigo-900 text-white shadow-sm hover:shadow-md transition-all group">
                     <i class="fa-solid fa-star text-gold-400 group-hover:rotate-12 transition-transform text-xs"></i>
@@ -354,7 +381,7 @@
     {% endif %}
 
     <!-- MAIN PAGE CONTENT -->
-    <main class="flex-grow">
+    <main id="main-content" class="flex-grow">
         {% block content %}{% endblock %}
     </main>
 
@@ -363,7 +390,7 @@
     <section class="location-map-section relative w-full" style="height: 420px;" id="campus-map">
         <!-- Embedded Google Map (full width) -->
         <iframe
-            src="https://www.google.com/maps?q=Seshadripuram+College,+Seshadripuram,+Bengaluru,+Karnataka+560020,+India&output=embed"
+            src="https://maps.google.com/maps?q=Seshadripuram%20College,%20Seshadripuram,%20Bengaluru,%20Karnataka%20560020&t=&z=15&ie=UTF8&iwloc=&output=embed"
             class="absolute inset-0 w-full h-full border-0"
             allowfullscreen=""
             loading="lazy"
@@ -514,8 +541,104 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Notification Client Script -->
+    <script>
+    function fetchNotificationBadge() {
+        fetch('/notifications/unread-count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('notif-badge-count');
+                if (badge) {
+                    if (data.unread_count > 0) {
+                        badge.innerText = data.unread_count > 99 ? '99+' : data.unread_count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                }
+            })
+            .catch(err => console.error('Notification count error:', err));
+    }
+
+    function toggleNotificationDropdown() {
+        const menu = document.getElementById('notif-dropdown-menu');
+        if (!menu) return;
+        const isHidden = menu.classList.contains('hidden');
+        if (isHidden) {
+            menu.classList.remove('hidden');
+            loadNotificationList();
+        } else {
+            menu.classList.add('hidden');
+        }
+    }
+
+    function loadNotificationList() {
+        const container = document.getElementById('notif-list-container');
+        if (!container) return;
+        fetch('/notifications/list')
+            .then(res => res.json())
+            .then(items => {
+                if (!items || items.length === 0) {
+                    container.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs">No notifications for your current session.</div>';
+                    return;
+                }
+                container.innerHTML = items.map(item => {
+                    const targetLink = item.link ? item.link : '#';
+                    return `
+                    <div class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition flex items-start justify-between gap-2 ${item.is_read ? 'opacity-60' : 'bg-blue-50/50 dark:bg-blue-950/20'}">
+                        <div>
+                            <a href="${targetLink}" class="font-bold text-slate-900 dark:text-white text-xs hover:underline">${item.title}</a>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">${item.message}</div>
+                            <div class="text-[10px] text-slate-400 mt-1">${item.created_at}</div>
+                        </div>
+                        ${!item.is_read ? `<button onclick="markNotificationRead(${item.id})" class="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline">Read</button>` : ''}
+                    </div>
+                `}).join('');
+            })
+            .catch(err => {
+                container.innerHTML = `<div class="p-4 text-center text-rose-500 text-xs">Error loading notifications.</div>`;
+            });
+    }
+
+    function markNotificationRead(notifId) {
+        const csrfToken = "{{ csrf_token }}";
+        fetch(`/notifications/read/${notifId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `csrf_token=${encodeURIComponent(csrfToken)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                fetchNotificationBadge();
+                loadNotificationList();
+            }
+        });
+    }
+
+    function markAllNotificationsRead() {
+        const csrfToken = "{{ csrf_token }}";
+        fetch('/notifications/read-all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `csrf_token=${encodeURIComponent(csrfToken)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                fetchNotificationBadge();
+                loadNotificationList();
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchNotificationBadge();
+    });
+    </script>
 </body>
 </html>

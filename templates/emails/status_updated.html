@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status Update - {{ college.name }}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; color: #1e293b;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #0f172a; padding: 30px; text-align: center; border-bottom: 4px solid #f59e0b;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700;">{{ college.name }}</h1>
+                            {% if college.tagline %}
+                            <p style="color: #94a3b8; margin: 5px 0 0 0; font-size: 13px;">{{ college.tagline }}</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <!-- Body Content -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <h2 style="color: #0f172a; font-size: 18px; margin-top: 0;">Dear {{ app_record.full_name }},</h2>
+                            <p style="line-height: 1.6; color: #334155; font-size: 15px;">
+                                There is an update regarding your admission application for <strong>{{ app_record.course }}</strong> (Tracking ID: <strong>{{ app_record.application_number }}</strong>).
+                            </p>
+                            
+                            <!-- Status Transition Card -->
+                            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin: 20px 0; text-align: center;">
+                                <div style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                    Application Status Update
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <span style="color: #64748b; font-size: 14px; text-decoration: line-through;">{{ old_status }}</span>
+                                    <span style="color: #94a3b8; font-size: 16px; margin: 0 10px;">➔</span>
+                                    {% if new_status == 'VERIFIED' %}
+                                        <span style="background-color: #dcfce7; color: #15803d; font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 9999px; display: inline-block;">
+                                            VERIFIED
+                                        </span>
+                                    {% elif new_status == 'SEAT_LOCKED' %}
+                                        <span style="background-color: #dbeafe; color: #1e40af; font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 9999px; display: inline-block;">
+                                            SEAT LOCKED 🔒
+                                        </span>
+                                    {% elif new_status == 'UNDER_REVIEW' %}
+                                        <span style="background-color: #fef3c7; color: #b45309; font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 9999px; display: inline-block;">
+                                            UNDER REVIEW
+                                        </span>
+                                    {% elif new_status == 'REJECTED' %}
+                                        <span style="background-color: #fee2e2; color: #b91c1c; font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 9999px; display: inline-block;">
+                                            REJECTED
+                                        </span>
+                                    {% else %}
+                                        <span style="background-color: #f1f5f9; color: #475569; font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 9999px; display: inline-block;">
+                                            {{ new_status }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <p style="margin-top: 15px; font-size: 14px; color: #334155; line-height: 1.5; text-align: left;">
+                                    {% if new_status == 'UNDER_REVIEW' %}
+                                        Your application and submitted credentials are currently undergoing official document verification by our admissions officer.
+                                    {% elif new_status == 'VERIFIED' %}
+                                        Congratulations! Your academic documents and eligibility have been successfully verified. You are eligible to confirm your admission seat.
+                                    {% elif new_status == 'SEAT_LOCKED' %}
+                                        Great news! Your admission seat for {{ app_record.course }} has been officially locked and provisionally reserved for the 2026-27 academic session.
+                                    {% elif new_status == 'REJECTED' %}
+                                        We regret to inform you that your application could not be approved at this time based on the current eligibility requirements or seat availability.
+                                    {% else %}
+                                        Your application status has been updated to {{ new_status }}.
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+                                If you have any questions or need to submit additional original documents, please contact the Admissions Office at {{ college.contact_email or 'admissions@spmcollege.ac.in' }}.
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">
+                            <p style="margin: 0 0 5px 0;">&copy; 2026 {{ college.name }}. All rights reserved.</p>
+                            <p style="margin: 0;">College Desk: {{ college.contact_email or 'admissions@spmcollege.ac.in' }} | {{ college.contact_phone or '+91 80 2335 1234' }}</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
