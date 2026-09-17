@@ -67,13 +67,13 @@
                             <td class="py-4 px-6 text-center">
                                 <form action="{{ url_for('toggle_admin', module_key=key) }}" method="POST" class="inline-block">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                    {% if mod.admin_access %}
+                                    {% if mod.admin_access and mod.enabled %}
                                     <button type="submit" title="Click to Revoke Admin Authority" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-full border border-emerald-400/40 shadow-sm transition-all text-xs flex items-center gap-1.5 mx-auto">
                                         <i class="fa-solid fa-check"></i> Admin Granted
                                     </button>
                                     {% else %}
-                                    <button type="submit" title="Click to Revoke Admin Authority" class="bg-rose-900/80 hover:bg-rose-800 text-rose-200 font-bold px-4 py-1.5 rounded-full border border-rose-700/60 shadow-sm transition-all text-xs flex items-center gap-1.5 mx-auto">
-                                        <i class="fa-solid fa-xmark"></i> Admin Revoked
+                                    <button type="submit" title="Click to Grant Admin Authority" class="bg-rose-900/80 hover:bg-rose-800 text-rose-200 font-bold px-4 py-1.5 rounded-full border border-rose-700/60 shadow-sm transition-all text-xs flex items-center gap-1.5 mx-auto">
+                                        <i class="fa-solid fa-xmark"></i> Admin Disabled
                                     </button>
                                     {% endif %}
                                 </form>
