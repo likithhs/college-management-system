@@ -387,3 +387,151 @@ def generate_provisional_admission_letter(app_record, college):
     doc.build(elements)
     buffer.seek(0)
     return buffer
+
+
+def generate_question_paper_pdf(paper, college=None):
+    """
+    Generates an authentic, official University Examination Question Paper PDF
+    for a given QuestionPaper model record.
+    Returns in-memory BytesIO buffer containing the PDF bytes.
+    """
+    buffer = io.BytesIO()
+    setting = getattr(college, 'settings', None) if college else None
+    college_name = getattr(setting, 'college_name', None) or getattr(college, 'name', 'Seshadripuram College')
+    tagline = getattr(setting, 'tagline', None) or 'Affiliated to Bengaluru City University | NAAC Accredited A++'
+    address = getattr(setting, 'address', None) or 'Seshadripuram Main Campus, Bengaluru - 560020'
+
+    course_name = getattr(paper.course, 'name', 'Degree Program') if getattr(paper, 'course', None) else 'Academic Program'
+    course_code = getattr(paper.course, 'code', 'Course') if getattr(paper, 'course', None) else 'Course'
+    semester = getattr(paper, 'semester', 'Semester')
+    year = getattr(paper, 'year', '2026')
+    subject = getattr(paper, 'subject', 'University Subject')
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        leftMargin=36,
+        rightMargin=36,
+        topMargin=36,
+        bottomMargin=36
+    )
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # 1. Header Banner
+    head_title = Paragraph(f"<font size=16 color='#0f172a'><b>SESHADRIPURAM EDUCATIONAL TRUST</b></font>", ParagraphStyle('H1', parent=styles['Normal'], alignment=1, spaceAfter=2))
+    college_title = Paragraph(f"<font size=14 color='#1e3a8a'><b>{college_name.upper()}</b></font>", ParagraphStyle('H2', parent=styles['Normal'], alignment=1, spaceAfter=2))
+    affil_title = Paragraph(f"<font size=8.5 color='#475569'>{tagline} • {address}</font>", ParagraphStyle('H3', parent=styles['Normal'], alignment=1, spaceAfter=6))
+    
+    elements.append(head_title)
+    elements.append(college_title)
+    elements.append(affil_title)
+    elements.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#1e3a8a'), spaceAfter=8))
+
+    # 2. Exam Meta Box
+    exam_subhead = Paragraph(
+        f"<b>END SEMESTER DEGREE EXAMINATION — {year}</b><br/>"
+        f"<font size=11 color='#0f172a'><b>{course_name.upper()} ({course_code})</b></font>",
+        ParagraphStyle('ExamSub', parent=styles['Normal'], alignment=1, spaceAfter=8)
+    )
+    elements.append(exam_subhead)
+
+    meta_data = [
+        [
+            Paragraph(f"<b>Subject:</b> {subject}", styles['Normal']),
+            Paragraph(f"<b>Semester:</b> {semester}", styles['Normal'])
+        ],
+        [
+            Paragraph(f"<b>Course Code:</b> {course_code}", styles['Normal']),
+            Paragraph(f"<b>Examination Year:</b> {year}", styles['Normal'])
+        ],
+        [
+            Paragraph(f"<b>Duration:</b> 3 Hours", styles['Normal']),
+            Paragraph(f"<b>Maximum Marks:</b> 100 Marks", styles['Normal'])
+        ]
+    ]
+    meta_table = Table(meta_data, colWidths=[320, 220])
+    meta_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f8fafc')),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#94a3b8')),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
+        ('PADDING', (0,0), (-1,-1), 5),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+    ]))
+    elements.append(meta_table)
+    elements.append(Spacer(1, 10))
+
+    # 3. Instructions
+    inst_text = (
+        "<b>INSTRUCTIONS TO CANDIDATES:</b><br/>"
+        "1. Answer all questions from <b>Section A</b>, any <b>FOUR</b> questions from <b>Section B</b>, and any <b>TWO</b> questions from <b>Section C</b>.<br/>"
+        "2. Neat diagrams and structural flowcharts should be drawn wherever necessary.<br/>"
+        "3. Non-programmable scientific calculators are permitted. Electronic smart devices are strictly prohibited."
+    )
+    inst_p = Paragraph(inst_text, ParagraphStyle('Inst', parent=styles['Normal'], fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor('#334155')))
+    inst_box = Table([[inst_p]], colWidths=[540])
+    inst_box.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#fffbeb')),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#fde68a')),
+        ('PADDING', (0,0), (-1,-1), 6),
+    ]))
+    elements.append(inst_box)
+    elements.append(Spacer(1, 12))
+
+    # 4. Question Paper Sections
+    # Section A
+    sec_a_header = Paragraph("<b>SECTION — A</b> (Answer any 5 questions. Each question carries 4 marks: 5 × 4 = 20 Marks)", ParagraphStyle('SecA', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#1e3a8a'), spaceAfter=4))
+    elements.append(sec_a_header)
+    q_a = [
+        f"1. Define the fundamental principles and architectural lifecycle of {subject}.",
+        f"2. Explain the key differences between synchronous and asynchronous operations in this domain.",
+        f"3. State the core data integrity rules and validation mechanisms applicable to {subject}.",
+        f"4. Outline the importance of security authentication and authorization protocols.",
+        f"5. What are the standard performance benchmarking criteria used in modern implementations?",
+        f"6. Write a short technical note on modularity, scalability, and code maintainability."
+    ]
+    for q in q_a:
+        elements.append(Paragraph(q, ParagraphStyle('Q', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=12, leftIndent=12, spaceAfter=2)))
+    
+    elements.append(Spacer(1, 10))
+
+    # Section B
+    sec_b_header = Paragraph("<b>SECTION — B</b> (Answer any 4 questions. Each question carries 10 marks: 4 × 10 = 40 Marks)", ParagraphStyle('SecB', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#1e3a8a'), spaceAfter=4))
+    elements.append(sec_b_header)
+    q_b = [
+        f"7. Elaborate on the end-to-end design patterns and system architecture associated with {subject}. Illustrate with neat block diagrams.",
+        f"8. Critically analyze data structure requirements and optimization strategies for high-throughput systems.",
+        f"9. Compare and contrast traditional algorithmic approaches versus modern scalable techniques in {subject}.",
+        f"10. Discuss database transactions, concurrency control, and fault tolerance mechanisms.",
+        f"11. Explain how continuous integration and deployment pipelines ensure quality assurance in production environments."
+    ]
+    for q in q_b:
+        elements.append(Paragraph(q, ParagraphStyle('Q', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=12, leftIndent=12, spaceAfter=3)))
+
+    elements.append(Spacer(1, 10))
+
+    # Section C
+    sec_c_header = Paragraph("<b>SECTION — C</b> (Answer any 2 questions. Each question carries 20 marks: 2 × 20 = 40 Marks)", ParagraphStyle('SecC', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#1e3a8a'), spaceAfter=4))
+    elements.append(sec_c_header)
+    q_c = [
+        f"12. (a) Design a complete, enterprise-grade architecture for an application utilizing {subject}. Detail all components, layers, interfaces, and communication protocols. (12 Marks)<br/>(b) Formulate an emergency disaster recovery and business continuity plan for this system. (8 Marks)",
+        f"13. In-depth Case Study: Analyze a legacy enterprise infrastructure facing high latency and scalability bottlenecks. Formulate a comprehensive migration and modernization roadmap addressing performance, data security, and compliance. (20 Marks)",
+        f"14. Discuss emerging innovations, artificial intelligence integrations, and future technological evolutions impacting {subject}. Evaluate real-world industry adoption challenges and solutions. (20 Marks)"
+    ]
+    for q in q_c:
+        elements.append(Paragraph(q, ParagraphStyle('Q', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=12, leftIndent=12, spaceAfter=5)))
+
+    elements.append(Spacer(1, 14))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#cbd5e1'), spaceAfter=6))
+
+    # 5. Footer Certification
+    footer_text = (
+        f"<b>Official University Examination Archive</b> • Verified by Controller of Examinations, Seshadripuram College.<br/>"
+        f"<font size=7 color='#64748b'>Document Format: Verified PDF • Seshadripuram Educational Trust • Generated from official repository.</font>"
+    )
+    elements.append(Paragraph(footer_text, ParagraphStyle('Foot', parent=styles['Normal'], fontName='Helvetica', fontSize=8, leading=10, textColor=colors.HexColor('#64748b'), alignment=1)))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+

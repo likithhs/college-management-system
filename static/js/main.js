@@ -141,15 +141,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. Download Question Paper Simulation
-    const downloadBtns = document.querySelectorAll('.download-paper-btn');
-    downloadBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const fileName = btn.getAttribute('data-file');
-            showToast(`📥 Downloading sample question paper: ${fileName}`);
+    // 6. Interactive Question Paper Semester Filter Tabs
+    const qpTabs = document.querySelectorAll('.qp-filter-tab');
+    if (qpTabs.length > 0) {
+        qpTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetSem = tab.getAttribute('data-sem');
+                if (typeof window.filterQpSemester === 'function') {
+                    window.filterQpSemester(tab, targetSem);
+                }
+            });
         });
-    });
+    }
 
     // 7. Toast Notification Helper
     window.showToast = function(message, type = 'info') {
@@ -276,3 +280,103 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', filterPosts);
     }
 })();
+
+// ============ QUESTION PAPERS SEMESTER FILTER ============
+window.filterQpSemester = function(btn, selectedSem) {
+    try {
+        const tabs = document.querySelectorAll('.qp-filter-tab');
+        const cards = document.querySelectorAll('.qp-sem-card, .qp-item-card');
+        const emptyMsg = document.getElementById('qp-empty-filter');
+
+        // Resolve target button accurately
+        let targetBtn = btn;
+        if (!targetBtn || !(targetBtn instanceof Element)) {
+            targetBtn = document.querySelector('.qp-filter-tab[data-sem="' + selectedSem + '"]');
+        } else if (!targetBtn.classList.contains('qp-filter-tab')) {
+            targetBtn = targetBtn.closest('.qp-filter-tab');
+        }
+
+        // 1. Reset ALL tabs cleanly: remove active classes, attributes, and inline styles
+        tabs.forEach(t => {
+            t.classList.remove('active-tab', 'active');
+            t.setAttribute('aria-selected', 'false');
+            t.setAttribute('data-active', 'false');
+            t.style.removeProperty('background');
+            t.style.removeProperty('color');
+            t.style.removeProperty('border-color');
+            t.style.removeProperty('box-shadow');
+            t.style.removeProperty('transform');
+            if (typeof t.blur === 'function') t.blur();
+        });
+
+        // 2. Mark the selected button as ACTIVE with class, attribute, and guaranteed inline style
+        if (targetBtn) {
+            targetBtn.classList.add('active-tab', 'active');
+            targetBtn.setAttribute('aria-selected', 'true');
+            targetBtn.setAttribute('data-active', 'true');
+            targetBtn.style.setProperty('background', 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)', 'important');
+            targetBtn.style.setProperty('color', '#ffffff', 'important');
+            targetBtn.style.setProperty('border-color', '#1e3a8a', 'important');
+            targetBtn.style.setProperty('box-shadow', '0 4px 14px rgba(30, 58, 138, 0.38)', 'important');
+            if (typeof targetBtn.blur === 'function') targetBtn.blur();
+        }
+
+        // 3. Helper to extract digit from semester strings
+        function getDigit(str) {
+            if (!str) return '';
+            const m = String(str).match(/\d+/);
+            return m ? m[0] : String(str).trim().toLowerCase();
+        }
+
+        const semStr = String(selectedSem || (targetBtn ? targetBtn.getAttribute('data-sem') : 'all')).trim();
+        const targetNum = getDigit(semStr);
+        const isAll = (!semStr || semStr.toLowerCase() === 'all');
+        let visibleCount = 0;
+
+        // 4. Filter question paper semester cards
+        cards.forEach(card => {
+            const cardSem = (card.getAttribute('data-semester') || '').trim();
+            const cardNum = getDigit(cardSem);
+
+            let match = false;
+            if (isAll) {
+                match = true;
+            } else if (targetNum && cardNum && targetNum === cardNum) {
+                match = true;
+            } else if (cardSem.toLowerCase() === semStr.toLowerCase()) {
+                match = true;
+            }
+
+            if (match) {
+                card.style.setProperty('display', 'flex', 'important');
+                card.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                card.style.setProperty('display', 'none', 'important');
+                card.classList.add('hidden');
+            }
+        });
+
+        // 5. Update empty state visibility
+        if (emptyMsg) {
+            if (visibleCount === 0) {
+                emptyMsg.style.setProperty('display', 'block', 'important');
+                emptyMsg.classList.remove('hidden');
+            } else {
+                emptyMsg.style.setProperty('display', 'none', 'important');
+                emptyMsg.classList.add('hidden');
+            }
+        }
+    } catch (e) {
+        console.error('filterQpSemester error:', e);
+    }
+};
+
+// Auto-blur on mouseup so no focus state or color sticks after clicking
+document.addEventListener('mouseup', function(e) {
+    const el = e.target.closest('.qp-filter-tab, .qp-download-btn');
+    if (el && typeof el.blur === 'function') {
+        el.blur();
+    }
+});
+

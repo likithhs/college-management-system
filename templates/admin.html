@@ -556,28 +556,66 @@
             </div>
             {% endif %}
 
-            <!-- Add New Past Question Paper Form -->
-            <form action="{{ url_for('admin_upload_question_paper') }}" method="POST" enctype="multipart/form-data" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+        </div>
+        {% else %}
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-60">
+            <h3 class="text-base font-bold text-slate-500 dark:text-slate-300 flex items-center gap-2">
+                <i class="fa-solid fa-lock text-slate-400"></i> Course & Curriculum Management — Access Restricted by Super Admin
+            </h3>
+            <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">Super Admin has revoked College Admin permission to manage courses and syllabus.</p>
+        </div>
+        {% endif %}
+
+        <!-- University Examination Question Paper Management Center (GOVERNED BY question_papers MODULE ACCESS) -->
+        {% if modules.question_papers.admin_access %}
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6" data-aos="fade-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div>
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                        <i class="fa-solid fa-key mr-1"></i> Admin Access Granted by Super Admin
+                    </span>
+                    <h3 class="text-xl font-bold text-navy-900 dark:text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-rose-600"></i> University Exam Question Papers Management
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Upload authentic PDF question papers categorized by Master's (4 Semesters) and Bachelor's (6 Semesters).</p>
+                </div>
+                <span class="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full font-mono">
+                    {{ question_papers|length }} Papers Active
+                </span>
+            </div>
+
+            <!-- Add New Question Paper Form -->
+            <form action="{{ url_for('admin_upload_question_paper') }}" method="POST" enctype="multipart/form-data" class="bg-slate-50 dark:bg-slate-900/80 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-pdf text-blue-600 dark:text-blue-400"></i> Add Past Exam Question Paper Sample (.pdf)
+                    <i class="fa-solid fa-file-circle-plus text-blue-600 dark:text-blue-400"></i> Upload New Question Paper (.pdf format only)
                 </h4>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Course *</label>
-                        <select name="course_id" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                        <select id="admin_qp_course_select" name="course_id" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
                             {% for c in courses %}
-                            <option value="{{ c.id }}">{{ c.code }} - {{ c.name }}</option>
+                            {% set c_is_pg = ('PG' in c.level) or ('Postgraduate' in c.level) or ('Master' in c.name) %}
+                            <option value="{{ c.id }}" data-level="{{ 'PG' if c_is_pg else 'UG' }}">
+                                {{ c.code }} - {{ c.name }} ({{ 'PG - 4 Sems' if c_is_pg else 'UG - 6 Sems' }})
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Exam Year *</label>
-                        <input type="text" name="year" required placeholder="e.g. 2025" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Semester *</label>
+                        <select id="admin_qp_semester_select" name="semester" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                            <option value="1st Sem">1st Sem</option>
+                            <option value="2nd Sem">2nd Sem</option>
+                            <option value="3rd Sem">3rd Sem</option>
+                            <option value="4th Sem">4th Sem</option>
+                            <option value="5th Sem">5th Sem</option>
+                            <option value="6th Sem">6th Sem</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Semester *</label>
-                        <input type="text" name="semester" required placeholder="e.g. Sem 5" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Exam Year *</label>
+                        <input type="text" name="year" required value="2025" placeholder="e.g. 2025" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none bg-white dark:bg-slate-800 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Subject Name *</label>
@@ -585,12 +623,13 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Upload PDF File (.pdf) *</label>
-                        <input type="file" name="file" accept=".pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-400">
+                        <input type="file" name="file" accept=".pdf" required class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-400">
                     </div>
                 </div>
-                <div class="flex justify-end">
+                <div class="flex items-center justify-between pt-1">
+                    <p class="text-[11px] text-slate-500"><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> PDF format strictly enforced. Master's degrees support 4 semesters; Bachelor's support 6 semesters.</p>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-circle-plus"></i> Upload PDF Question Paper
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF Question Paper
                     </button>
                 </div>
             </form>
@@ -599,24 +638,34 @@
             {% if question_papers %}
             <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
                 <h4 class="text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between">
-                    <span><i class="fa-solid fa-folder-open text-blue-600"></i> Managed Past Question Papers ({{ question_papers|length }})</span>
+                    <span><i class="fa-solid fa-folder-open text-blue-600"></i> Active Question Papers Repository ({{ question_papers|length }})</span>
                 </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {% for paper in question_papers %}
-                    <div class="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
-                        <div class="space-y-0.5 truncate">
-                            <div class="flex items-center gap-1.5">
-                                <span class="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">{{ paper.course.code }}</span>
-                                <span class="text-xs font-bold text-navy-900 dark:text-white truncate">{{ paper.subject }}</span>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+                                    {{ paper.course.code }}
+                                </span>
+                                <span class="bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    {{ paper.semester }}
+                                </span>
                             </div>
-                            <p class="text-[10px] text-slate-500 truncate">{{ paper.semester }} • {{ paper.year }} ({{ paper.filename }})</p>
+                            <h5 class="text-xs font-bold text-navy-900 dark:text-white truncate" title="{{ paper.subject }}">{{ paper.subject }}</h5>
+                            <p class="text-[10px] text-slate-500">Exam {{ paper.year }} • <span class="font-mono text-slate-400">{{ paper.filename }}</span></p>
                         </div>
-                        <form action="{{ url_for('admin_delete_question_paper', paper_id=paper.id) }}" method="POST" onsubmit="return confirm('Delete question paper {{ paper.filename }}?');">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                            <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 p-2 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>
+                        <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                            <a href="{{ url_for('download_paper', filename=paper.filename) }}" class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-file-pdf text-rose-500"></i> View/Download PDF
+                            </a>
+                            <form action="{{ url_for('admin_delete_question_paper', paper_id=paper.id) }}" method="POST" onsubmit="return confirm('Permanently delete question paper: {{ paper.subject }} ({{ paper.semester }})?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/50 p-2 rounded-lg border border-rose-200 dark:border-rose-800 font-bold transition-all" title="Delete Paper">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -624,11 +673,21 @@
             {% endif %}
         </div>
         {% else %}
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-60">
-            <h3 class="text-base font-bold text-slate-500 dark:text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-lock text-slate-400"></i> Course & Curriculum Management — Access Restricted by Super Admin
-            </h3>
-            <p class="text-xs text-slate-400 dark:text-slate-400 mt-1">Super Admin has revoked College Admin permission to manage courses and syllabus.</p>
+        <!-- Access Restricted by Super Admin Card -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-75" data-aos="fade-up">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-rose-500"></i> University Exam Question Paper Management — Access Restricted
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        The Super Admin has not granted College Admin permission to manage question papers. If you require upload or deletion permissions, please request the Super Admin to enable the <b>Exam Question Paper Repository</b> module in the Super Admin Control Matrix.
+                    </p>
+                </div>
+                <span class="bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-rose-200 dark:border-rose-800">
+                    Locked
+                </span>
+            </div>
         </div>
         {% endif %}
 
@@ -1015,5 +1074,35 @@ function viewApplicantDetail(appId) {
 function closeApplicantDetailModal() {
     document.getElementById('applicantDetailModal').classList.add('hidden');
 }
+
+// Dynamic Semester Selector for Admin Question Paper Upload
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSelect = document.getElementById('admin_qp_course_select');
+    const semSelect = document.getElementById('admin_qp_semester_select');
+
+    if (courseSelect && semSelect) {
+        function updateSemesters() {
+            const selectedOpt = courseSelect.options[courseSelect.selectedIndex];
+            const isPg = selectedOpt ? selectedOpt.getAttribute('data-level') === 'PG' : false;
+            const currentVal = semSelect.value;
+
+            const pgSems = ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'];
+            const ugSems = ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem', '5th Sem', '6th Sem'];
+            const targetSems = isPg ? pgSems : ugSems;
+
+            semSelect.innerHTML = '';
+            targetSems.forEach(sem => {
+                const opt = document.createElement('option');
+                opt.value = sem;
+                opt.textContent = sem;
+                if (sem === currentVal) opt.selected = true;
+                semSelect.appendChild(opt);
+            });
+        }
+
+        courseSelect.addEventListener('change', updateSemesters);
+        updateSemesters();
+    }
+});
 </script>
 {% endblock %}

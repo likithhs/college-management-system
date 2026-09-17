@@ -6,6 +6,7 @@ DEFAULT_MODULE_MATRIX = {
     'home': {'name': 'Home', 'enabled': True, 'admin_access': True},
     'about': {'name': 'About Us', 'enabled': True, 'admin_access': True},
     'academics': {'name': 'Academics & Syllabus', 'enabled': True, 'admin_access': True},
+    'question_papers': {'name': 'Exam Question Paper Repository', 'enabled': True, 'admin_access': False},
     'admission': {'name': 'Admission', 'enabled': True, 'admin_access': True},
     'departments': {'name': 'Departments', 'enabled': True, 'admin_access': True},
     'facilities': {'name': 'Facilities', 'enabled': True, 'admin_access': True},
@@ -218,11 +219,12 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester VI', 'subjects': ['Major Industry Project', 'Mobile App Development (Android/Flutter)', 'Advanced Java & Spring Boot', 'Ethics in IT']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Full Stack Web Development', 'file': 'BCA_Sem5_FullStack_2025.pdf'},
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Artificial Intelligence', 'file': 'BCA_Sem5_AI_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 4', 'subject': 'Database Management Systems', 'file': 'BCA_Sem4_DBMS_2024.pdf'},
-            {'year': '2024', 'sem': 'Sem 3', 'subject': 'Java Programming', 'file': 'BCA_Sem3_Java_2024.pdf'},
-            {'year': '2023', 'sem': 'Sem 2', 'subject': 'Data Structures', 'file': 'BCA_Sem2_DataStructures_2023.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Programming in C & Digital Logic', 'file': 'BCA_Sem1_ProgC_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Data Structures using C++', 'file': 'BCA_Sem2_DataStructures_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Java Programming & OOPS', 'file': 'BCA_Sem3_Java_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Database Management Systems (DBMS)', 'file': 'BCA_Sem4_DBMS_2025.pdf'},
+            {'year': '2025', 'sem': '5th Sem', 'subject': 'Full Stack Web Development', 'file': 'BCA_Sem5_FullStack_2025.pdf'},
+            {'year': '2025', 'sem': '6th Sem', 'subject': 'Advanced Java & Cloud Computing', 'file': 'BCA_Sem6_Cloud_2025.pdf'}
         ]
     },
     'mca': {
@@ -244,9 +246,10 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester IV', 'subjects': ['Postgraduate Thesis / Industry Internship', 'Publication & Project Defense']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 3', 'subject': 'Cloud Microservices', 'file': 'MCA_Sem3_Cloud_2025.pdf'},
-            {'year': '2025', 'sem': 'Sem 2', 'subject': 'Machine Learning', 'file': 'MCA_Sem2_ML_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 1', 'subject': 'Advanced Data Structures', 'file': 'MCA_Sem1_ADS_2024.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Advanced Data Structures & Algorithms', 'file': 'MCA_Sem1_ADS_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Machine Learning & Deep Learning', 'file': 'MCA_Sem2_ML_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Cloud Microservices Architecture', 'file': 'MCA_Sem3_Cloud_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Big Data Engineering & Security', 'file': 'MCA_Sem4_BigData_2025.pdf'}
         ]
     },
     'bba': {
@@ -270,9 +273,12 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester VI', 'subjects': ['International Business', 'Corporate Governance', 'Project Report & Viva', 'Business Analytics']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Financial Management', 'file': 'BBA_Sem5_Finance_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 4', 'subject': 'Entrepreneurship', 'file': 'BBA_Sem4_Ent_2024.pdf'},
-            {'year': '2024', 'sem': 'Sem 2', 'subject': 'Marketing Management', 'file': 'BBA_Sem2_Marketing_2024.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Principles of Management', 'file': 'BBA_Sem1_PrinciplesMgmt_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Marketing Management', 'file': 'BBA_Sem2_Marketing_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Human Resource Management', 'file': 'BBA_Sem3_HRM_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Entrepreneurship Development', 'file': 'BBA_Sem4_Ent_2025.pdf'},
+            {'year': '2025', 'sem': '5th Sem', 'subject': 'Financial Management', 'file': 'BBA_Sem5_Finance_2025.pdf'},
+            {'year': '2025', 'sem': '6th Sem', 'subject': 'International Business & Analytics', 'file': 'BBA_Sem6_IB_2025.pdf'}
         ]
     },
     'bcom': {
@@ -296,8 +302,12 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester VI', 'subjects': ['Business Taxation', 'International Financial Reporting', 'GST Practice', 'Project Work']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 5', 'subject': 'Auditing & Assurance', 'file': 'BCom_Sem5_Auditing_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 4', 'subject': 'Cost Accounting', 'file': 'BCom_Sem4_Cost_2024.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Financial Accounting I', 'file': 'BCom_Sem1_FA1_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Advanced Accounting', 'file': 'BCom_Sem2_AdvAcc_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Direct Taxation', 'file': 'BCom_Sem3_Tax_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Cost Accounting', 'file': 'BCom_Sem4_Cost_2025.pdf'},
+            {'year': '2025', 'sem': '5th Sem', 'subject': 'Auditing & Assurance', 'file': 'BCom_Sem5_Auditing_2025.pdf'},
+            {'year': '2025', 'sem': '6th Sem', 'subject': 'Business Taxation & GST', 'file': 'BCom_Sem6_GST_2025.pdf'}
         ]
     },
     'mba': {
@@ -316,8 +326,10 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester IV', 'subjects': ['International Business Dynamics', 'Strategic Leadership', 'Dissertation & Defense']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 3', 'subject': 'Corporate Strategy', 'file': 'MBA_Sem3_Strategy_2025.pdf'},
-            {'year': '2024', 'sem': 'Sem 2', 'subject': 'Financial Management', 'file': 'MBA_Sem2_FM_2024.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Managerial Economics & Accounts', 'file': 'MBA_Sem1_Econ_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Financial Management', 'file': 'MBA_Sem2_FM_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Corporate Strategy & Governance', 'file': 'MBA_Sem3_Strategy_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Strategic Leadership & Operations', 'file': 'MBA_Sem4_Leadership_2025.pdf'}
         ]
     },
     'mcom': {
@@ -336,7 +348,10 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester IV', 'subjects': ['Derivatives Markets', 'Corporate Restructuring', 'Master Dissertation']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 3', 'subject': 'Security Analysis', 'file': 'MCom_Sem3_SAPM_2025.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Advanced Financial Management', 'file': 'MCom_Sem1_AFM_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Corporate Tax Planning', 'file': 'MCom_Sem2_Tax_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Security Analysis & Portfolio Mgmt', 'file': 'MCom_Sem3_SAPM_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Derivatives Markets & Banking', 'file': 'MCom_Sem4_Derivatives_2025.pdf'}
         ]
     },
     'ba': {
@@ -353,7 +368,12 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester II', 'subjects': ['Journalism & Mass Media', 'Developmental Psychology', 'Indian Constitution', 'Social Movements']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 2', 'subject': 'Journalism & Mass Media', 'file': 'BA_Sem2_Journalism_2025.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'English Literature & Composition', 'file': 'BA_Sem1_Literature_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Journalism & Mass Media', 'file': 'BA_Sem2_Journalism_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Indian Constitution & Public Admin', 'file': 'BA_Sem3_Constitution_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Developmental Psychology', 'file': 'BA_Sem4_Psychology_2025.pdf'},
+            {'year': '2025', 'sem': '5th Sem', 'subject': 'Political Theory & Diplomacy', 'file': 'BA_Sem5_Politics_2025.pdf'},
+            {'year': '2025', 'sem': '6th Sem', 'subject': 'Social Movements & Contemporary India', 'file': 'BA_Sem6_Sociology_2025.pdf'}
         ]
     },
     'bsc': {
@@ -370,7 +390,12 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester II', 'subjects': ['Differential Equations', 'Electromagnetism', 'Statistical Inference', 'Data Structures Lab']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 2', 'subject': 'Calculus & Linear Algebra', 'file': 'BSc_Sem2_Maths_2025.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Calculus & Linear Algebra', 'file': 'BSc_Sem1_Maths_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Mechanics & Wave Oscillations', 'file': 'BSc_Sem2_Physics_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Probability & Statistical Theory', 'file': 'BSc_Sem3_Stats_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Differential Equations & Analysis', 'file': 'BSc_Sem4_Maths_2025.pdf'},
+            {'year': '2025', 'sem': '5th Sem', 'subject': 'Electromagnetism & Quantum Physics', 'file': 'BSc_Sem5_Physics_2025.pdf'},
+            {'year': '2025', 'sem': '6th Sem', 'subject': 'Applied Statistical Inference', 'file': 'BSc_Sem6_Stats_2025.pdf'}
         ]
     },
     'msc': {
@@ -387,7 +412,10 @@ DEFAULT_SEED_COURSES = {
             {'sem': 'Semester II', 'subjects': ['Neural Networks', 'Distributed Database Systems', 'Scientific Python Lab']}
         ],
         'question_papers': [
-            {'year': '2025', 'sem': 'Sem 1', 'subject': 'Advanced Algorithms', 'file': 'MSc_Sem1_Algo_2025.pdf'}
+            {'year': '2025', 'sem': '1st Sem', 'subject': 'Advanced Algorithms & Complexity', 'file': 'MSc_Sem1_Algo_2025.pdf'},
+            {'year': '2025', 'sem': '2nd Sem', 'subject': 'Quantum Computing Concepts', 'file': 'MSc_Sem2_Quantum_2025.pdf'},
+            {'year': '2025', 'sem': '3rd Sem', 'subject': 'Deep Neural Networks & Vision', 'file': 'MSc_Sem3_NN_2025.pdf'},
+            {'year': '2025', 'sem': '4th Sem', 'subject': 'Distributed Database Systems', 'file': 'MSc_Sem4_Distributed_2025.pdf'}
         ]
     }
 }
@@ -446,6 +474,23 @@ def seed_default_courses(college):
                     filename=paper_data['file']
                 )
                 db.session.add(paper)
+        else:
+            course = existing_course
+            for paper_data in cdata.get('question_papers', []):
+                existing_paper = QuestionPaper.query.filter_by(course_id=course.id, filename=paper_data['file']).first()
+                if not existing_paper:
+                    paper = QuestionPaper(
+                        course_id=course.id,
+                        year=paper_data['year'],
+                        semester=paper_data['sem'],
+                        subject=paper_data['subject'],
+                        filename=paper_data['file']
+                    )
+                    db.session.add(paper)
+                else:
+                    existing_paper.semester = paper_data['sem']
+                    existing_paper.subject = paper_data['subject']
+                    existing_paper.year = paper_data['year']
 
     db.session.commit()
 
@@ -627,13 +672,28 @@ def get_database_module_matrix(college_id=None):
             'admin_access': cfg.admin_access
         }
     
-    # Ensure any missing keys in DB are filled with default values
+    # Ensure any missing keys in DB are filled with default values and inserted
+    has_new = False
     for key, data in DEFAULT_MODULE_MATRIX.items():
         if key not in matrix:
+            cfg = ModuleConfig(
+                college_id=college_id,
+                module_key=key,
+                name=data['name'],
+                enabled=data['enabled'],
+                admin_access=data['admin_access']
+            )
+            db.session.add(cfg)
+            has_new = True
             matrix[key] = {
                 'name': data['name'],
                 'enabled': data['enabled'],
                 'admin_access': data['admin_access']
             }
-            
+    if has_new:
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
     return matrix

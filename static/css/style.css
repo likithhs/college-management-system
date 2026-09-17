@@ -978,3 +978,113 @@ body.dark .glass-panel p,
 body.dark .glass-panel .counter-value {
   color: #ffffff !important;
 }
+
+/* ============ QUESTION PAPER SECTION - SEMESTER TABS & DOWNLOAD BUTTONS ============ */
+.qp-filter-tab {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer !important;
+}
+
+/* Inactive Tab - Resting State */
+.qp-filter-tab:not(.active-tab):not([data-active="true"]) {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+}
+
+.dark .qp-filter-tab:not(.active-tab):not([data-active="true"]),
+body.dark .qp-filter-tab:not(.active-tab):not([data-active="true"]) {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  box-shadow: none;
+}
+
+/* Inactive Tab - Radiant Blue Glow on Hover */
+.qp-filter-tab:not(.active-tab):not([data-active="true"]):hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px -4px rgba(37, 99, 235, 0.5), 0 0 14px 2px rgba(59, 130, 246, 0.35) !important;
+}
+
+.qp-filter-tab:not(.active-tab):not([data-active="true"]):hover * {
+  color: #ffffff !important;
+}
+
+/* Active Tab - Permanent Royal Blue Gradient with Ambient Depth */
+.qp-filter-tab.active-tab,
+.qp-filter-tab[data-active="true"] {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  border-color: #1e3a8a !important;
+  box-shadow: 0 4px 14px rgba(30, 58, 138, 0.38) !important;
+  transform: translateY(0) !important;
+}
+
+.qp-filter-tab.active-tab *,
+.qp-filter-tab[data-active="true"] * {
+  color: #ffffff !important;
+}
+
+/* Active Tab - Hover with Enhanced Luminous Glow */
+.qp-filter-tab.active-tab:hover,
+.qp-filter-tab[data-active="true"]:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px -2px rgba(37, 99, 235, 0.55), 0 0 18px 3px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Prevent sticky browser focus outline / sticky focus color */
+.qp-filter-tab:focus,
+.qp-filter-tab:focus-visible {
+  outline: none !important;
+}
+
+/* Download PDF Action Button - Radiant Glow & Smooth Flow */
+.qp-download-btn {
+  position: relative;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+.qp-download-btn * {
+  color: #ffffff !important;
+}
+
+.qp-download-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  color: #ffffff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5), 0 0 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+.qp-download-btn:hover * {
+  color: #ffffff !important;
+}
+
+.qp-download-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+.qp-download-btn:not(:hover):not(:active) {
+  transform: translateY(0) !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+.qp-download-btn:focus {
+  outline: none !important;
+}

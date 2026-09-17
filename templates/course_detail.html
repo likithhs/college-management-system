@@ -61,35 +61,121 @@
                 </div>
             </div>
 
-            <!-- Download Previous Exam Question Papers Section -->
-            <div class="bg-gradient-to-r from-blue-900 to-navy-900 text-white p-8 rounded-3xl shadow-lg space-y-6 border border-blue-800 dark:border-slate-700">
-                <div class="flex items-center justify-between flex-wrap gap-4 border-b border-blue-800 pb-4">
+            <!-- Download Previous Exam Question Papers Section (Semester Divided & PDF Enforced) -->
+            {% if modules.question_papers.enabled %}
+            {% set is_pg = ('PG' in course.level) or ('Postgraduate' in course.level) or ('Master' in course.name) %}
+            {% set sem_list = ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'] if is_pg else ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem', '5th Sem', '6th Sem'] %}
+            <div id="question-papers-repository" class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 dark:border-slate-700 pb-4 flex items-start justify-between flex-wrap gap-4">
                     <div>
-                        <span class="bg-amber-400 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded-full">Examination Repository</span>
-                        <h3 class="text-xl font-bold text-white mt-1">Previous University Question Papers</h3>
+                        <h2 class="text-xl font-bold text-navy-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-blue-600 dark:text-blue-400"></i> Previous Exam Question Papers
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Download authentic university end-semester examination question papers in PDF format only.</p>
                     </div>
-                    <span class="text-xs text-slate-300">Updated for Academic Session 2026-27</span>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            {% if is_pg %}Master's (4 Semesters){% else %}Bachelor's (6 Semesters){% endif %}
+                        </span>
+                        <span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Verified PDF
+                        </span>
+                    </div>
                 </div>
 
-                <div class="space-y-3">
-                    {% for paper in course.question_papers %}
-                    <div class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 p-4 rounded-2xl flex items-center justify-between flex-wrap gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400 font-bold text-sm">
-                                PDF
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-white">{{ paper.subject }}</h4>
-                                <p class="text-[11px] text-slate-400">{{ paper.sem }} • University Exam {{ paper.year }}</p>
-                            </div>
-                        </div>
-                        <button data-file="{{ paper.file }}" class="download-paper-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-download"></i> Download Paper
+                <!-- Semester Navigation Tabs -->
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter text-blue-600 dark:text-blue-400 text-xs"></i> Select Semester:
+                        </span>
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Showing papers for {{ course.code }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                        <button type="button" data-sem="all" data-active="true" aria-selected="true" onclick="filterQpSemester(this, 'all')" class="qp-filter-tab active-tab font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap cursor-pointer">
+                            <i class="fa-solid fa-layer-group mr-1.5 pointer-events-none"></i> All Semesters
                         </button>
+                        {% for sem_label in sem_list %}
+                        <button type="button" data-sem="{{ sem_label }}" data-active="false" aria-selected="false" onclick="filterQpSemester(this, '{{ sem_label }}')" class="qp-filter-tab font-bold text-xs px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer">
+                            {{ sem_label }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Question Papers Grid Divided by Semester (Matching Semester Syllabus & Subjects style exactly) -->
+                <div id="qp-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for sem_label in sem_list %}
+                    {% set papers = sem_papers.get(sem_label, []) if sem_papers else [] %}
+                    <div class="qp-item-card qp-sem-card bg-slate-50 dark:bg-slate-900/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600/60 hover:shadow-md" data-semester="{{ sem_label }}">
+                        <div>
+                            <!-- Semester Card Header -->
+                            <div class="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-700/80 pb-2.5 mb-3">
+                                <h4 class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-graduation-cap text-blue-600 dark:text-blue-400"></i> {{ sem_label }} Question Papers
+                                </h4>
+                                <span class="text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 px-2 py-0.5 rounded-full">
+                                    {{ papers|length }} {{ 'Paper' if papers|length == 1 else 'Papers' }}
+                                </span>
+                            </div>
+
+                            <!-- List of Papers for this Semester -->
+                            {% if papers %}
+                            <div class="space-y-2.5">
+                                {% for paper in papers %}
+                                <div class="flex items-center justify-between gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 transition-all shadow-xs">
+                                    <div class="flex items-start gap-2.5 min-w-0">
+                                        <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/40 flex-shrink-0 flex flex-col items-center justify-center text-red-600 dark:text-red-400 shadow-2xs mt-0.5">
+                                            <i class="fa-solid fa-file-pdf text-xs"></i>
+                                            <span class="text-[7px] font-black uppercase tracking-tighter">PDF</span>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h5 class="text-xs font-bold text-navy-900 dark:text-white leading-snug break-words">{{ paper.subject }}</h5>
+                                            <div class="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                                <span class="font-mono font-semibold">Year {{ paper.year }}</span>
+                                                <span>• BCU Autonomous</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a href="{{ url_for('download_paper', filename=paper.filename) }}" class="qp-download-btn flex-shrink-0 inline-flex items-center gap-1.5 font-bold text-[11px] px-3.5 py-1.5 rounded-lg shadow-xs transition-all">
+                                        <i class="fa-solid fa-file-arrow-down text-[10px] text-white"></i>
+                                        <span class="text-white">Download PDF</span>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="py-6 text-center text-slate-400 dark:text-slate-500 bg-white/60 dark:bg-slate-800/60 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+                                <i class="fa-regular fa-folder-open text-xl text-slate-400 dark:text-slate-500 mb-1"></i>
+                                <p class="text-[11px] font-medium">No question papers uploaded yet for {{ sem_label }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="pt-3 mt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500">
+                            <span>Format: Authentic PDF</span>
+                            <span class="text-emerald-600 dark:text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check text-[10px]"></i> Verified</span>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
+
+                <div id="qp-empty-filter" class="hidden py-10 text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-1">
+                    <i class="fa-solid fa-folder-open text-3xl text-slate-400 dark:text-slate-600 mb-2"></i>
+                    <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">No question papers found for this semester.</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500">Please select another semester or click 'All Semesters'.</p>
+                </div>
             </div>
+            {% else %}
+            <!-- Offline Repository Notice when disabled by Super Admin -->
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 text-center text-slate-500 dark:text-slate-400 space-y-2 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto text-xl mb-2">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h4 class="text-sm font-bold text-navy-900 dark:text-white">Question Paper Repository Offline</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">The previous examination question paper repository is currently disabled site-wide by the Super Admin.</p>
+            </div>
+            {% endif %}
 
         </div>
 
@@ -110,10 +196,241 @@
                     <a href="{{ url_for('admission') }}" class="w-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold text-xs py-3 rounded-xl transition-all text-center block">
                         Check Fee Structure
                     </a>
+                    {% if modules.question_papers.enabled %}
+                    <a href="#question-papers-repository" class="w-full bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold text-xs py-3 rounded-xl border border-blue-200 dark:border-blue-800/60 transition-all text-center flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i> Download Question Papers &darr;
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
     </div>
 </section>
+
+<!-- Dedicated Styles for Semester Tabs and Download Buttons with Radiant Flow & Glow -->
+<style>
+/* Question Paper Semester Filter Tabs - High Contrast Hover Glow & Active Flow */
+.qp-filter-tab {
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    outline: none !important;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer !important;
+}
+
+/* Inactive Tab - Resting State */
+.qp-filter-tab:not(.active-tab):not([data-active="true"]) {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transform: translateY(0);
+}
+
+.dark .qp-filter-tab:not(.active-tab):not([data-active="true"]),
+body.dark .qp-filter-tab:not(.active-tab):not([data-active="true"]) {
+    background-color: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    box-shadow: none;
+}
+
+/* Inactive Tab - Radiant Blue Glow on Hover */
+.qp-filter-tab:not(.active-tab):not([data-active="true"]):hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    border-color: #3b82f6 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px -4px rgba(37, 99, 235, 0.5), 0 0 14px 2px rgba(59, 130, 246, 0.35) !important;
+}
+
+.qp-filter-tab:not(.active-tab):not([data-active="true"]):hover * {
+    color: #ffffff !important;
+}
+
+/* Active Tab - Permanent Royal Blue Gradient with Ambient Depth */
+.qp-filter-tab.active-tab,
+.qp-filter-tab[data-active="true"] {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-color: #1e3a8a !important;
+    box-shadow: 0 4px 14px rgba(30, 58, 138, 0.38) !important;
+    transform: translateY(0) !important;
+}
+
+.qp-filter-tab.active-tab *,
+.qp-filter-tab[data-active="true"] * {
+    color: #ffffff !important;
+}
+
+/* Active Tab - Hover with Enhanced Luminous Glow */
+.qp-filter-tab.active-tab:hover,
+.qp-filter-tab[data-active="true"]:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px -2px rgba(37, 99, 235, 0.55), 0 0 18px 3px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Prevent sticky browser focus outline / sticky focus color */
+.qp-filter-tab:focus,
+.qp-filter-tab:focus-visible {
+    outline: none !important;
+}
+
+/* Download PDF Action Button - Radiant Glow & Smooth Flow */
+.qp-download-btn {
+    position: relative;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+.qp-download-btn * {
+    color: #ffffff !important;
+}
+
+.qp-download-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5), 0 0 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+.qp-download-btn:hover * {
+    color: #ffffff !important;
+}
+
+.qp-download-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+.qp-download-btn:not(:hover):not(:active) {
+    transform: translateY(0) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+.qp-download-btn:focus {
+    outline: none !important;
+}
+</style>
+
+<!-- Dedicated Interactive Script for Semester Filter Buttons -->
+<script>
+window.filterQpSemester = function(btn, selectedSem) {
+    try {
+        const tabs = document.querySelectorAll('.qp-filter-tab');
+        const cards = document.querySelectorAll('.qp-sem-card, .qp-item-card');
+        const emptyMsg = document.getElementById('qp-empty-filter');
+
+        // Resolve target button accurately
+        let targetBtn = btn;
+        if (!targetBtn || !(targetBtn instanceof Element)) {
+            targetBtn = document.querySelector('.qp-filter-tab[data-sem="' + selectedSem + '"]');
+        } else if (!targetBtn.classList.contains('qp-filter-tab')) {
+            targetBtn = targetBtn.closest('.qp-filter-tab');
+        }
+
+        // 1. Reset ALL tabs cleanly: remove active classes, attributes, and inline styles
+        tabs.forEach(t => {
+            t.classList.remove('active-tab', 'active');
+            t.setAttribute('aria-selected', 'false');
+            t.setAttribute('data-active', 'false');
+            t.style.removeProperty('background');
+            t.style.removeProperty('color');
+            t.style.removeProperty('border-color');
+            t.style.removeProperty('box-shadow');
+            t.style.removeProperty('transform');
+            if (typeof t.blur === 'function') t.blur();
+        });
+
+        // 2. Mark the selected button as ACTIVE with class, attribute, and guaranteed inline style
+        if (targetBtn) {
+            targetBtn.classList.add('active-tab', 'active');
+            targetBtn.setAttribute('aria-selected', 'true');
+            targetBtn.setAttribute('data-active', 'true');
+            targetBtn.style.setProperty('background', 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)', 'important');
+            targetBtn.style.setProperty('color', '#ffffff', 'important');
+            targetBtn.style.setProperty('border-color', '#1e3a8a', 'important');
+            targetBtn.style.setProperty('box-shadow', '0 4px 14px rgba(30, 58, 138, 0.38)', 'important');
+            if (typeof targetBtn.blur === 'function') targetBtn.blur();
+        }
+
+        // 3. Helper to extract digit from semester strings
+        function getDigit(str) {
+            if (!str) return '';
+            const m = String(str).match(/\d+/);
+            return m ? m[0] : String(str).trim().toLowerCase();
+        }
+
+        const semStr = String(selectedSem || (targetBtn ? targetBtn.getAttribute('data-sem') : 'all')).trim();
+        const targetNum = getDigit(semStr);
+        const isAll = (!semStr || semStr.toLowerCase() === 'all');
+        let visibleCount = 0;
+
+        // 4. Filter question paper semester cards
+        cards.forEach(card => {
+            const cardSem = (card.getAttribute('data-semester') || '').trim();
+            const cardNum = getDigit(cardSem);
+
+            let match = false;
+            if (isAll) {
+                match = true;
+            } else if (targetNum && cardNum && targetNum === cardNum) {
+                match = true;
+            } else if (cardSem.toLowerCase() === semStr.toLowerCase()) {
+                match = true;
+            }
+
+            if (match) {
+                card.style.setProperty('display', 'flex', 'important');
+                card.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                card.style.setProperty('display', 'none', 'important');
+                card.classList.add('hidden');
+            }
+        });
+
+        // 5. Update empty state visibility
+        if (emptyMsg) {
+            if (visibleCount === 0) {
+                emptyMsg.style.setProperty('display', 'block', 'important');
+                emptyMsg.classList.remove('hidden');
+            } else {
+                emptyMsg.style.setProperty('display', 'none', 'important');
+                emptyMsg.classList.add('hidden');
+            }
+        }
+    } catch (e) {
+        console.error('filterQpSemester error:', e);
+    }
+};
+
+// Also attach event listeners & prevent sticky focus across all devices
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.qp-filter-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sem = this.getAttribute('data-sem');
+            window.filterQpSemester(this, sem);
+        });
+    });
+});
+
+// Auto-blur on mouseup so no focus state or color sticks after clicking
+document.addEventListener('mouseup', function(e) {
+    const el = e.target.closest('.qp-filter-tab, .qp-download-btn');
+    if (el && typeof el.blur === 'function') {
+        el.blur();
+    }
+});
+</script>
 {% endblock %}

@@ -1,4 +1,5 @@
 import os
+import re
 import secrets
 import csv
 import io
@@ -16,7 +17,7 @@ import models
 from seed import seed_default_college, get_default_college, get_database_module_matrix, DEFAULT_MODULE_MATRIX
 from authz import platform_super_admin_required, college_admin_required, module_admin_required, check_tenant_ownership
 from email_service import send_applicant_confirmation_email, send_admin_new_application_email, send_applicant_status_update_email
-from pdf_service import generate_application_receipt_pdf, generate_provisional_admission_letter
+from pdf_service import generate_application_receipt_pdf, generate_provisional_admission_letter, generate_question_paper_pdf
 from notification_service import (
     create_notification,
     notify_college_admins,
@@ -597,7 +598,34 @@ def course_detail(course_code):
         models.Course.college_id == college.id,
         db.func.lower(models.Course.code) == course_code.strip().lower()
     ).first_or_404()
-    return render_template('course_detail.html', course=course, title=f"{course.code} - {course.name}")
+
+    is_pg = ('PG' in (course.level or '')) or ('Postgraduate' in (course.level or '')) or ('Master' in (course.name or ''))
+    sem_list = ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'] if is_pg else ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem', '5th Sem', '6th Sem']
+
+    # Pre-group question papers into their respective semester bins
+    sem_papers = {s: [] for s in sem_list}
+    for paper in (course.question_papers or []):
+        p_match = re.search(r'\d+', paper.semester or '')
+        p_num = p_match.group(0) if p_match else ''
+        assigned = False
+        for s in sem_list:
+            s_match = re.search(r'\d+', s)
+            s_num = s_match.group(0) if s_match else ''
+            if s_num and s_num == p_num:
+                sem_papers[s].append(paper)
+                assigned = True
+                break
+        if not assigned and sem_list:
+            sem_papers[sem_list[0]].append(paper)
+
+    return render_template(
+        'course_detail.html',
+        course=course,
+        sem_list=sem_list,
+        sem_papers=sem_papers,
+        is_pg=is_pg,
+        title=f"{course.code} - {course.name}"
+    )
 
 @app.route('/facilities')
 def facilities():
@@ -1165,10 +1193,12 @@ def admin():
                 college_id=current_user.college_id
             ).order_by(models.ForumPost.created_at.desc(), models.ForumPost.id.desc()).all()
 
-        if modules.get('academics', {}).get('admin_access'):
+        if modules.get('academics', {}).get('admin_access') or modules.get('question_papers', {}).get('admin_access'):
             courses = models.Course.query.filter_by(
                 college_id=current_user.college_id
             ).order_by(models.Course.code).all()
+
+        if modules.get('question_papers', {}).get('admin_access'):
             question_papers = models.QuestionPaper.query.options(
                 joinedload(models.QuestionPaper.course)
             ).join(models.Course).filter(
@@ -1805,40 +1835,42 @@ def admin_delete_calendar_item(item_id):
 
 @app.route('/admin/question-paper/add', methods=['POST'])
 @app.route('/admin/question-paper/upload', methods=['POST'])
-@module_admin_required('academics')
+@module_admin_required('question_papers')
 def admin_upload_question_paper():
     course_id = request.form.get('course_id', type=int)
     year = request.form.get('year', '').strip()
     semester = request.form.get('semester', '').strip()
     subject = request.form.get('subject', '').strip()
     file_storage = request.files.get('file')
-    text_filename = request.form.get('filename', '').strip()
 
     if not course_id or not year or not semester or not subject:
-        flash("⚠️ Validation Error: Course, Year, Semester, and Subject are required.", "warning")
+        flash("⚠️ Validation Error: Course, Year, Semester, and Subject are all required.", "warning")
         return redirect(url_for('admin'))
 
-    # Validate selected course belongs to current tenant (Requirement 9)
+    # Validate selected course belongs to current tenant
     course = models.Course.query.filter_by(id=course_id, college_id=current_user.college_id).first()
     if not course:
         flash("⚠️ Validation Error: Selected course does not belong to your institution.", "warning")
         return redirect(url_for('admin'))
 
-    saved_filename = None
-    if file_storage and file_storage.filename:
-        # Real PDF validation & UUID storage (Requirement 3)
-        success, filename_or_err = validate_and_save_pdf(file_storage, current_user.college_id)
-        if not success:
-            flash(f"⚠️ PDF Upload Error: {filename_or_err}", "warning")
-            return redirect(url_for('admin'))
-        saved_filename = filename_or_err
-    elif text_filename:
-        saved_filename = secure_filename(text_filename)
-        if not saved_filename or not saved_filename.lower().endswith('.pdf'):
-            flash("⚠️ Validation Error: Question paper filename must be a valid .pdf file.", "warning")
-            return redirect(url_for('admin'))
-    else:
-        flash("⚠️ Validation Error: A PDF file or filename is required.", "warning")
+    # Semester validation: 4 semesters for Master's (PG), 6 semesters for Bachelor's (UG)
+    is_pg = 'PG' in course.level or 'Postgraduate' in course.level or 'Master' in course.name
+    valid_sems = ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'] if is_pg else ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem', '5th Sem', '6th Sem']
+    
+    if semester not in valid_sems:
+        max_sem_text = "4 semesters (1st Sem to 4th Sem)" if is_pg else "6 semesters (1st Sem to 6th Sem)"
+        prog_type = "Master's (PG)" if is_pg else "Bachelor's (UG)"
+        flash(f"⚠️ Validation Error: '{course.code}' is a {prog_type} program and only supports {max_sem_text}.", "warning")
+        return redirect(url_for('admin'))
+
+    # Strict PDF-only validation
+    if not file_storage or not file_storage.filename:
+        flash("⚠️ Validation Error: An authentic PDF file (.pdf) is strictly required.", "warning")
+        return redirect(url_for('admin'))
+
+    success, filename_or_err = validate_and_save_pdf(file_storage, current_user.college_id)
+    if not success:
+        flash(f"⚠️ PDF Upload Error: {filename_or_err}. Only valid PDF documents are allowed.", "warning")
         return redirect(url_for('admin'))
 
     qp = models.QuestionPaper(
@@ -1846,28 +1878,28 @@ def admin_upload_question_paper():
         year=year,
         semester=semester,
         subject=subject,
-        filename=saved_filename
+        filename=filename_or_err
     )
     db.session.add(qp)
     db.session.commit()
 
-    flash(f"📄 Question Paper '{subject}' uploaded successfully!", "success")
+    flash(f"📄 Question Paper '{subject}' ({semester}) uploaded successfully in PDF format!", "success")
     return redirect(url_for('admin'))
 
 @app.route('/admin/question-paper/delete/<int:paper_id>', methods=['POST'])
-@module_admin_required('academics')
+@module_admin_required('question_papers')
 def admin_delete_question_paper(paper_id):
     qp = models.QuestionPaper.query.join(models.Course).filter(
         models.QuestionPaper.id == paper_id,
         models.Course.college_id == current_user.college_id
     ).first_or_404()
 
-    # Path-safe deletion (Requirement 5)
+    # Path-safe deletion
     safe_delete_tenant_file(current_user.college_id, 'question_papers', qp.filename)
 
     db.session.delete(qp)
     db.session.commit()
-    flash("🗑️ Question paper deleted successfully.", "info")
+    flash(f"🗑️ Question paper '{qp.subject}' deleted successfully.", "info")
     return redirect(url_for('admin'))
 
 # SUPER ADMIN MODULE CONTROL MATRIX PORTAL (Controlled strictly by Super Admin)
@@ -2007,24 +2039,28 @@ def admin_delete_announcement(post_id):
     flash(f"🗑️ Announcement '{title}' deleted.", "info")
     return redirect(url_for('admin'))
 
-# Download route simulation for past question papers
+# Download route for past question papers (PDF format strictly enforced)
 @app.route('/download-paper/<filename>')
 def download_paper(filename):
+    modules = get_current_modules()
+    if not modules.get('question_papers', {}).get('enabled', True):
+        flash("⚠️ Examination Question Paper Repository is currently disabled site-wide by Super Admin.", "warning")
+        return redirect(url_for('index'))
+
     college = get_default_college()
     paper = models.QuestionPaper.query.join(models.Course).filter(
         models.Course.college_id == college.id,
         models.QuestionPaper.filename == filename
     ).first_or_404()
 
+    clean_download_name = f"{paper.course.code}_{paper.semester.replace(' ', '_')}_{paper.subject.replace(' ', '_')}_{paper.year}.pdf"
     tenant_file = get_tenant_upload_dir(college.id, 'question_papers') / os.path.basename(paper.filename)
     if tenant_file.exists() and tenant_file.is_file():
-        return send_file(tenant_file, mimetype='application/pdf', download_name=f"{paper.subject.replace(' ', '_')}.pdf", as_attachment=True)
+        return send_file(tenant_file, mimetype='application/pdf', download_name=clean_download_name, as_attachment=True)
 
-    return jsonify({
-        'status': 'success',
-        'message': f'Downloading exam question paper sample: {paper.filename}',
-        'filename': paper.filename
-    })
+    # Generate authentic university examination PDF on the fly
+    pdf_buffer = generate_question_paper_pdf(paper, college)
+    return send_file(pdf_buffer, mimetype='application/pdf', download_name=clean_download_name, as_attachment=True)
 
 # ==============================================================================
 # SECURE CMS FACULTY & STAFF DIRECTORY ROUTES (Step 3A)
