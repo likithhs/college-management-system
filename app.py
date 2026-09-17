@@ -1193,12 +1193,15 @@ def admin():
                 college_id=current_user.college_id
             ).order_by(models.ForumPost.created_at.desc(), models.ForumPost.id.desc()).all()
 
-        if modules.get('academics', {}).get('admin_access') or modules.get('question_papers', {}).get('admin_access'):
+        qp_mod = modules.get('question_papers', {})
+        qp_active = qp_mod.get('enabled') and qp_mod.get('admin_access')
+
+        if modules.get('academics', {}).get('admin_access') or qp_active:
             courses = models.Course.query.filter_by(
                 college_id=current_user.college_id
             ).order_by(models.Course.code).all()
 
-        if modules.get('question_papers', {}).get('admin_access'):
+        if qp_active:
             question_papers = models.QuestionPaper.query.options(
                 joinedload(models.QuestionPaper.course)
             ).join(models.Course).filter(
@@ -1920,10 +1923,13 @@ def toggle_enable(module_key):
         cfg = models.ModuleConfig.query.filter_by(college_id=college.id, module_key=module_key).first()
         if cfg:
             cfg.enabled = not cfg.enabled
+            # Synchronize admin_access: when enabled by superadmin, admin upload is visible & enabled;
+            # when disabled by superadmin, admin upload option is completely disabled.
+            cfg.admin_access = cfg.enabled
             db.session.commit()
             status_str = "ENABLED ✅" if cfg.enabled else "DISABLED ⚡"
             msg_type = "success" if cfg.enabled else "warning"
-            flash(f"Notification: Module '{cfg.name}' site-wide view is now {status_str}!", msg_type)
+            flash(f"Notification: Module '{cfg.name}' is now {status_str}! Admin upload access is {'granted' if cfg.enabled else 'disabled'}.", msg_type)
         else:
             flash(f"Module key '{module_key}' not found in database.", "warning")
     except Exception as e:
@@ -1939,6 +1945,8 @@ def toggle_admin(module_key):
         cfg = models.ModuleConfig.query.filter_by(college_id=college.id, module_key=module_key).first()
         if cfg:
             cfg.admin_access = not cfg.admin_access
+            if cfg.admin_access and not cfg.enabled:
+                cfg.enabled = True
             db.session.commit()
             status_str = "GRANTED 🔑" if cfg.admin_access else "REVOKED 🔒"
             msg_type = "success" if cfg.admin_access else "info"

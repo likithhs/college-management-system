@@ -25,12 +25,12 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {% for key, mod in modules.items() %}
-                <div class="p-4 rounded-2xl border text-xs flex flex-col justify-between {{ 'bg-emerald-50/60 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800' if mod.admin_access else 'bg-slate-100 border-slate-300 dark:bg-slate-700/60 dark:border-slate-600 opacity-60' }}">
+                <div class="p-4 rounded-2xl border text-xs flex flex-col justify-between {{ 'bg-emerald-50/60 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800' if (mod.enabled and mod.admin_access) else 'bg-slate-100 border-slate-300 dark:bg-slate-700/60 dark:border-slate-600 opacity-60' }}">
                     <div>
                         <span class="font-bold text-slate-800 dark:text-white text-xs">{{ mod.name }}</span>
                     </div>
                     <div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                        {% if mod.admin_access %}
+                        {% if mod.enabled and mod.admin_access %}
                         <span class="text-emerald-700 dark:text-emerald-400 font-bold text-[10px] flex items-center gap-1">
                             <i class="fa-solid fa-circle-check"></i> Admin Granted
                         </span>
@@ -567,7 +567,7 @@
         {% endif %}
 
         <!-- University Examination Question Paper Management Center (GOVERNED BY question_papers MODULE ACCESS) -->
-        {% if modules.question_papers.admin_access %}
+        {% if modules.question_papers.enabled and modules.question_papers.admin_access %}
         <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6" data-aos="fade-up">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
                 <div>
@@ -580,7 +580,7 @@
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Upload authentic PDF question papers categorized by Master's (4 Semesters) and Bachelor's (6 Semesters).</p>
                 </div>
                 <span class="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full font-mono">
-                    {{ question_papers|length }} Papers Active
+                    {{ question_papers|length if question_papers else 0 }} Papers Active
                 </span>
             </div>
 
@@ -673,19 +673,19 @@
             {% endif %}
         </div>
         {% else %}
-        <!-- Access Restricted by Super Admin Card -->
+        <!-- Access Disabled by Super Admin Card (No Upload Option) -->
         <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm opacity-75" data-aos="fade-up">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-lock text-rose-500"></i> University Exam Question Paper Management — Access Restricted
+                        <i class="fa-solid fa-lock text-rose-500"></i> University Exam Question Paper Management — Disabled by Super Admin
                     </h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        The Super Admin has not granted College Admin permission to manage question papers. If you require upload or deletion permissions, please request the Super Admin to enable the <b>Exam Question Paper Repository</b> module in the Super Admin Control Matrix.
+                        The Super Admin has disabled this module. The option to upload question paper files is disabled. To enable file uploads, the Super Admin must turn on the toggle in the Super Admin Control Matrix.
                     </p>
                 </div>
                 <span class="bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-rose-200 dark:border-rose-800">
-                    Locked
+                    Upload Disabled
                 </span>
             </div>
         </div>

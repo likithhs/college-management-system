@@ -69,7 +69,7 @@ def module_admin_required(module_key):
                 
             # Query tenant-specific ModuleConfig in database
             cfg = ModuleConfig.query.filter_by(college_id=college_id, module_key=module_key).first()
-            if not cfg or not cfg.admin_access:
+            if not cfg or not cfg.enabled or not cfg.admin_access:
                 abort(403)
                 
             return f(*args, **kwargs)
