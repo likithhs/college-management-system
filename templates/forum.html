@@ -14,7 +14,7 @@
 <section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6" data-aos="fade-down">
         <div>
-            <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Seshadripuram Community</span>
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">{{ settings.short_name if (settings and settings.short_name) else (settings.college_name if (settings and settings.college_name) else "Campus") }} Community</span>
             <h1 class="text-3xl md:text-4xl font-black mt-3">Campus Community Forum</h1>
             <p class="text-sm text-slate-300 max-w-xl mt-2">Connect with fellow students, alumni network, and faculty for discussions and guidance.</p>
         </div>

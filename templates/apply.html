@@ -10,7 +10,7 @@
                 <span class="bg-amber-400 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase">Official Application Portal</span>
                 <span class="text-xs text-slate-300">Academic Session 2026-27</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold">Seshadripuram College Online Admission</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold">{{ settings.college_name if (settings and settings.college_name) else (college.name if college else "College") }} Online Admission</h1>
             <p class="text-xs text-slate-300 mt-2">Please fill out all mandatory fields carefully. Confirmation details will be sent via SMS and Email.</p>
         </div>
 
@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="pt-4 flex items-center justify-between border-t border-slate-200">
-                    <p class="text-[11px] text-slate-400">By submitting, you agree to Seshadripuram College admission code of conduct.</p>
+                    <p class="text-[11px] text-slate-400">By submitting, you agree to {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "the institution") }} admission code of conduct.</p>
                     <button type="submit" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-8 py-3 rounded-xl shadow-md transition-all text-xs">
                         Submit Application &rarr;
                     </button>

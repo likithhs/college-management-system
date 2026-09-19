@@ -37,20 +37,44 @@ class CollegeSetting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     college_id = db.Column(db.Integer, db.ForeignKey('college.id'), unique=True, nullable=False)
     
+    # Core Identity
     college_name = db.Column(db.String(150), default='Seshadripuram College')
+    short_name = db.Column(db.String(30), default='SPM')
     tagline = db.Column(db.String(250), default='Affiliated to Bengaluru City University | NAAC Accredited A++')
+    affiliation = db.Column(db.String(150), default='Bengaluru City University')
+    accreditation = db.Column(db.String(100), default='NAAC A++ Accredited')
+    est_year = db.Column(db.String(20), default='1998')
+    alumni_count = db.Column(db.String(50), default='5,000+')
     logo_path = db.Column(db.String(250), default='')
+    
+    # Leadership & Principal's Desk
+    principal_name = db.Column(db.String(120), default='Dr. M. Prakash')
+    principal_title = db.Column(db.String(150), default='MCom, PhD, Principal')
+    principal_message = db.Column(db.Text, default='Welcome to our institution, committed to nurturing intellect, ethics, and leadership in every student. For over two decades, our college has stood as a beacon of academic excellence, holistic education, and cultural vibrancy. We believe that true education extends beyond textbooks to embrace critical thinking, technological innovation, and strong moral character. Our dedicated faculty, state-of-the-art infrastructure, and robust industry partnerships ensure that our graduates are well-equipped to excel in the global arena.')
+    principal_photo = db.Column(db.String(250), default='')
+    trust_name = db.Column(db.String(150), default='Seshadripuram Educational Trust (SET)')
+    trust_president = db.Column(db.String(120), default='Sri N. R. Panditharadhya')
+    trustee_name = db.Column(db.String(120), default='Sri W. D. Ashok')
+
+    # Contact & Campus Location
     email_info = db.Column(db.String(120), default='info@spmcollege.ac.in')
+    admissions_email = db.Column(db.String(120), default='admissions@spmcollege.ac.in')
     phone_primary = db.Column(db.String(50), default='+91 6363179389 / 080-22955354')
     address = db.Column(db.String(300), default='Seshadripuram Main Campus, Bengaluru - 560020')
-    accreditation = db.Column(db.String(100), default='NAAC A++ Accredited')
+    city = db.Column(db.String(100), default='Bengaluru')
+    state_pincode = db.Column(db.String(100), default='Karnataka 560020')
+    map_query = db.Column(db.String(250), default='Seshadripuram College, Seshadripuram, Bengaluru, Karnataka 560020')
+
+    # Homepage Hero & About Story
     hero_title = db.Column(db.String(150), default='Shaping Futures, Building Leaders')
-    hero_subtitle = db.Column(db.String(300), default='Welcome to Seshadripuram College, a premier institution of higher education.')
+    hero_subtitle = db.Column(db.String(300), default='Welcome to Seshadripuram College, a premier institution of higher education offering top-tier Undergraduate and Postgraduate degree programs.')
+    about_story = db.Column(db.Text, default='Established with a commitment to academic distinction and holistic student development, the college offers premier undergraduate and postgraduate programs. With modern laboratories, distinguished faculty, and comprehensive industry tie-ups, students achieve their fullest personal and professional potential.')
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f"<CollegeSetting college_id={self.college_id}>"
+        return f"<CollegeSetting college_id={self.college_id} name='{self.college_name}'>"
 
 
 class ModuleConfig(db.Model):

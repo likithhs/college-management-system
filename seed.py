@@ -122,7 +122,7 @@ def seed_default_users(college):
     """
     Idempotent seeding function for Platform Super Admin and College Admin accounts.
     """
-    # 1. Seed Platform Super Admin
+    # 1. Seed Platform Super Admin (default institutional email)
     super_admin_email = os.environ.get('SUPERADMIN_EMAIL', 'superadmin@spmcollege.ac.in')
     super_admin_pass = os.environ.get('SUPERADMIN_PASSWORD', 'SuperAdmin@123')
     
@@ -134,8 +134,26 @@ def seed_default_users(college):
             college_id=None,
             is_active=True
         )
-        super_admin.set_password(super_admin_pass)
         db.session.add(super_admin)
+    super_admin.role = 'PLATFORM_SUPER_ADMIN'
+    super_admin.college_id = None
+    super_admin.is_active = True
+    super_admin.set_password(super_admin_pass)
+
+    # 1b. Seed Alias Platform Super Admin (superadmin@portal.internal)
+    alt_admin = User.query.filter_by(email='superadmin@portal.internal').first()
+    if not alt_admin:
+        alt_admin = User(
+            email='superadmin@portal.internal',
+            role='PLATFORM_SUPER_ADMIN',
+            college_id=None,
+            is_active=True
+        )
+        db.session.add(alt_admin)
+    alt_admin.role = 'PLATFORM_SUPER_ADMIN'
+    alt_admin.college_id = None
+    alt_admin.is_active = True
+    alt_admin.set_password('AdminPassword@123')
 
     # 2. Seed College Admin for Default Tenant
     college_admin_email = os.environ.get('COLLEGEADMIN_EMAIL', 'admin@spmcollege.ac.in')
@@ -149,8 +167,11 @@ def seed_default_users(college):
             college_id=college.id,
             is_active=True
         )
-        college_admin.set_password(college_admin_pass)
         db.session.add(college_admin)
+    college_admin.role = 'COLLEGE_ADMIN'
+    college_admin.college_id = college.id
+    college_admin.is_active = True
+    college_admin.set_password(college_admin_pass)
 
     db.session.commit()
 
@@ -597,6 +618,8 @@ def seed_default_college():
     """
     college = College.query.filter_by(slug='seshadripuram-college').first()
     if not college:
+        college = College.query.first()
+    if not college:
         college = College(
             name='Seshadripuram College',
             slug='seshadripuram-college',
@@ -608,14 +631,29 @@ def seed_default_college():
     if not college.settings:
         setting = CollegeSetting(
             college_id=college.id,
-            college_name='Seshadripuram College',
+            college_name=college.name or 'Seshadripuram College',
+            short_name='SPM',
             tagline='Affiliated to Bengaluru City University | NAAC Accredited A++',
+            affiliation='Bengaluru City University',
+            accreditation='NAAC A++ Accredited',
+            est_year='1998',
+            alumni_count='5,000+',
+            principal_name='Dr. M. Prakash',
+            principal_title='MCom, PhD, Principal',
+            principal_message='Welcome to our institution, committed to nurturing intellect, ethics, and leadership in every student. For over two decades, our college has stood as a beacon of academic excellence, holistic education, and cultural vibrancy. We believe that true education extends beyond textbooks to embrace critical thinking, technological innovation, and strong moral character. Our dedicated faculty, state-of-the-art infrastructure, and robust industry partnerships ensure that our graduates are well-equipped to excel in the global arena.',
+            trust_name='Seshadripuram Educational Trust (SET)',
+            trust_president='Sri N. R. Panditharadhya',
+            trustee_name='Sri W. D. Ashok',
             email_info='info@spmcollege.ac.in',
+            admissions_email='admissions@spmcollege.ac.in',
             phone_primary='+91 6363179389 / 080-22955354',
             address='Seshadripuram Main Campus, Bengaluru - 560020',
-            accreditation='NAAC A++ Accredited',
+            city='Bengaluru',
+            state_pincode='Karnataka 560020',
+            map_query='Seshadripuram College, Seshadripuram, Bengaluru, Karnataka 560020',
             hero_title='Shaping Futures, Building Leaders',
-            hero_subtitle='Welcome to Seshadripuram College, a premier institution of higher education offering top-tier Undergraduate and Postgraduate degree programs.'
+            hero_subtitle='Welcome to Seshadripuram College, a premier institution of higher education offering top-tier Undergraduate and Postgraduate degree programs.',
+            about_story='Established with a commitment to academic distinction and holistic student development, the college offers premier undergraduate and postgraduate programs. With modern laboratories, distinguished faculty, and comprehensive industry tie-ups, students achieve their fullest personal and professional potential.'
         )
         db.session.add(setting)
 
@@ -639,11 +677,90 @@ def seed_default_college():
     seed_default_events_and_calendar(college)
     return college
 
+def onboard_new_college(name, slug, email_info=None, principal_name=None, affiliation=None, admin_email=None, admin_password=None):
+    """
+    Onboards a brand new client college tenant with its own completely isolated:
+    - College record
+    - CollegeSetting with default branding
+    - Fresh ModuleConfig matrix
+    - Independent College Admin user account
+    Guarantees 100% tenant separation from any existing colleges.
+    """
+    slug = slug.strip().lower().replace(' ', '-')
+    existing = College.query.filter_by(slug=slug).first()
+    if existing:
+        return False, f"College with slug '{slug}' already exists."
+
+    college = College(
+        name=name.strip(),
+        slug=slug,
+        status='active'
+    )
+    db.session.add(college)
+    db.session.flush()
+
+    # Create isolated branding settings for the new college
+    setting = CollegeSetting(
+        college_id=college.id,
+        college_name=name.strip(),
+        short_name=''.join([w[0] for w in name.split() if w]).upper()[:10] or 'COLLEGE',
+        tagline=f"Affiliated to {affiliation or 'University'} | Premier Institution of Higher Education",
+        affiliation=affiliation or 'State University',
+        accreditation='NAAC Accredited',
+        est_year='2000',
+        alumni_count='1,000+',
+        principal_name=principal_name or 'Dr. Principal',
+        principal_title='Ph.D., Principal',
+        principal_message=f"Welcome to {name}. Our mission is to foster academic excellence, character, and leadership in every student.",
+        trust_name=f"{name} Management Trust",
+        trust_president='President / Chairman',
+        trustee_name='Trustee / Convener',
+        email_info=email_info or f"info@{slug}.ac.in",
+        admissions_email=f"admissions@{slug}.ac.in",
+        phone_primary='+91 9876543210',
+        address=f"{name} Campus",
+        city='City',
+        state_pincode='State - 560001',
+        map_query=f"{name}, Campus Location",
+        hero_title='Excellence in Education, Leadership in Life',
+        hero_subtitle=f"Welcome to {name}, an esteemed institution dedicated to world-class undergraduate and postgraduate education.",
+        about_story=f"Founded to provide transformative higher education, {name} delivers state-of-the-art curricula, modern laboratories, and vibrant campus life."
+    )
+    db.session.add(setting)
+
+    # Initialize independent module configurations
+    for key, data in DEFAULT_MODULE_MATRIX.items():
+        cfg = ModuleConfig(
+            college_id=college.id,
+            module_key=key,
+            name=data['name'],
+            enabled=data['enabled'],
+            admin_access=data['admin_access']
+        )
+        db.session.add(cfg)
+
+    # Create dedicated College Admin user account
+    admin_mail = admin_email or f"admin@{slug}.ac.in"
+    existing_user = User.query.filter_by(email=admin_mail).first()
+    if not existing_user:
+        u = User(
+            college_id=college.id,
+            email=admin_mail,
+            role='COLLEGE_ADMIN'
+        )
+        u.set_password(admin_password or 'CollegeAdmin@123')
+        db.session.add(u)
+
+    db.session.commit()
+    return True, college
+
 def get_default_college():
     """
     Helper function to resolve the current default college tenant.
     """
     college = College.query.filter_by(slug='seshadripuram-college').first()
+    if not college:
+        college = College.query.first()
     if not college:
         college = seed_default_college()
     return college

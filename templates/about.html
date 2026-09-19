@@ -17,24 +17,28 @@
         <!-- Story & History -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center" data-aos="fade-up">
             <div class="space-y-4">
-                <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white">A Quarter Century of Educational Excellence</h2>
+                <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white">A Legacy of Educational Excellence</h2>
                 <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Seshadripuram College was established in 1998 under the aegis of the Seshadripuram Educational Trust (SET), which has been a pioneering landmark in higher education across Karnataka for over eight decades.
+                    {% if settings and settings.about_story %}
+                        {{ settings.about_story }}
+                    {% else %}
+                        {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "Our College") }} was established under the aegis of {{ settings.trust_name if (settings and settings.trust_name) else "our Educational Trust" }}, pioneering higher education with academic excellence and holistic student development.
+                    {% endif %}
                 </p>
                 <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Affiliated to Bengaluru City University and accredited with the highest <strong class="text-navy-900 dark:text-white">NAAC A++ Grade</strong>, the college offers premier undergraduate and postgraduate programs in Computer Applications, Business Administration, Commerce, Arts, and Science.
+                    {{ settings.affiliation if (settings and settings.affiliation) else "Affiliated to Bengaluru City University" }} and accredited with the highest <strong class="text-navy-900 dark:text-white">{{ settings.accreditation if (settings and settings.accreditation) else "NAAC A++ Grade" }}</strong>, the college offers premier undergraduate and postgraduate programs.
                 </p>
                 <div class="pt-2 flex gap-4">
                     <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center flex-1">
-                        <span class="text-2xl font-black text-blue-700 dark:text-blue-400">1998</span>
+                        <span class="text-2xl font-black text-blue-700 dark:text-blue-400">{{ settings.est_year if (settings and settings.est_year) else "1998" }}</span>
                         <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Year Established</p>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center flex-1">
-                        <span class="text-2xl font-black text-amber-600 dark:text-amber-400">NAAC A++</span>
+                        <span class="text-2xl font-black text-amber-600 dark:text-amber-400">{{ settings.accreditation if (settings and settings.accreditation) else "NAAC A++" }}</span>
                         <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Highest Accreditation</p>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center flex-1">
-                        <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">5,000+</span>
+                        <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ settings.alumni_count if (settings and settings.alumni_count) else "5,000+" }}</span>
                         <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Alumni</p>
                     </div>
                 </div>
@@ -69,25 +73,25 @@
             <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white mb-8 text-center">Governing Board & Leadership</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
-                    <div class="w-20 h-20 bg-navy-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                        SET
+                    <div class="w-20 h-20 bg-navy-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                        <i class="fa-solid fa-crown text-amber-400 text-xl"></i>
                     </div>
-                    <h3 class="text-base font-bold text-navy-900 dark:text-white">Sri N. R. Panditharadhya</h3>
-                    <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">President, Seshadripuram Educational Trust</p>
+                    <h3 class="text-base font-bold text-navy-900 dark:text-white">{{ settings.trust_president if (settings and settings.trust_president) else "Sri N. R. Panditharadhya" }}</h3>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">President, {{ settings.trust_name if (settings and settings.trust_name) else "Educational Trust" }}</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
-                    <div class="w-20 h-20 bg-blue-700 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                        WDK
+                    <div class="w-20 h-20 bg-blue-700 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                        <i class="fa-solid fa-user-tie text-blue-200 text-xl"></i>
                     </div>
-                    <h3 class="text-base font-bold text-navy-900 dark:text-white">Sri W. D. Ashok</h3>
+                    <h3 class="text-base font-bold text-navy-900 dark:text-white">{{ settings.trustee_name if (settings and settings.trustee_name) else "Sri W. D. Ashok" }}</h3>
                     <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">Trustee & Convener</p>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
-                    <div class="w-20 h-20 bg-amber-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                        P
+                    <div class="w-20 h-20 bg-amber-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                        <i class="fa-solid fa-graduation-cap text-amber-200 text-xl"></i>
                     </div>
-                    <h3 class="text-base font-bold text-navy-900 dark:text-white">Dr. M. Prakash</h3>
-                    <p class="text-xs text-amber-600 dark:text-amber-400 font-medium">Principal, Seshadripuram College</p>
+                    <h3 class="text-base font-bold text-navy-900 dark:text-white">{{ settings.principal_name if (settings and settings.principal_name) else "Dr. Principal" }}</h3>
+                    <p class="text-xs text-amber-600 dark:text-amber-400 font-medium">{{ settings.principal_title if (settings and settings.principal_title) else "Principal" }}, {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "College") }}</p>
                 </div>
             </div>
         </div>

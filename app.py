@@ -210,12 +210,57 @@ def safe_delete_tenant_file(college_id, category, filename):
             return False
     return True
 
-# Ensure default tenant seed data exists on startup
+def ensure_college_settings_schema():
+    """
+    Auto-detects and adds missing columns to college_setting table in SQLite
+    for smooth, error-free upgrades without data loss.
+    """
+    try:
+        inspector = db.inspect(db.engine)
+        existing_cols = {col['name'] for col in inspector.get_columns('college_setting')}
+        
+        new_columns = [
+            ("short_name", "VARCHAR(30) DEFAULT 'SPM'"),
+            ("affiliation", "VARCHAR(150) DEFAULT 'Bengaluru City University'"),
+            ("est_year", "VARCHAR(20) DEFAULT '1998'"),
+            ("alumni_count", "VARCHAR(50) DEFAULT '5,000+'"),
+            ("principal_name", "VARCHAR(120) DEFAULT 'Dr. M. Prakash'"),
+            ("principal_title", "VARCHAR(150) DEFAULT 'MCom, PhD, Principal'"),
+            ("principal_message", "TEXT DEFAULT 'Welcome to our institution, committed to nurturing intellect, ethics, and leadership in every student. For over two decades, our college has stood as a beacon of academic excellence, holistic education, and cultural vibrancy.'"),
+            ("principal_photo", "VARCHAR(250) DEFAULT ''"),
+            ("trust_name", "VARCHAR(150) DEFAULT 'Seshadripuram Educational Trust (SET)'"),
+            ("trust_president", "VARCHAR(120) DEFAULT 'Sri N. R. Panditharadhya'"),
+            ("trustee_name", "VARCHAR(120) DEFAULT 'Sri W. D. Ashok'"),
+            ("admissions_email", "VARCHAR(120) DEFAULT 'admissions@spmcollege.ac.in'"),
+            ("city", "VARCHAR(100) DEFAULT 'Bengaluru'"),
+            ("state_pincode", "VARCHAR(100) DEFAULT 'Karnataka 560020'"),
+            ("map_query", "VARCHAR(250) DEFAULT 'Seshadripuram College, Seshadripuram, Bengaluru, Karnataka 560020'"),
+            ("about_story", "TEXT DEFAULT 'Established with a commitment to academic distinction and holistic student development, the college offers premier undergraduate and postgraduate programs. With modern laboratories, distinguished faculty, and comprehensive industry tie-ups, students achieve their fullest personal and professional potential.'")
+        ]
+        
+        with db.engine.connect() as conn:
+            for col_name, col_type in new_columns:
+                if col_name not in existing_cols:
+                    conn.execute(db.text(f"ALTER TABLE college_setting ADD COLUMN {col_name} {col_type}"))
+            conn.commit()
+    except Exception as e:
+        app.logger.warning(f"Schema upgrade check note: {e}")
+
+# Ensure default tenant seed data and updated schema exist on startup
 with app.app_context():
     try:
+        ensure_college_settings_schema()
         seed_default_college()
     except Exception as e:
         app.logger.warning(f"Seed startup warning: {e}")
+
+# Request Tenant Context Reset
+@app.before_request
+def reset_tenant_context():
+    if hasattr(g, '_current_college'):
+        delattr(g, '_current_college')
+    if hasattr(g, '_academic_calendar'):
+        delattr(g, '_academic_calendar')
 
 # Global CSRF Token Management & Verification
 @app.before_request
@@ -271,23 +316,62 @@ GALLERY_FALLBACK_MAP = {
     }
 }
 
+def get_current_college():
+    if not hasattr(g, '_current_college'):
+        college = None
+        try:
+            # 1. Super Admin explicit switched context in session
+            if current_user.is_authenticated and current_user.is_super_admin:
+                sa_cid = session.get('superadmin_active_college_id')
+                if sa_cid:
+                    college = models.College.query.get(int(sa_cid))
+
+            # 2. College Admin context
+            if not college and current_user.is_authenticated and current_user.college_id:
+                college = models.College.query.get(current_user.college_id)
+
+            # 3. Request URL query parameter (?college=<slug>)
+            if not college and request and request.args.get('college'):
+                q_slug = request.args.get('college').strip().lower()
+                college = models.College.query.filter_by(slug=q_slug).first()
+                if college:
+                    session['active_college_slug'] = college.slug
+                    session.modified = True
+
+            # 4. Active visitor session
+            if not college and 'active_college_slug' in session:
+                college = models.College.query.filter_by(slug=session['active_college_slug']).first()
+
+            # 5. Default fallback
+            if not college:
+                college = get_default_college()
+        except Exception:
+            college = None
+        g._current_college = college
+    return g._current_college
+
+def get_effective_admin_college_id():
+    """
+    Returns the target college_id for administrative actions.
+    For a College Admin, returns current_user.college_id.
+    For a Platform Super Admin, returns the active college (from session or default college).
+    """
+    if current_user.is_authenticated and current_user.college_id:
+        return current_user.college_id
+    college = get_current_college()
+    return college.id if college else None
+
 def get_current_modules():
     """
-    Helper function to query database for the active module matrix of the default college.
+    Helper function to query database for the active module matrix of the current college.
     Falls back gracefully to DEFAULT_MODULE_MATRIX if DB is unavailable.
     """
     try:
-        return get_database_module_matrix()
+        col = get_current_college()
+        cid = col.id if col else None
+        return get_database_module_matrix(cid)
     except Exception:
         return DEFAULT_MODULE_MATRIX
-
-def get_current_college():
-    if not hasattr(g, '_current_college'):
-        try:
-            g._current_college = get_default_college()
-        except Exception:
-            g._current_college = None
-    return g._current_college
 
 @app.after_request
 def add_security_headers(response):
@@ -341,10 +425,11 @@ def inject_college_context():
 
 @app.route('/')
 def index():
-    college = get_default_college()
-    events = models.CampusEvent.query.filter_by(college_id=college.id).order_by(models.CampusEvent.display_order).all()
-    academic_calendar = models.AcademicCalendarItem.query.filter_by(college_id=college.id).order_by(models.AcademicCalendarItem.display_order).all()
-    return render_template('index.html', title="Seshadripuram College - Shaping Futures, Building Leaders", events=events, academic_calendar=academic_calendar)
+    college = get_current_college()
+    events = models.CampusEvent.query.filter_by(college_id=college.id).order_by(models.CampusEvent.display_order).all() if college else []
+    academic_calendar = models.AcademicCalendarItem.query.filter_by(college_id=college.id).order_by(models.AcademicCalendarItem.display_order).all() if college else []
+    c_name = college.name if college else "College Management"
+    return render_template('index.html', title=f"{c_name} - Shaping Futures, Building Leaders", events=events, academic_calendar=academic_calendar)
 
 @app.route('/about')
 def about():
@@ -352,7 +437,9 @@ def about():
     if not modules['about']['enabled']:
         flash("⚠️ About Us module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    return render_template('about.html', title="About Us - Seshadripuram College")
+    college = get_current_college()
+    c_name = college.name if college else "College Management"
+    return render_template('about.html', title=f"About Us - {c_name}")
 
 @app.route('/admission')
 def admission():
@@ -360,7 +447,9 @@ def admission():
     if not modules['admission']['enabled']:
         flash("⚠️ Admission module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    return render_template('admission.html', title="Admissions 2026-27 - Seshadripuram College")
+    college = get_current_college()
+    c_name = college.name if college else "College Management"
+    return render_template('admission.html', title=f"Admissions 2026-27 - {c_name}")
 
 ALLOWED_COURSES = [
     'BCA - Bachelor of Computer Applications',
@@ -374,13 +463,22 @@ ALLOWED_COURSES = [
     'MSc - Master of Science'
 ]
 
-def generate_application_number():
+def generate_application_number(college=None):
     """
     Generates a unique, persistent application number (e.g. SC2026-A1B2C3)
     guaranteed to be unique across all records in the database.
     """
+    prefix = "ADM"
+    if college:
+        if hasattr(college, 'settings') and college.settings and college.settings.short_name:
+            prefix = re.sub(r'[^A-Za-z0-9]', '', college.settings.short_name).upper()[:4]
+        elif college.name:
+            words = college.name.split()
+            prefix = "".join([w[0] for w in words if w]).upper()[:4]
+    if not prefix:
+        prefix = "ADM"
     while True:
-        candidate = f"SC2026-{os.urandom(3).hex().upper()}"
+        candidate = f"{prefix}2026-{os.urandom(3).hex().upper()}"
         if not models.AdmissionApplication.query.filter_by(application_number=candidate).first():
             return candidate
 
@@ -414,15 +512,12 @@ def apply():
         # Course validation
         matching_course = next((c for c in ALLOWED_COURSES if course.lower() in c.lower()), None)
         if not matching_course and course not in ALLOWED_COURSES:
-            errors.append("Please select a valid academic program from the list.")
-        else:
-            course = matching_course if matching_course else course
+            errors.append("Please select a valid program of study from the offered course list.")
 
-        # Percentage validation
         try:
             percentage = float(raw_percentage)
-            if percentage < 35.0 or percentage > 100.0:
-                errors.append("Marks percentage must be between 35% and 100%.")
+            if percentage < 0 or percentage > 100:
+                errors.append("Percentage must be between 0.0 and 100.0.")
         except (ValueError, TypeError):
             errors.append("Please enter a valid numeric percentage.")
 
@@ -432,7 +527,7 @@ def apply():
             return redirect(url_for('apply'))
 
         # Active College Resolution
-        college = get_default_college()
+        college = get_current_college()
         if not college:
             flash("⚠️ Unable to resolve institutional tenant context.", "warning")
             return redirect(url_for('apply'))
@@ -449,7 +544,7 @@ def apply():
             return redirect(url_for('apply'))
 
         # Generate persistent application number and save
-        app_number = generate_application_number()
+        app_number = generate_application_number(college)
         new_app = models.AdmissionApplication(
             college_id=college.id,
             application_number=app_number,
@@ -539,7 +634,7 @@ def download_application_receipt(app_number):
     if user_is_admin and not check_tenant_ownership(app_record.college_id):
         return abort(403)
 
-    college = get_default_college()
+    college = models.College.query.get(app_record.college_id) or get_current_college()
     pdf_buffer = generate_application_receipt_pdf(app_record, college)
     
     return send_file(
@@ -552,7 +647,7 @@ def download_application_receipt(app_number):
 @app.route('/verify-receipt/<app_number>')
 def verify_application_receipt(app_number):
     app_record = models.AdmissionApplication.query.filter_by(application_number=app_number).first()
-    college = get_default_college()
+    college = models.College.query.get(app_record.college_id) if app_record else get_current_college()
     college_setting = college.settings if college else None
     return render_template(
         'verify_receipt.html',
@@ -569,9 +664,10 @@ def academics():
     if not modules['academics']['enabled']:
         flash("⚠️ Academics & Syllabus module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    college = get_default_college()
-    courses = models.Course.query.filter_by(college_id=college.id).order_by(models.Course.id).all()
-    return render_template('departments.html', courses=courses, title="Academics & Syllabus - Seshadripuram College")
+    college = get_current_college()
+    courses = models.Course.query.filter_by(college_id=college.id).order_by(models.Course.id).all() if college else []
+    c_name = college.name if college else "College Management"
+    return render_template('departments.html', courses=courses, title=f"Academics & Syllabus - {c_name}")
 
 @app.route('/departments')
 def departments():
@@ -579,9 +675,10 @@ def departments():
     if not modules['departments']['enabled']:
         flash("⚠️ Departments module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    college = get_default_college()
-    courses = models.Course.query.filter_by(college_id=college.id).order_by(models.Course.id).all()
-    return render_template('departments.html', courses=courses, title="Academic Departments - Seshadripuram College")
+    college = get_current_college()
+    courses = models.Course.query.filter_by(college_id=college.id).order_by(models.Course.id).all() if college else []
+    c_name = college.name if college else "College Management"
+    return render_template('departments.html', courses=courses, title=f"Academic Departments - {c_name}")
 
 @app.route('/course/<course_code>')
 def course_detail(course_code):
@@ -589,7 +686,7 @@ def course_detail(course_code):
     if not modules['academics']['enabled']:
         flash("⚠️ Course details are currently offline site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    college = get_default_college()
+    college = get_current_college()
     course = models.Course.query.options(
         joinedload(models.Course.outcome_records),
         selectinload(models.Course.semesters).selectinload(models.CurriculumSemester.subjects),
@@ -633,7 +730,9 @@ def facilities():
     if not modules['facilities']['enabled']:
         flash("⚠️ Facilities module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
-    return render_template('facilities.html', title="Campus Infrastructure & Facilities - Seshadripuram College")
+    college = get_current_college()
+    c_name = college.name if college else "College Management"
+    return render_template('facilities.html', title=f"Campus Infrastructure & Facilities - {c_name}")
 
 @app.route('/faculty')
 def faculty_directory():
@@ -642,21 +741,22 @@ def faculty_directory():
         flash("⚠️ Faculty Directory module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
 
-    college = get_default_college()
+    college = get_current_college()
     dept = request.args.get('dept', '').strip().upper()
 
-    query = models.FacultyMember.query.filter_by(college_id=college.id, is_active=True)
+    query = models.FacultyMember.query.filter_by(college_id=college.id, is_active=True) if college else models.FacultyMember.query.filter_by(id=-1)
     if dept:
         query = query.filter_by(department_code=dept)
 
     faculty_members = query.order_by(models.FacultyMember.display_order.asc(), models.FacultyMember.id.asc()).all()
 
-    dept_rows = db.session.query(models.FacultyMember.department_code).filter_by(college_id=college.id, is_active=True).distinct().all()
+    dept_rows = db.session.query(models.FacultyMember.department_code).filter_by(college_id=college.id, is_active=True).distinct().all() if college else []
     dept_codes = [d[0] for d in dept_rows] if dept_rows else ['BCA', 'BBA', 'BCOM', 'MCA', 'HUMANITIES']
+    c_name = college.name if college else "College Management"
 
     return render_template(
         'faculty.html',
-        title="Faculty & Staff Directory - Seshadripuram College",
+        title=f"Faculty & Staff Directory - {c_name}",
         faculty_members=faculty_members,
         dept_codes=dept_codes,
         selected_dept=dept
@@ -669,17 +769,18 @@ def placements():
         flash("⚠️ Placements module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
 
-    college = get_default_college()
+    college = get_current_college()
     status_filter = request.args.get('status', '').strip().upper()
 
-    query = models.PlacementDrive.query.filter_by(college_id=college.id, is_active=True)
+    query = models.PlacementDrive.query.filter_by(college_id=college.id, is_active=True) if college else models.PlacementDrive.query.filter_by(id=-1)
     if status_filter and status_filter in ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED']:
         query = query.filter_by(status=status_filter)
 
     drives = query.order_by(models.PlacementDrive.id.desc()).all()
+    c_name = college.name if college else "College Management"
     return render_template(
         'placements.html',
-        title="Placements & Career Cell - Seshadripuram College",
+        title=f"Placements & Career Cell - {c_name}",
         placement_drives=drives,
         selected_status=status_filter
     )
@@ -691,12 +792,13 @@ def gallery():
         flash("⚠️ Gallery module is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
     
-    college = get_default_college()
+    college = get_current_college()
     gallery_items = models.GalleryItem.query.filter_by(
         college_id=college.id
-    ).order_by(models.GalleryItem.created_at.desc(), models.GalleryItem.id.desc()).all()
+    ).order_by(models.GalleryItem.created_at.desc(), models.GalleryItem.id.desc()).all() if college else []
     
-    return render_template('gallery.html', title="Campus Photo & Video Gallery - Seshadripuram College", gallery_items=gallery_items)
+    c_name = college.name if college else "College Management"
+    return render_template('gallery.html', title=f"Campus Photo & Video Gallery - {c_name}", gallery_items=gallery_items)
 
 # Gallery Add Photo
 @app.route('/gallery/add', methods=['POST'])
@@ -716,9 +818,10 @@ def gallery_add():
         category = 'campus'
 
     # Support real image file upload with Pillow validation (Requirement 4)
+    target_cid = get_effective_admin_college_id()
     saved_image_name = image_url
     if image_file and image_file.filename:
-        success, filename_or_err = validate_and_save_image(image_file, current_user.college_id)
+        success, filename_or_err = validate_and_save_image(image_file, target_cid)
         if not success:
             flash(f"⚠️ Image Upload Error: {filename_or_err}", "warning")
             return redirect(url_for('admin'))
@@ -727,7 +830,7 @@ def gallery_add():
     fallback = GALLERY_FALLBACK_MAP.get(category, GALLERY_FALLBACK_MAP['campus'])
     
     new_item = models.GalleryItem(
-        college_id=current_user.college_id,
+        college_id=target_cid,
         title=title,
         category=category,
         category_label=fallback['category_label'],
@@ -778,7 +881,7 @@ def students_corner():
         flash("⚠️ Students Corner is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
 
-    college = get_default_college()
+    college = get_current_college()
     lookup_error = None
 
     # Handle POST tracking lookup
@@ -851,9 +954,10 @@ def students_corner():
     calendar_items = models.AcademicCalendarItem.query.filter_by(college_id=college.id).order_by(models.AcademicCalendarItem.display_order.asc()).all()
     announcements = models.ForumPost.query.filter_by(college_id=college.id).order_by(models.ForumPost.created_at.desc()).limit(3).all()
 
+    c_name = college.name if college else "College Management"
     return render_template(
         'students_corner.html',
-        title="Student Portal & Applicant Dashboard - Seshadripuram College",
+        title=f"Student Portal & Applicant Dashboard - {c_name}",
         active_app=active_app,
         doc_requests=doc_requests,
         lookup_error=lookup_error,
@@ -887,7 +991,7 @@ def forum():
         flash("⚠️ Community Forum is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
         
-    college = get_default_college()
+    college = get_current_college()
     posts = models.ForumPost.query.options(
         selectinload(models.ForumPost.reply_records)
     ).filter_by(
@@ -895,9 +999,10 @@ def forum():
     ).order_by(
         models.ForumPost.created_at.desc(),
         models.ForumPost.id.desc()
-    ).all()
+    ).all() if college else []
 
-    return render_template('forum.html', posts=posts, title="Campus Community Forum - Seshadripuram College")
+    c_name = college.name if college else "College Management"
+    return render_template('forum.html', posts=posts, title=f"Campus Community Forum - {c_name}")
 
 @app.route('/forum/add', methods=['POST'])
 @module_admin_required('forum')
@@ -928,7 +1033,7 @@ def add_forum_post():
         return redirect(request.referrer or url_for('admin'))
 
     new_post = models.ForumPost(
-        college_id=current_user.college_id,
+        college_id=get_effective_admin_college_id(),
         author=author if author else 'College Administrator',
         title=title,
         category=category,
@@ -973,7 +1078,7 @@ def add_forum_reply(post_id):
         flash("⚠️ Forum replies are currently disabled.", "warning")
         return redirect(url_for('forum'))
 
-    college = get_default_college()
+    college = get_current_college()
     # Strict tenant-scoped post lookup (Security Rule)
     post = models.ForumPost.query.filter_by(id=post_id, college_id=college.id).first_or_404()
 
@@ -1021,7 +1126,7 @@ def like_forum_post(post_id):
     if not modules['forum']['enabled']:
         return jsonify({'error': 'Forum disabled'}), 403
 
-    college = get_default_college()
+    college = get_current_college()
     # Strict tenant-scoped post lookup (Security Rule)
     post = models.ForumPost.query.filter_by(id=post_id, college_id=college.id).first_or_404()
 
@@ -1049,11 +1154,13 @@ def like_forum_post(post_id):
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    college = get_current_college()
+    c_name = college.name if college else "College Management"
     if request.method == 'POST':
         name = request.form.get('name')
-        flash(f"✉️ Thank you {name}! Your message has been sent to Seshadripuram College Admin Office.", "success")
+        flash(f"✉️ Thank you {name}! Your message has been sent to {c_name} Admin Office.", "success")
         return redirect(url_for('contact'))
-    return render_template('contact.html', title="Contact Us - Seshadripuram College")
+    return render_template('contact.html', title=f"Contact Us - {c_name}")
 
 # AUTHENTICATION & LOGIN ROUTES
 @app.route('/login', methods=['GET', 'POST'])
@@ -1103,7 +1210,8 @@ def sanitize_csv_val(val):
 @app.route('/admin')
 @college_admin_required
 def admin():
-    modules = get_current_modules()
+    college_id = get_effective_admin_college_id()
+    modules = get_database_module_matrix(college_id) if college_id else get_current_modules()
     applications = []
     gallery_items = []
     forum_posts = []
@@ -1111,6 +1219,8 @@ def admin():
     question_papers = []
     campus_events = []
     academic_calendar_items = []
+    doc_requests = []
+    event_registrations = []
 
     # Real-Time Analytics Metrics (Requirement 2)
     stats = {
@@ -1140,10 +1250,12 @@ def admin():
     total_pages = 1
     total_filtered = 0
 
-    if current_user.college_id:
-        if modules.get('admission', {}).get('admin_access'):
+    is_super = current_user.is_authenticated and current_user.is_super_admin
+
+    if college_id:
+        if is_super or modules.get('admission', {}).get('admin_access'):
             base_app_query = models.AdmissionApplication.query.filter_by(
-                college_id=current_user.college_id
+                college_id=college_id
             )
             
             # Real-Time Tenant Metrics (Includes 5th Rejected card)
@@ -1156,7 +1268,7 @@ def admin():
             stats['rejected'] = base_app_query.filter_by(status='REJECTED').count()
 
             # Course Distribution Breakdown
-            all_courses = models.Course.query.filter_by(college_id=current_user.college_id).all()
+            all_courses = models.Course.query.filter_by(college_id=college_id).all()
             for c_item in all_courses:
                 course_counts[c_item.name] = base_app_query.filter_by(course=c_item.name).count()
 
@@ -1183,45 +1295,45 @@ def admin():
                 models.AdmissionApplication.created_at.desc()
             ).offset((page - 1) * per_page).limit(per_page).all()
             
-        if modules.get('gallery', {}).get('admin_access'):
+        if is_super or modules.get('gallery', {}).get('admin_access'):
             gallery_items = models.GalleryItem.query.filter_by(
-                college_id=current_user.college_id
+                college_id=college_id
             ).order_by(models.GalleryItem.created_at.desc(), models.GalleryItem.id.desc()).all()
 
-        if modules.get('forum', {}).get('admin_access'):
+        if is_super or modules.get('forum', {}).get('admin_access'):
             forum_posts = models.ForumPost.query.filter_by(
-                college_id=current_user.college_id
+                college_id=college_id
             ).order_by(models.ForumPost.created_at.desc(), models.ForumPost.id.desc()).all()
 
         qp_mod = modules.get('question_papers', {})
-        qp_active = qp_mod.get('enabled') and qp_mod.get('admin_access')
+        qp_active = is_super or (qp_mod.get('enabled') and qp_mod.get('admin_access'))
 
-        if modules.get('academics', {}).get('admin_access') or qp_active:
+        if is_super or modules.get('academics', {}).get('admin_access') or qp_active:
             courses = models.Course.query.filter_by(
-                college_id=current_user.college_id
+                college_id=college_id
             ).order_by(models.Course.code).all()
 
         if qp_active:
             question_papers = models.QuestionPaper.query.options(
                 joinedload(models.QuestionPaper.course)
             ).join(models.Course).filter(
-                models.Course.college_id == current_user.college_id
+                models.Course.college_id == college_id
             ).order_by(models.QuestionPaper.created_at.desc(), models.QuestionPaper.id.desc()).all()
 
-        if modules.get('news_events', {}).get('admin_access'):
+        if is_super or modules.get('news_events', {}).get('admin_access'):
             campus_events = models.CampusEvent.query.filter_by(
-                college_id=current_user.college_id
+                college_id=college_id
             ).order_by(models.CampusEvent.display_order).all()
             academic_calendar_items = models.AcademicCalendarItem.query.filter_by(
-                college_id=current_user.college_id
+                college_id=college_id
             ).order_by(models.AcademicCalendarItem.display_order).all()
 
         doc_requests = models.StudentDocumentRequest.query.filter_by(
-            college_id=current_user.college_id
+            college_id=college_id
         ).order_by(models.StudentDocumentRequest.created_at.desc()).all()
 
         event_registrations = models.EventRegistration.query.filter_by(
-            college_id=current_user.college_id
+            college_id=college_id
         ).order_by(models.EventRegistration.created_at.desc()).all()
 
     return render_template(
@@ -1250,14 +1362,15 @@ def admin():
 @app.route('/admin/applications/export')
 @module_admin_required('admission')
 def export_admission_applications():
-    if not current_user.college_id:
+    target_cid = get_effective_admin_college_id()
+    if not target_cid:
         return abort(403)
 
     q = request.args.get('q', '').strip()
     course_filter = request.args.get('course_filter', '').strip()
     status_filter = request.args.get('status_filter', '').strip().upper()
 
-    query = models.AdmissionApplication.query.filter_by(college_id=current_user.college_id)
+    query = models.AdmissionApplication.query.filter_by(college_id=target_cid)
     if q:
         query = query.filter(
             (models.AdmissionApplication.full_name.ilike(f"%{q}%")) |
@@ -1301,10 +1414,11 @@ def export_admission_applications():
 @app.route('/admin/admission/detail/<int:app_id>')
 @module_admin_required('admission')
 def get_applicant_detail(app_id):
-    # Strict tenant scoping: Returns HTTP 404 if application belongs to another college (Requirement 3 & GET read-only Requirement 4)
+    target_cid = get_effective_admin_college_id()
+    # Strict tenant scoping: Returns HTTP 404 if application belongs to another college
     app_record = models.AdmissionApplication.query.filter_by(
         id=app_id,
-        college_id=current_user.college_id
+        college_id=target_cid
     ).first_or_404()
 
     return jsonify({
@@ -1325,7 +1439,7 @@ def get_current_notification_context():
     Resolves notification recipient context from authenticated User OR secure applicant session.
     Never accepts raw client query inputs for recipient scoping (Requirement 1 & 5).
     """
-    college = get_default_college()
+    college = get_current_college()
     if current_user.is_authenticated:
         return {
             'college_id': current_user.college_id or college.id,
@@ -1481,7 +1595,7 @@ def update_application_status(app_id):
 
     # Trigger status update email notification to student (isolated so SMTP errors never roll back status)
     try:
-        college = get_default_college()
+        college = models.College.query.get(app_record.college_id) or get_current_college()
         send_applicant_status_update_email(app_record, old_status, new_status, college)
     except Exception as mail_err:
         app.logger.error(f"Status update email notification error: {mail_err}")
@@ -1509,14 +1623,15 @@ def admin_add_course():
         return redirect(url_for('admin'))
 
     # Duplicate course code check within tenant
-    existing = models.Course.query.filter_by(college_id=current_user.college_id, code=code).first()
+    target_cid = get_effective_admin_college_id()
+    existing = models.Course.query.filter_by(college_id=target_cid, code=code).first()
     if existing:
         flash(f"⚠️ Validation Error: Course with code '{code}' already exists for this college.", "warning")
         return redirect(url_for('admin'))
 
     try:
         new_course = models.Course(
-            college_id=current_user.college_id,
+            college_id=target_cid,
             code=code,
             name=name,
             level=level,
@@ -1678,9 +1793,10 @@ def admin_add_event():
         return redirect(url_for('admin'))
 
     try:
-        max_order = db.session.query(db.func.max(models.CampusEvent.display_order)).filter_by(college_id=current_user.college_id).scalar() or 0
+        target_cid = get_effective_admin_college_id()
+        max_order = db.session.query(db.func.max(models.CampusEvent.display_order)).filter_by(college_id=target_cid).scalar() or 0
         new_event = models.CampusEvent(
-            college_id=current_user.college_id,
+            college_id=target_cid,
             title=title,
             date_display=date_display,
             day=day,
@@ -1768,9 +1884,10 @@ def admin_add_calendar_item():
         return redirect(url_for('admin'))
 
     try:
-        max_order = db.session.query(db.func.max(models.AcademicCalendarItem.display_order)).filter_by(college_id=current_user.college_id).scalar() or 0
+        target_cid = get_effective_admin_college_id()
+        max_order = db.session.query(db.func.max(models.AcademicCalendarItem.display_order)).filter_by(college_id=target_cid).scalar() or 0
         new_item = models.AcademicCalendarItem(
-            college_id=current_user.college_id,
+            college_id=target_cid,
             event_name=event_name,
             date_display=date_display,
             event_type=event_type,
@@ -1851,7 +1968,8 @@ def admin_upload_question_paper():
         return redirect(url_for('admin'))
 
     # Validate selected course belongs to current tenant
-    course = models.Course.query.filter_by(id=course_id, college_id=current_user.college_id).first()
+    target_cid = get_effective_admin_college_id()
+    course = models.Course.query.filter_by(id=course_id, college_id=target_cid).first()
     if not course:
         flash("⚠️ Validation Error: Selected course does not belong to your institution.", "warning")
         return redirect(url_for('admin'))
@@ -1871,7 +1989,7 @@ def admin_upload_question_paper():
         flash("⚠️ Validation Error: An authentic PDF file (.pdf) is strictly required.", "warning")
         return redirect(url_for('admin'))
 
-    success, filename_or_err = validate_and_save_pdf(file_storage, current_user.college_id)
+    success, filename_or_err = validate_and_save_pdf(file_storage, target_cid)
     if not success:
         flash(f"⚠️ PDF Upload Error: {filename_or_err}. Only valid PDF documents are allowed.", "warning")
         return redirect(url_for('admin'))
@@ -1892,34 +2010,182 @@ def admin_upload_question_paper():
 @app.route('/admin/question-paper/delete/<int:paper_id>', methods=['POST'])
 @module_admin_required('question_papers')
 def admin_delete_question_paper(paper_id):
+    target_cid = get_effective_admin_college_id()
     qp = models.QuestionPaper.query.join(models.Course).filter(
         models.QuestionPaper.id == paper_id,
-        models.Course.college_id == current_user.college_id
+        models.Course.college_id == target_cid
     ).first_or_404()
 
     # Path-safe deletion
-    safe_delete_tenant_file(current_user.college_id, 'question_papers', qp.filename)
+    safe_delete_tenant_file(target_cid, 'question_papers', qp.filename)
 
     db.session.delete(qp)
     db.session.commit()
     flash(f"🗑️ Question paper '{qp.subject}' deleted successfully.", "info")
     return redirect(url_for('admin'))
 
-# SUPER ADMIN MODULE CONTROL MATRIX PORTAL (Controlled strictly by Super Admin)
+# SUPER ADMIN MULTI-COLLEGE & MODULE CONTROL MATRIX PORTAL (Controlled strictly by Super Admin)
 @app.route('/superadmin')
 @platform_super_admin_required
 def superadmin():
-    college = get_default_college()
+    all_colleges = models.College.query.order_by(models.College.id).all()
+    active_college = get_current_college()
+    if not active_college and all_colleges:
+        active_college = all_colleges[0]
+
+    college_id = active_college.id if active_college else None
+    modules = get_database_module_matrix(college_id)
+    college_setting = active_college.settings if (active_college and active_college.settings) else None
+
     gallery_items = models.GalleryItem.query.filter_by(
-        college_id=college.id
-    ).order_by(models.GalleryItem.created_at.desc(), models.GalleryItem.id.desc()).all()
-    return render_template('superadmin.html', title="Super Admin - Module Control Matrix", modules=get_current_modules(), gallery_items=gallery_items)
+        college_id=college_id
+    ).order_by(models.GalleryItem.created_at.desc(), models.GalleryItem.id.desc()).all() if college_id else []
+
+    return render_template(
+        'superadmin.html',
+        title="Super Admin - Multi-College Management & Customization",
+        all_colleges=all_colleges,
+        active_college=active_college,
+        modules=modules,
+        college_setting=college_setting,
+        gallery_items=gallery_items
+    )
+
+@app.route('/superadmin/switch-college/<int:college_id>', methods=['POST'])
+@platform_super_admin_required
+def superadmin_switch_college(college_id):
+    college = models.College.query.get_or_404(college_id)
+    session['superadmin_active_college_id'] = college.id
+    session['active_college_slug'] = college.slug
+    flash(f"Switched active management context to: {college.name}", "info")
+    return redirect(url_for('superadmin'))
+
+@app.route('/superadmin/college/create', methods=['POST'])
+@platform_super_admin_required
+def superadmin_create_college():
+    name = request.form.get('name', '').strip()
+    slug = request.form.get('slug', '').strip().lower()
+    affiliation = request.form.get('affiliation', '').strip()
+    email_info = request.form.get('email_info', '').strip().lower()
+    principal_name = request.form.get('principal_name', '').strip()
+    admin_email = request.form.get('admin_email', '').strip().lower()
+    admin_password = request.form.get('admin_password', '').strip()
+
+    if not name or not slug:
+        flash("⚠️ College Name and URL Slug are required.", "warning")
+        return redirect(url_for('superadmin'))
+
+    from seed import onboard_new_college
+    success, res = onboard_new_college(
+        name=name,
+        slug=slug,
+        email_info=email_info,
+        principal_name=principal_name,
+        affiliation=affiliation,
+        admin_email=admin_email,
+        admin_password=admin_password
+    )
+    if success:
+        session['superadmin_active_college_id'] = res.id
+        session['active_college_slug'] = res.slug
+        flash(f"🎉 New client college '{res.name}' onboarded successfully with isolated database records!", "success")
+    else:
+        flash(f"⚠️ Failed to onboard college: {res}", "danger")
+    return redirect(url_for('superadmin'))
+
+@app.route('/superadmin/settings/update', methods=['POST'])
+@platform_super_admin_required
+def superadmin_update_settings():
+    college_id = request.form.get('college_id', type=int)
+    if not college_id:
+        college = get_current_college()
+        college_id = college.id if college else None
+
+    college = models.College.query.get_or_404(college_id)
+    setting = college.settings
+    if not setting:
+        setting = models.CollegeSetting(college_id=college.id)
+        db.session.add(setting)
+
+    college_name = request.form.get('college_name', '').strip()
+    short_name = request.form.get('short_name', '').strip()
+    tagline = request.form.get('tagline', '').strip()
+    affiliation = request.form.get('affiliation', '').strip()
+    accreditation = request.form.get('accreditation', '').strip()
+    est_year = request.form.get('est_year', '').strip()
+    alumni_count = request.form.get('alumni_count', '').strip()
+
+    principal_name = request.form.get('principal_name', '').strip()
+    principal_title = request.form.get('principal_title', '').strip()
+    principal_message = request.form.get('principal_message', '').strip()
+    trust_name = request.form.get('trust_name', '').strip()
+    trust_president = request.form.get('trust_president', '').strip()
+    trustee_name = request.form.get('trustee_name', '').strip()
+
+    email_info = request.form.get('email_info', '').strip().lower()
+    admissions_email = request.form.get('admissions_email', '').strip().lower()
+    phone_primary = request.form.get('phone_primary', '').strip()
+    address = request.form.get('address', '').strip()
+    city = request.form.get('city', '').strip()
+    state_pincode = request.form.get('state_pincode', '').strip()
+    map_query = request.form.get('map_query', '').strip()
+
+    hero_title = request.form.get('hero_title', '').strip()
+    hero_subtitle = request.form.get('hero_subtitle', '').strip()
+    about_story = request.form.get('about_story', '').strip()
+
+    if not college_name:
+        flash("⚠️ Validation Error: College Name cannot be empty.", "warning")
+        return redirect(url_for('superadmin'))
+
+    # Update College entity name
+    college.name = college_name
+
+    # Update CollegeSetting entity strictly scoped to this college_id
+    setting.college_name = college_name
+    setting.short_name = short_name
+    setting.tagline = tagline
+    setting.affiliation = affiliation
+    setting.accreditation = accreditation
+    setting.est_year = est_year
+    setting.alumni_count = alumni_count
+
+    setting.principal_name = principal_name
+    setting.principal_title = principal_title
+    setting.principal_message = principal_message
+    setting.trust_name = trust_name
+    setting.trust_president = trust_president
+    setting.trustee_name = trustee_name
+
+    setting.email_info = email_info
+    setting.admissions_email = admissions_email
+    setting.phone_primary = phone_primary
+    setting.address = address
+    setting.city = city
+    setting.state_pincode = state_pincode
+    setting.map_query = map_query
+
+    setting.hero_title = hero_title
+    setting.hero_subtitle = hero_subtitle
+    setting.about_story = about_story
+
+    db.session.commit()
+    flash(f"✅ Successfully updated branding for '{college.name}'! Changes are live for this institution and completely isolated from other colleges.", "success")
+    return redirect(url_for('superadmin'))
+
+@app.route('/c/<slug>')
+def view_college_portal(slug):
+    col = models.College.query.filter_by(slug=slug.strip().lower()).first_or_404()
+    session['active_college_slug'] = col.slug
+    session.modified = True
+    flash(f"Switched institution view to {col.name}", "info")
+    return redirect(url_for('index', college=col.slug))
 
 @app.route('/superadmin/toggle-enable/<module_key>', methods=['POST'])
 @platform_super_admin_required
 def toggle_enable(module_key):
     try:
-        college = get_default_college()
+        college = get_current_college()
         cfg = models.ModuleConfig.query.filter_by(college_id=college.id, module_key=module_key).first()
         if cfg:
             cfg.enabled = not cfg.enabled
@@ -1929,7 +2195,7 @@ def toggle_enable(module_key):
             db.session.commit()
             status_str = "ENABLED ✅" if cfg.enabled else "DISABLED ⚡"
             msg_type = "success" if cfg.enabled else "warning"
-            flash(f"Notification: Module '{cfg.name}' is now {status_str}! Admin upload access is {'granted' if cfg.enabled else 'disabled'}.", msg_type)
+            flash(f"Notification: Module '{cfg.name}' for '{college.name}' is now {status_str}! Admin upload access is {'granted' if cfg.enabled else 'disabled'}.", msg_type)
         else:
             flash(f"Module key '{module_key}' not found in database.", "warning")
     except Exception as e:
@@ -1941,7 +2207,7 @@ def toggle_enable(module_key):
 @platform_super_admin_required
 def toggle_admin(module_key):
     try:
-        college = get_default_college()
+        college = get_current_college()
         cfg = models.ModuleConfig.query.filter_by(college_id=college.id, module_key=module_key).first()
         if cfg:
             cfg.admin_access = not cfg.admin_access
@@ -1950,7 +2216,7 @@ def toggle_admin(module_key):
             db.session.commit()
             status_str = "GRANTED 🔑" if cfg.admin_access else "REVOKED 🔒"
             msg_type = "success" if cfg.admin_access else "info"
-            flash(f"Notification: College Admin access for '{cfg.name}' has been {status_str}!", msg_type)
+            flash(f"Notification: College Admin access for '{cfg.name}' ({college.name}) has been {status_str}!", msg_type)
         else:
             flash(f"Module key '{module_key}' not found in database.", "warning")
     except Exception as e:
@@ -1966,12 +2232,13 @@ def toggle_admin(module_key):
 @app.route('/admin/settings/update', methods=['POST'])
 @college_admin_required
 def admin_update_settings():
-    if not current_user.college_id:
+    target_cid = get_effective_admin_college_id()
+    if not target_cid:
         return abort(403)
 
-    college_setting = models.CollegeSetting.query.filter_by(college_id=current_user.college_id).first()
+    college_setting = models.CollegeSetting.query.filter_by(college_id=target_cid).first()
     if not college_setting:
-        college_setting = models.CollegeSetting(college_id=current_user.college_id)
+        college_setting = models.CollegeSetting(college_id=target_cid)
         db.session.add(college_setting)
 
     college_name = request.form.get('college_name', '').strip()
@@ -2016,6 +2283,7 @@ def admin_update_settings():
 @app.route('/admin/announcement/add', methods=['POST'])
 @module_admin_required('news_events')
 def admin_add_announcement():
+    target_cid = get_effective_admin_college_id()
     title = request.form.get('title', '').strip()
     category = request.form.get('category', 'Announcements').strip()
     content = request.form.get('content', '').strip()
@@ -2025,7 +2293,7 @@ def admin_add_announcement():
         return redirect(url_for('admin'))
 
     new_post = models.ForumPost(
-        college_id=current_user.college_id,
+        college_id=target_cid,
         author=getattr(current_user, 'email', 'College Administration Desk'),
         title=title,
         category=category,
@@ -2040,7 +2308,8 @@ def admin_add_announcement():
 @app.route('/admin/announcement/delete/<int:post_id>', methods=['POST'])
 @module_admin_required('news_events')
 def admin_delete_announcement(post_id):
-    post = models.ForumPost.query.filter_by(id=post_id, college_id=current_user.college_id).first_or_404()
+    target_cid = get_effective_admin_college_id()
+    post = models.ForumPost.query.filter_by(id=post_id, college_id=target_cid).first_or_404()
     title = post.title
     db.session.delete(post)
     db.session.commit()
@@ -2055,7 +2324,7 @@ def download_paper(filename):
         flash("⚠️ Examination Question Paper Repository is currently disabled site-wide by Super Admin.", "warning")
         return redirect(url_for('index'))
 
-    college = get_default_college()
+    college = get_current_college()
     paper = models.QuestionPaper.query.join(models.Course).filter(
         models.Course.college_id == college.id,
         models.QuestionPaper.filename == filename
@@ -2095,16 +2364,17 @@ def admin_add_faculty_member():
         return redirect(url_for('admin'))
 
     saved_photo_name = None
+    target_cid = get_effective_admin_college_id()
     if photo_file and photo_file.filename:
-        success, filename_or_err = validate_and_save_image(photo_file, current_user.college_id, 'faculty')
+        success, filename_or_err = validate_and_save_image(photo_file, target_cid, 'faculty')
         if not success:
             flash(f"⚠️ Faculty Photo Error: {filename_or_err}", "warning")
             return redirect(url_for('admin'))
         saved_photo_name = filename_or_err
 
-    max_order = db.session.query(db.func.max(models.FacultyMember.display_order)).filter_by(college_id=current_user.college_id).scalar() or 0
+    max_order = db.session.query(db.func.max(models.FacultyMember.display_order)).filter_by(college_id=target_cid).scalar() or 0
     faculty = models.FacultyMember(
-        college_id=current_user.college_id,
+        college_id=target_cid,
         name=name,
         designation=designation,
         department_code=department_code,
@@ -2126,10 +2396,11 @@ def admin_add_faculty_member():
 @app.route('/admin/faculty/delete/<int:faculty_id>', methods=['POST'])
 @module_admin_required('academics')
 def admin_delete_faculty_member(faculty_id):
-    faculty = models.FacultyMember.query.filter_by(id=faculty_id, college_id=current_user.college_id).first_or_404()
+    target_cid = get_effective_admin_college_id()
+    faculty = models.FacultyMember.query.filter_by(id=faculty_id, college_id=target_cid).first_or_404()
     
     if faculty.photo_url:
-        safe_delete_tenant_file(current_user.college_id, 'faculty', faculty.photo_url)
+        safe_delete_tenant_file(target_cid, 'faculty', faculty.photo_url)
 
     db.session.delete(faculty)
     db.session.commit()
@@ -2162,15 +2433,16 @@ def admin_add_placement_drive():
         status = 'UPCOMING'
 
     saved_logo_name = None
+    target_cid = get_effective_admin_college_id()
     if logo_file and logo_file.filename:
-        success, filename_or_err = validate_and_save_image(logo_file, current_user.college_id, 'placements')
+        success, filename_or_err = validate_and_save_image(logo_file, target_cid, 'placements')
         if not success:
             flash(f"⚠️ Recruiter Logo Error: {filename_or_err}", "warning")
             return redirect(url_for('admin'))
         saved_logo_name = filename_or_err
 
     drive = models.PlacementDrive(
-        college_id=current_user.college_id,
+        college_id=target_cid,
         company_name=company_name,
         company_logo=saved_logo_name,
         role_offered=role_offered,
@@ -2192,10 +2464,11 @@ def admin_add_placement_drive():
 @app.route('/admin/placement-drive/delete/<int:drive_id>', methods=['POST'])
 @module_admin_required('placements')
 def admin_delete_placement_drive(drive_id):
-    drive = models.PlacementDrive.query.filter_by(id=drive_id, college_id=current_user.college_id).first_or_404()
+    target_cid = get_effective_admin_college_id()
+    drive = models.PlacementDrive.query.filter_by(id=drive_id, college_id=target_cid).first_or_404()
     
     if drive.company_logo:
-        safe_delete_tenant_file(current_user.college_id, 'placements', drive.company_logo)
+        safe_delete_tenant_file(target_cid, 'placements', drive.company_logo)
 
     db.session.delete(drive)
     db.session.commit()
@@ -2296,7 +2569,8 @@ def submit_student_document_request():
 @app.route('/admin/document-request/status/<int:req_id>', methods=['POST'])
 @module_admin_required('admission')
 def admin_update_document_request_status(req_id):
-    req_item = models.StudentDocumentRequest.query.filter_by(id=req_id, college_id=current_user.college_id).first_or_404()
+    target_cid = get_effective_admin_college_id()
+    req_item = models.StudentDocumentRequest.query.filter_by(id=req_id, college_id=target_cid).first_or_404()
     
     new_status = request.form.get('status', '').strip().upper()
     admin_remarks = request.form.get('admin_remarks', '').strip()
@@ -2328,7 +2602,7 @@ def admin_update_document_request_status(req_id):
 @app.route('/events/register/<int:event_id>', methods=['POST'])
 @rate_limit(limit=10, period=3600, scope='event_register')
 def register_campus_event(event_id):
-    college = get_default_college()
+    college = get_current_college()
     event = models.CampusEvent.query.filter_by(id=event_id, college_id=college.id).first_or_404()
 
     name = request.form.get('participant_name', '').strip()
@@ -2455,7 +2729,7 @@ def student_login():
     if session.get('student_access'):
         return redirect(url_for('student_dashboard'))
 
-    college = get_default_college()
+    college = get_current_college()
 
     if request.method == 'POST':
         login_id = request.form.get('login_id', '').strip()
@@ -2490,7 +2764,8 @@ def student_login():
         flash(f"🎓 Welcome back, {student.full_name}! (Reg No: {student.register_number})", "success")
         return redirect(url_for('student_dashboard'))
 
-    return render_template('login.html', is_student_login=True, title="Student Portal Login - Seshadripuram College")
+    c_name = college.name if college else "College Management"
+    return render_template('login.html', is_student_login=True, title=f"Student Portal Login - {c_name}")
 
 
 @app.route('/student/logout')
@@ -2519,7 +2794,7 @@ def student_dashboard():
         flash("⚠️ Account Suspended: Please contact Registrar Office.", "warning")
         return abort(403)
 
-    college = get_default_college()
+    college = models.College.query.get(student.college_id) or get_current_college()
     course = models.Course.query.filter_by(college_id=college.id, code=student.course_code).first()
 
     subjects = []

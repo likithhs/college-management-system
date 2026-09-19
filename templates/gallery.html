@@ -3,7 +3,7 @@
 {% block content %}
 <section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4 text-center" data-aos="fade-down">
-        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Life at Seshadripuram</span>
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Life at {{ settings.short_name if (settings and settings.short_name) else (settings.college_name if (settings and settings.college_name) else "Campus") }}</span>
         <h1 class="text-3xl md:text-5xl font-black mt-3">Campus Gallery & Event Archives</h1>
         <p class="text-sm text-slate-300 max-w-xl mx-auto mt-2">Highlights from tech symposiums, sports tournaments, cultural festivals, and graduation ceremonies.</p>
     </div>

@@ -1,23 +1,239 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    /* Absolute high contrast & guaranteed visibility for all form controls */
+    #branding-editor input,
+    #branding-editor textarea,
+    #branding-editor select,
+    #onboardCollegeModal input,
+    #onboardCollegeModal select {
+        background-color: #0f172a !important; /* solid deep slate-900 */
+        color: #ffffff !important; /* bright white text */
+        border: 2px solid #475569 !important; /* clearly visible slate-600 border */
+        font-size: 0.875rem !important; /* 14px */
+        line-height: 1.25rem !important;
+        font-weight: 500 !important;
+        caret-color: #f59e0b !important; /* high-contrast amber caret */
+    }
+    #branding-editor input:focus,
+    #branding-editor textarea:focus,
+    #branding-editor select:focus,
+    #onboardCollegeModal input:focus,
+    #onboardCollegeModal select:focus {
+        background-color: #020617 !important; /* slate-950 on active typing */
+        border-color: #f59e0b !important; /* bright amber border */
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3) !important;
+        outline: none !important;
+        color: #ffffff !important;
+    }
+    #branding-editor input::placeholder,
+    #branding-editor textarea::placeholder,
+    #onboardCollegeModal input::placeholder {
+        color: #94a3b8 !important; /* slate-400 */
+        opacity: 1 !important;
+    }
+    /* WebKit browser autofill styling */
+    #branding-editor input:-webkit-autofill,
+    #branding-editor input:-webkit-autofill:hover,
+    #branding-editor input:-webkit-autofill:focus,
+    #branding-editor textarea:-webkit-autofill,
+    #onboardCollegeModal input:-webkit-autofill {
+        -webkit-text-fill-color: #ffffff !important;
+        -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important;
+        box-shadow: 0 0 0px 1000px #0f172a inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+</style>
 <section class="bg-slate-950 text-white min-h-[85vh] py-10 px-4">
     <div class="max-w-7xl mx-auto space-y-8">
         
-        <!-- Header Banner -->
-        <div class="border-b border-slate-800 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4" data-aos="fade-down">
+        <!-- Header Banner & Multi-College Hub -->
+        <div class="border-b border-slate-800 pb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6" data-aos="fade-down">
             <div>
-                <span class="bg-amber-500/20 text-amber-300 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase border border-amber-400/30 tracking-widest">
-                    <i class="fa-solid fa-crown mr-1"></i> Root Super Admin Control
-                </span>
-                <h1 class="text-3xl font-black tracking-tight text-white mt-2">SUPER ADMIN - MODULE CONTROL MATRIX</h1>
-                <p class="text-xs text-slate-400 mt-1">Master control to toggle modules, public view, and Admin access permissions.</p>
+                <div class="flex items-center gap-2">
+                    <span class="bg-amber-500/20 text-amber-300 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase border border-amber-400/30 tracking-widest">
+                        <i class="fa-solid fa-crown mr-1"></i> Root Super Admin Control
+                    </span>
+                    <span class="bg-blue-500/20 text-blue-300 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase border border-blue-400/30 tracking-widest">
+                        <i class="fa-solid fa-layer-group mr-1"></i> Multi-Tenant Architecture
+                    </span>
+                </div>
+                <h1 class="text-3xl font-black tracking-tight text-white mt-2">SUPER ADMIN - INSTITUTIONAL HUB & MODULE MATRIX</h1>
+                <p class="text-xs text-slate-400 mt-1">Configure white-label branding, principal details, contact info, and module access separately per college client.</p>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ url_for('admin') }}" class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md">
-                    <i class="fa-solid fa-user-gear"></i> Open College Admin View
+
+            <!-- Action Hub -->
+            <div class="flex flex-wrap items-center gap-3 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+                <a href="{{ url_for('view_college_portal', slug=active_college.slug) if active_college else url_for('index') }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-700 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-blue-400"></i> View Website
+                </a>
+
+                <a href="{{ url_for('admin') }}" class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-user-gear"></i> College Admin Portal
                 </a>
             </div>
+        </div>
+
+        <!-- Institutional Identity & White-Label Customization -->
+        <div id="branding-editor" class="bg-slate-900/90 rounded-3xl border border-amber-500/40 shadow-2xl p-6 md:p-8 space-y-6" data-aos="fade-up">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-5 gap-4">
+                <div>
+                    <span class="bg-amber-500/20 text-amber-300 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase border border-amber-400/30 tracking-widest">
+                        <i class="fa-solid fa-palette mr-1"></i> Institutional Identity & Branding
+                    </span>
+                    <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-amber-400"></i> Institutional Identity & Branding Editor
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Editing settings for: <span class="text-amber-300 font-bold text-sm">{{ active_college.name }}</span>. Changes update the database and website directly without modifying any code.
+                    </p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('superadmin_update_settings') }}" method="POST" class="space-y-8">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="college_id" value="{{ active_college.id }}">
+
+                <!-- Section 1: Institutional Profile & Accreditations -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-2">
+                        <i class="fa-solid fa-landmark"></i> 1. Institutional Profile & University Affiliation
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Official College Legal Name *</label>
+                            <input type="text" name="college_name" value="{{ college_setting.college_name if college_setting else active_college.name }}" required placeholder="e.g. Seshadripuram College / Christ College" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Short Name / Code</label>
+                            <input type="text" name="short_name" value="{{ college_setting.short_name if college_setting and college_setting.short_name else '' }}" placeholder="e.g. SC / CC / SJC" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">University Affiliation</label>
+                            <input type="text" name="affiliation" value="{{ college_setting.affiliation if college_setting and college_setting.affiliation else '' }}" placeholder="e.g. Affiliated to Bengaluru City University" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">NAAC / Accreditation Badge</label>
+                            <input type="text" name="accreditation" value="{{ college_setting.accreditation if college_setting and college_setting.accreditation else '' }}" placeholder="e.g. NAAC Accredited 'A++' Grade" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Established Year</label>
+                            <input type="text" name="est_year" value="{{ college_setting.est_year if college_setting and college_setting.est_year else '1973' }}" placeholder="e.g. 1973" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Alumni Network Count</label>
+                            <input type="text" name="alumni_count" value="{{ college_setting.alumni_count if college_setting and college_setting.alumni_count else '45,000+' }}" placeholder="e.g. 45,000+" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Institutional Tagline</label>
+                            <input type="text" name="tagline" value="{{ college_setting.tagline if college_setting and college_setting.tagline else '' }}" placeholder="e.g. Shaping Futures, Building Leaders Since 1973" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Leadership & Governing Trust -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-2">
+                        <i class="fa-solid fa-user-tie"></i> 2. Principal & Governing Leadership
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Principal Full Name *</label>
+                            <input type="text" name="principal_name" value="{{ college_setting.principal_name if college_setting and college_setting.principal_name else '' }}" placeholder="e.g. Dr. Meera K. Rao" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Principal Designation & Degrees</label>
+                            <input type="text" name="principal_title" value="{{ college_setting.principal_title if college_setting and college_setting.principal_title else '' }}" placeholder="e.g. M.Com, M.Phil, Ph.D, Principal" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Sponsoring Trust / Society Name</label>
+                            <input type="text" name="trust_name" value="{{ college_setting.trust_name if college_setting and college_setting.trust_name else '' }}" placeholder="e.g. Seshadripuram Educational Trust" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Trust President / Patron</label>
+                            <input type="text" name="trust_president" value="{{ college_setting.trust_president if college_setting and college_setting.trust_president else '' }}" placeholder="e.g. N. R. Panditharadhya" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Trustee / General Secretary</label>
+                            <input type="text" name="trustee_name" value="{{ college_setting.trustee_name if college_setting and college_setting.trustee_name else '' }}" placeholder="e.g. Dr. Wooday P. Krishna" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Principal's Official Message / Desk Quote</label>
+                            <textarea name="principal_message" rows="3" placeholder="e.g. Welcome to our vibrant community dedicated to fostering innovation..." class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">{{ college_setting.principal_message if college_setting and college_setting.principal_message else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Contact, Campus & Map -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-2">
+                        <i class="fa-solid fa-map-location-dot"></i> 3. Campus Address & Contact Details
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">General Inquiries Email *</label>
+                            <input type="email" name="email_info" value="{{ college_setting.email_info if college_setting and college_setting.email_info else '' }}" placeholder="e.g. info@college.ac.in" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Admissions Desk Email</label>
+                            <input type="email" name="admissions_email" value="{{ college_setting.admissions_email if college_setting and college_setting.admissions_email else '' }}" placeholder="e.g. admissions@college.ac.in" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Main Helpdesk Phone</label>
+                            <input type="text" name="phone_primary" value="{{ college_setting.phone_primary if college_setting and college_setting.phone_primary else '' }}" placeholder="e.g. +91 80 2295 5354" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Campus Street Address</label>
+                            <input type="text" name="address" value="{{ college_setting.address if college_setting and college_setting.address else '' }}" placeholder="e.g. #27, Nagappa Street, Seshadripuram" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">City</label>
+                            <input type="text" name="city" value="{{ college_setting.city if college_setting and college_setting.city else 'Bengaluru' }}" placeholder="e.g. Bengaluru" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">State & Pincode</label>
+                            <input type="text" name="state_pincode" value="{{ college_setting.state_pincode if college_setting and college_setting.state_pincode else 'Karnataka - 560020' }}" placeholder="e.g. Karnataka - 560020" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Google Maps Embed Query</label>
+                            <input type="text" name="map_query" value="{{ college_setting.map_query if college_setting and college_setting.map_query else '' }}" placeholder="e.g. Seshadripuram College Nagappa Street Bengaluru" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                            <p class="text-[10px] text-slate-400 mt-1">Used to automatically position the interactive Google Map on the public Contact and Footer pages.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Homepage Hero & Story -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-2">
+                        <i class="fa-solid fa-bullhorn"></i> 4. Homepage Headline & About Us Story
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Homepage Hero Main Headline</label>
+                            <input type="text" name="hero_title" value="{{ college_setting.hero_title if college_setting and college_setting.hero_title else '' }}" placeholder="e.g. Empowering Next-Gen Global Leaders" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">Homepage Hero Subtitle</label>
+                            <input type="text" name="hero_subtitle" value="{{ college_setting.hero_subtitle if college_setting and college_setting.hero_subtitle else '' }}" placeholder="e.g. Experience world-class commerce, management and computing education..." class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-300 mb-1.5">About Us Institutional Story / Heritage Narrative</label>
+                            <textarea name="about_story" rows="4" placeholder="Tell the institution's history, vision, mission, and milestones..." class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-600 text-white font-semibold text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:bg-slate-950 transition-all">{{ college_setting.about_story if college_setting and college_setting.about_story else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Changes CTA -->
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900 p-5 rounded-2xl border border-slate-700 gap-4">
+                    <div class="text-xs text-slate-400">
+                        <i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Changes will immediately take effect for <strong>{{ active_college.name }}</strong> without affecting other colleges.
+                    </div>
+                    <button type="submit" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk text-sm"></i> Save All Institutional Changes
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Super Admin Control Table Matrix (Matching photo layout) -->
@@ -34,7 +250,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-800/80">
                         {% for key, mod in modules.items() %}
-                        <tr class="hover:bg-slate-850/80 transition-colors">
+                        <tr class="hover:bg-slate-800/80 transition-colors">
                             <!-- Module Name -->
                             <td class="py-4 px-6 font-bold text-sm text-white">
                                 {{ mod.name }}
@@ -98,7 +314,7 @@
             </div>
 
             <!-- Add Gallery Photo Form -->
-            <form action="{{ url_for('gallery_add') }}" method="POST" class="bg-slate-850 p-6 rounded-2xl border border-slate-700/80 space-y-4">
+            <form action="{{ url_for('gallery_add') }}" method="POST" class="bg-slate-900 p-6 rounded-2xl border border-slate-700/80 space-y-4">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-plus-circle text-emerald-400"></i> Add New Image to Gallery
@@ -173,7 +389,7 @@
             </div>
 
             <!-- Start New Discussion Form -->
-            <form action="{{ url_for('forum') }}" method="POST" class="bg-slate-850 p-6 rounded-2xl border border-slate-700/80 space-y-4">
+            <form action="{{ url_for('forum') }}" method="POST" class="bg-slate-900 p-6 rounded-2xl border border-slate-700/80 space-y-4">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-plus-circle text-emerald-400"></i> Start New Official Discussion Topic
@@ -216,8 +432,97 @@
             </h4>
             <p>1. Disabling a module turns off public view site-wide instantly.</p>
             <p>2. Revoking Admin Access removes authority for College Admins to edit or view that module within the College Admin Portal (`/admin`).</p>
+            <p>3. White-label institutional modifications are completely scoped to the selected Active College and will never affect other colleges.</p>
         </div>
 
     </div>
 </section>
+
+<!-- Modal: Onboard New College -->
+<div id="onboardCollegeModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/50 rounded-3xl max-w-xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative">
+        <button type="button" onclick="closeOnboardModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white text-lg">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="border-b border-slate-800 pb-4">
+            <span class="bg-emerald-500/20 text-emerald-300 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase border border-emerald-400/30 tracking-widest">
+                <i class="fa-solid fa-plus-circle mr-1"></i> Commercial Multi-Tenant Expansion
+            </span>
+            <h3 class="text-xl font-black text-white mt-2 flex items-center gap-2">
+                <i class="fa-solid fa-building-columns text-emerald-400"></i> Onboard New College Client
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">Register a new institution with dedicated database isolation, branding settings, and initial admin credentials.</p>
+        </div>
+
+        <form action="{{ url_for('superadmin_create_college') }}" method="POST" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">College Legal Name *</label>
+                <input type="text" name="name" required placeholder="e.g. Christ College" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">URL Identifier / Slug *</label>
+                    <input type="text" name="slug" required placeholder="e.g. christ-college" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Direct portal URL: /c/&lt;slug&gt;</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">University Affiliation</label>
+                    <input type="text" name="affiliation" placeholder="e.g. Bengaluru City University" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Principal Full Name</label>
+                    <input type="text" name="principal_name" placeholder="e.g. Dr. Thomas C. Mathew" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Official Info Email</label>
+                    <input type="email" name="email_info" placeholder="e.g. info@christcollege.edu" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+                </div>
+            </div>
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700 space-y-3">
+                <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Initial College Admin Login</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Email *</label>
+                        <input type="email" name="admin_email" required placeholder="e.g. admin@christcollege.edu" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Password *</label>
+                        <input type="password" name="admin_password" required placeholder="Temporary password" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400">
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-3">
+                <button type="button" onclick="closeOnboardModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-black text-white shadow-lg transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-rocket"></i> Create College Tenant
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Hidden Form for College Switching -->
+<form id="switchCollegeForm" method="POST" action="" class="hidden">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+</form>
+
+<script>
+function switchCollege(collegeId) {
+    if (!collegeId) return;
+    const form = document.getElementById('switchCollegeForm');
+    form.action = `/superadmin/switch-college/${collegeId}`;
+    form.submit();
+}
+function openOnboardModal() {
+    document.getElementById('onboardCollegeModal').classList.remove('hidden');
+}
+function closeOnboardModal() {
+    document.getElementById('onboardCollegeModal').classList.add('hidden');
+}
+</script>
 {% endblock %}

@@ -46,7 +46,7 @@
     <div class="max-w-7xl mx-auto px-4 space-y-12">
         <div class="text-center max-w-xl mx-auto" data-aos="fade-up">
             <h2 class="text-2xl font-extrabold text-navy-900 dark:text-white">Our Esteemed Corporate Partners</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Leading MNCs that regularly conduct campus recruitment drives at Seshadripuram College.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Leading MNCs that regularly conduct campus recruitment drives at {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "our college") }}.</p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

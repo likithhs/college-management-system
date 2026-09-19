@@ -5,7 +5,7 @@
 <section class="bg-gradient-to-r from-navy-900 via-blue-900 to-navy-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4" data-aos="fade-down">
         <span class="text-xs font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Admissions 2026-27</span>
-        <h1 class="text-3xl md:text-4xl font-black mt-3">Join Seshadripuram College</h1>
+        <h1 class="text-3xl md:text-4xl font-black mt-3">Join {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "Our College") }}</h1>
         <p class="text-sm text-slate-300 max-w-2xl mt-2">Comprehensive admission guidelines, eligibility metrics, document requirements, and fee structure for the academic session 2026-27.</p>
     </div>
 </section>

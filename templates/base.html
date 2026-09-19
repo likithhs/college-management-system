@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title if title else "Seshadripuram College - Excellence in Higher Education" }}</title>
-    <meta name="description" content="Seshadripuram College, Bengaluru - NAAC A++ Accredited. Offering premier UG & PG degrees: BCA, BBA, BCom, BA, BSc, MCA, MBA, MCom, MSc. Admissions open 2026-27.">
+    <title>{{ title if title else ((settings.college_name if (settings and settings.college_name) else (college.name if college else "College Management")) ~ " - Excellence in Higher Education") }}</title>
+    <meta name="description" content="{{ settings.college_name if (settings and settings.college_name) else (college.name if college else 'College Management') }} - {{ settings.accreditation if (settings and settings.accreditation) else 'NAAC Accredited' }}. Offering premier UG & PG degrees: BCA, BBA, BCom, BA, BSc, MCA, MBA, MCom, MSc. Admissions open 2026-27.">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,6 +22,9 @@
                             400: '#fbbf24',
                             500: '#f59e0b',
                             600: '#d97706',
+                        },
+                        slate: {
+                            850: '#151f32',
                         }
                     }
                 }
@@ -73,6 +76,28 @@
       {% endif %}
     {% endwith %}
 
+    <!-- 0. SUPER ADMIN FRONT-END EDIT BAR (Always visible to Super Admin across all pages) -->
+    {% if current_user.is_authenticated and current_user.is_super_admin %}
+    <div class="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 font-bold px-5 sm:px-8 lg:px-12 py-2 flex flex-wrap justify-between items-center text-xs shadow-md border-b border-amber-600 relative z-50">
+        <div class="flex items-center gap-2">
+            <span class="bg-slate-950 text-amber-300 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-crown text-amber-400"></i> Super Admin Mode
+            </span>
+            <span class="text-xs font-black text-slate-950 hidden sm:inline">
+                Managing: <span class="underline">{{ settings.college_name if settings else (college.name if college else "College Portal") }}</span>
+            </span>
+        </div>
+        <div class="flex items-center gap-2.5 ml-auto sm:ml-0">
+            <a href="{{ url_for('superadmin') }}" class="bg-slate-950 hover:bg-slate-900 text-amber-300 hover:text-white font-black px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md border border-slate-800">
+                <i class="fa-solid fa-pen-to-square text-amber-400"></i> Edit College Details & Name
+            </a>
+            <a href="{{ url_for('admin') }}" class="bg-slate-900/80 hover:bg-slate-950 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1">
+                <i class="fa-solid fa-user-gear"></i> College Admin
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 1. TOP HEADER BAR — Logo extreme-left, Login extreme-right -->
     <header class="bg-navy-900 text-white sticky top-0 z-40 shadow-lg">
         <!-- Primary Header Row -->
@@ -109,6 +134,12 @@
                 <span class="hidden md:inline-block text-slate-700">|</span>
                 <a href="{{ url_for('contact') }}" class="hidden md:inline-block text-xs text-slate-300 hover:text-yellow-400 transition-colors">Contact</a>
                 {% if current_user.is_authenticated %}
+                {% if current_user.is_super_admin %}
+                <a href="{{ url_for('superadmin') }}" class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-black px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-md transition-all">
+                    <i class="fa-solid fa-pen-to-square text-[10px] sm:text-xs"></i>
+                    <span>Edit Option</span>
+                </a>
+                {% endif %}
                 <a href="{{ url_for('logout') }}" class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all">
                     <i class="fa-solid fa-right-from-bracket text-[10px] sm:text-xs"></i>
                     <span>Logout</span>
@@ -131,7 +162,7 @@
                 <div class="ticker-move flex gap-8 whitespace-nowrap">
                     <span class="whitespace-nowrap">🎓 Admissions Open For Academic Session 2026-27 | Apply Now for UG (BCA, BBA, BCom, BA, BSc) & PG (MCA, MBA, MCom, MSc) Programs!</span>
                     <span class="whitespace-nowrap">📄 Previous Exam Question Papers for BCA, MCA, MBA, BCom now live on Course Details pages!</span>
-                    <span class="whitespace-nowrap">🚀 Join the Seshadripuram Campus Community Forum for peer discussions & alumni networking!</span>
+                    <span class="whitespace-nowrap">🚀 Join the {{ settings.short_name if (settings and settings.short_name) else (settings.college_name if (settings and settings.college_name) else "Campus") }} Community Forum for peer discussions & alumni networking!</span>
                 </div>
             </div>
         </div>
@@ -191,6 +222,12 @@
                 {% endif %}
                 {% if modules['students_corner'].enabled %}
                 <a href="{{ url_for('students_corner') }}" class="nav-link hover:text-navy-900 py-1.5 {{ 'active' if request.endpoint == 'students_corner' }}">Students Corner</a>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.is_super_admin %}
+                <a href="{{ url_for('superadmin') }}" class="nav-link text-amber-700 font-black py-1.5 flex items-center gap-1.5 bg-amber-50 px-3.5 rounded-xl border border-amber-300 shadow-sm hover:bg-amber-100 hover:text-amber-900 transition-all">
+                    <i class="fa-solid fa-pen-to-square text-amber-600"></i> Edit Option
+                </a>
                 {% endif %}
             </div>
 
@@ -276,6 +313,11 @@
             {% if modules['students_corner'].enabled %}
             <a href="{{ url_for('students_corner') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors {{ 'active' if request.endpoint == 'students_corner' }}">
                 <i class="fa-solid fa-user-graduate mr-2 text-xs"></i>Students Corner
+            </a>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.is_super_admin %}
+            <a href="{{ url_for('superadmin') }}" class="mobile-nav-link block px-3 py-2.5 rounded-lg font-black text-amber-900 bg-amber-100 border border-amber-300 transition-colors">
+                <i class="fa-solid fa-pen-to-square mr-2 text-xs text-amber-600"></i>Edit Option (Super Admin)
             </a>
             {% endif %}
             {% if modules['forum'].enabled %}
@@ -387,15 +429,17 @@
 
     <!-- ============ LOCATION MAP SECTION (Shown ONLY on Home and Contact pages) ============ -->
     {% if request.endpoint in ['index', 'contact'] %}
+    {% set college_display_name = settings.college_name if (settings and settings.college_name) else (college.name if college else "College Management") %}
+    {% set map_query_val = settings.map_query if (settings and settings.map_query) else (college_display_name ~ ' ' ~ (settings.city if (settings and settings.city) else 'Bengaluru')) %}
     <section class="location-map-section relative w-full" style="height: 420px;" id="campus-map">
         <!-- Embedded Google Map (full width) -->
         <iframe
-            src="https://maps.google.com/maps?q=Seshadripuram%20College,%20Seshadripuram,%20Bengaluru,%20Karnataka%20560020&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            src="https://maps.google.com/maps?q={{ map_query_val|urlencode }}&t=&z=15&ie=UTF8&iwloc=&output=embed"
             class="absolute inset-0 w-full h-full border-0"
             allowfullscreen=""
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
-            title="Seshadripuram College Location Map"
+            title="{{ college_display_name }} Location Map"
             style="filter: saturate(0.9) contrast(1.05);"
         ></iframe>
 
@@ -406,21 +450,21 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">Seshadripuram College</h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">NAAC A++ Accredited</p>
+                    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">{{ college_display_name }}</h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ settings.accreditation if (settings and settings.accreditation) else "Recognized & Accredited" }}</p>
                 </div>
             </div>
             <div class="flex items-start gap-2 mb-3">
                 <i class="fa-solid fa-location-dot text-red-500 text-sm mt-0.5 flex-shrink-0"></i>
                 <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Seshadripuram, Bengaluru 560020,<br>Karnataka, India
+                    {{ settings.address if (settings and settings.address) else "Campus Main Road" }}<br>{{ settings.city if (settings and settings.city) else "" }} {{ settings.state_pincode if (settings and settings.state_pincode) else "" }}
                 </p>
             </div>
             <div class="flex items-center gap-2 mb-4 text-[11px] text-slate-500 dark:text-slate-400">
                 <i class="fa-solid fa-phone text-blue-500 text-[10px]"></i>
-                <span>+91 6363179389</span>
+                <span>{{ settings.phone_primary if (settings and settings.phone_primary) else "+91 80 1234 5678" }}</span>
             </div>
-            <a href="https://www.google.com/maps/search/Seshadripuram+College+Bengaluru" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.google.com/maps/search/{{ map_query_val|urlencode }}" target="_blank" rel="noopener noreferrer"
                class="location-card-btn">
                 <i class="fa-solid fa-diamond-turn-right"></i>
                 <span>Get Directions</span>
@@ -531,7 +575,7 @@
         <!-- Sub-footer copyright -->
         <div class="border-t border-slate-900 bg-black/40 py-4 text-center text-xs text-slate-500">
             <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-                <p>&copy; 2026 {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "Seshadripuram College") }}. All Rights Reserved. Affiliated to Bengaluru City University.</p>
+                <p>&copy; 2026 {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "College Management") }}. All Rights Reserved. {{ settings.affiliation if (settings and settings.affiliation) else "Affiliated to Bengaluru City University" }}.</p>
                 <div class="flex gap-4">
                     <a href="#" class="hover:underline">Privacy Policy</a>
                     <a href="#" class="hover:underline">Terms of Service</a>

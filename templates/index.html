@@ -32,6 +32,11 @@
                 Read More
             </a>
             {% endif %}
+            {% if current_user.is_authenticated and current_user.is_super_admin %}
+            <a href="{{ url_for('superadmin') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 text-sm border-2 border-amber-300">
+                <i class="fa-solid fa-pen-to-square"></i> Edit College Details
+            </a>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -44,7 +49,7 @@
         <div class="text-center max-w-2xl mx-auto mb-12" data-aos="fade-up">
             <span class="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Why Choose Us</span>
             <h2 class="text-3xl font-extrabold text-navy-900 mt-3">Key Pillars & Institutional Highlights</h2>
-            <p class="text-sm text-slate-500 mt-2">Discover the foundational strengths that make Seshadripuram College a leader in higher education.</p>
+            <p class="text-sm text-slate-500 mt-2">Discover the foundational strengths that make {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "our college") }} a leader in higher education.</p>
         </div>
 
         <!-- Highlights 3 Columns Grid -->
@@ -114,16 +119,30 @@
                     <span class="bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-amber-400/30">
                         PRINCIPAL'S MESSAGE
                     </span>
-                    <h4 class="text-lg font-bold text-white mt-2">Dr. M. Prakash</h4>
-                    <p class="text-xs text-slate-400">MCom, PhD, Principal</p>
+                    <h4 class="text-lg font-bold text-white mt-2">{{ settings.principal_name if (settings and settings.principal_name) else "Dr. Principal" }}</h4>
+                    <p class="text-xs text-slate-400">{{ settings.principal_title if (settings and settings.principal_title) else "Head of Institution" }}</p>
                 </div>
 
                 <!-- Principal Quote Text -->
                 <div class="lg:col-span-8 space-y-4">
                     <i class="fa-solid fa-quote-left text-4xl text-amber-400/30"></i>
                     <blockquote class="text-sm md:text-base text-slate-200 leading-relaxed italic">
-                        "Welcome to Seshadripuram College, an institution committed to nurturing intellect, ethics, and leadership in every student. For over two decades, our college has stood as a beacon of academic excellence, holistic education, and cultural vibrancy. We believe that true education extends beyond textbooks to embrace critical thinking, technological innovation, and strong moral character. Our dedicated faculty, state-of-the-art infrastructure, and robust industry partnerships ensure that our graduates are well-equipped to excel in the global arena. As you embark on this transformative educational journey with us, we invite you to explore your passions, build lifelong friendships, and shape a bright, successful future. Together, let us continue to strive for excellence, innovation, and service to society."
+                        {% if settings and settings.principal_message %}
+                            "{{ settings.principal_message }}"
+                        {% else %}
+                            "Welcome to {{ settings.college_name if (settings and settings.college_name) else (college.name if college else 'our college') }}, an institution committed to nurturing intellect, ethics, and leadership in every student. We believe that true education extends beyond textbooks to embrace critical thinking, technological innovation, and strong moral character. Our dedicated faculty, state-of-the-art infrastructure, and robust industry partnerships ensure that our graduates are well-equipped to excel in the global arena."
+                        {% endif %}
                     </blockquote>
+                    {% if current_user.is_authenticated and current_user.is_super_admin %}
+                    <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-xs text-amber-300 font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-crown text-amber-400"></i> Super Admin Mode
+                        </span>
+                        <a href="{{ url_for('superadmin') }}" class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-3.5 py-1.5 rounded-lg shadow transition-all">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Principal & Message
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
 
             </div>
@@ -430,7 +449,7 @@
         <div class="text-center max-w-2xl mx-auto mb-12" data-aos="fade-up">
             <span class="text-xs font-bold text-purple-600 uppercase tracking-widest bg-purple-50 dark:bg-purple-900/30 px-3 py-1 rounded-full">What's Happening</span>
             <h2 class="text-3xl font-extrabold text-navy-900 dark:text-white mt-3">Upcoming Events</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Stay updated with the latest events, fests, and activities at Seshadripuram College.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Stay updated with the latest events, fests, and activities at {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "our college") }}.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

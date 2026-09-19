@@ -9,7 +9,7 @@
             <span class="text-xs text-slate-300">Duration: {{ course.duration }}</span>
         </div>
         <h1 class="text-3xl md:text-5xl font-black">{{ course.code }} - {{ course.name }}</h1>
-        <p class="text-sm text-amber-300 mt-2 font-semibold">Affiliated to {{ course.affiliation }} • Seshadripuram College</p>
+        <p class="text-sm text-amber-300 mt-2 font-semibold">Affiliated to {{ course.affiliation }} • {{ settings.college_name if (settings and settings.college_name) else (college.name if college else "College") }}</p>
     </div>
 </section>
 
